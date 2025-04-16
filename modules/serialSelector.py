@@ -3,6 +3,8 @@ import serial.tools.list_ports
 from .variables import prefferedRadioSerialNumber
 
 def selectUsbPort():
+
+    selectedPort = None
     
     try:
 
@@ -13,15 +15,24 @@ def selectUsbPort():
         if usbPorts:
             
             selectedPort = next((retrievedPort["port"] for retrievedPort in usbPorts if prefferedRadioSerialNumber in retrievedPort.get("hwid")), None)
+        
+        if selectedPort:
 
-            # for port in usbPorts:
+            return selectedPort
+        
+        else: 
 
-            #     if prefferedRadioSerialNumber in port.get("hwid"):
+            txt = "run 'python -m modules.serialSelector -get' to retrieve connected port serial number and add replace in variable.py file"
 
-            #         selectedPort = port["port"]
-            print(f"port description is{selectedPort}")
+    except KeyboardInterrupt:
 
+        return None
+    
+    except serial.SerialException:
+        return None
+    
     except:
-        print ("usbPorts")
+        return None
+    
 if __name__ == "__main__":
     selectUsbPort()
