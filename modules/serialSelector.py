@@ -1,10 +1,19 @@
 import serial
+import argparse
 import serial.tools.list_ports
 from .variables import prefferedRadioSerialNumber
 
 def selectUsbPort():
 
     selectedPort = None
+
+    parser = argparse.ArgumentParser(description="USB Port Selector Script")
+    
+    # Define flags
+    parser.add_argument("-g", "--get", action="store_true", help="Retrieve and display the USB port with the preferred serial number.")
+    
+    # Parse the arguments
+    args = parser.parse_args()
     
     try:
 
@@ -14,6 +23,18 @@ def selectUsbPort():
 
         if usbPorts:
             
+            if args.get or args.g:
+
+                print("serial number starts with ser\n\nAvaialbe serial devices and info are:\n")
+
+                for connectedDevices in usbPorts:
+                    print (connectedDevices)
+
+                print ("\nCopy desired device serial number and replace in variable.py file\n")
+
+                return 
+            
+            # Select the first port number that matches the serial number which idealy would be only one
             selectedPort = next((retrievedPort["port"] for retrievedPort in usbPorts if prefferedRadioSerialNumber in retrievedPort.get("hwid")), None)
         
         if selectedPort:
@@ -23,15 +44,24 @@ def selectUsbPort():
         else: 
 
             txt = "run 'python -m modules.serialSelector -get' to retrieve connected port serial number and add replace in variable.py file"
+            print(txt)
 
     except KeyboardInterrupt:
 
+        txt = "Operation interrupted by the user."
+        print(txt)
         return None
     
-    except serial.SerialException:
+    except serial.SerialException as se:
+
+        txt = f"Serial port error: {se}"
+        print(txt)
         return None
     
-    except:
+    except Exception as e:
+
+        txt = f"Error while selecting serial port: {str(e)}"
+        print(txt)
         return None
     
 if __name__ == "__main__":
