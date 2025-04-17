@@ -23,7 +23,7 @@ def selectUsbPort():
 
         if usbPorts:
             
-            if args.get or args.g:
+            if args.get:
 
                 print("serial number starts with ser\n\nAvaialbe serial devices and info are:\n")
 
@@ -45,6 +45,7 @@ def selectUsbPort():
 
             txt = "run 'python -m modules.serialSelector -get' to retrieve connected port serial number and add replace in variable.py file"
             print(txt)
+            return None
 
     except KeyboardInterrupt:
 
@@ -63,6 +64,19 @@ def selectUsbPort():
         txt = f"Error while selecting serial port: {str(e)}"
         print(txt)
         return None
+    
+def handleUsbDisconnection():
+    
+    usbDetected = False
+
+    while not usbDetected:
+
+        if selectUsbPort() is not None:
+
+            usbDetected = True
+            print ("usb connected")
+
+    # print ("Usb disconnected")
     
 if __name__ == "__main__":
     selectUsbPort()
