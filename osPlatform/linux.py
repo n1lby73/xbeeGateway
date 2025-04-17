@@ -52,5 +52,11 @@ def xbeePolling():
 
         pass
 
+    finally:
+
+        if xbee is not None and xbee.is_open():
+
+            xbee.close()
+
 if __name__ == "__main__":
     xbeePolling()
