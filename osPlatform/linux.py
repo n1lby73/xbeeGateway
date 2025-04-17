@@ -3,12 +3,10 @@ import time
 # from xbee import XBee
 from digi.xbee.devices import XBeeDevice
 from modules.serialSelector import selectUsbPort
-from modules.xbeeData import getNodeId
+# from modules.xbeeData import getNodeId
 from modules.variables import xbeeBaudRate
 
 serialPort = selectUsbPort()
-baudRate = 9600
-
 
 if not serialPort:
 
@@ -20,18 +18,18 @@ def xbeePolling():
 
     try:
 
-        xbee = XBeeDevice(serialPort, baudRate)
+        xbee = XBeeDevice(serialPort, xbeeBaudRate)
         xbee.open()
 
         def dataReceiveCallback(xbeeMessage):
 
             xbeeMacAddress = xbeeMessage.remote_device.get_64bit_addr()
             xbeeRemoteDevice = xbeeMessage.remote_device
-            xbeeNodeIdentifier = xbeeMessage.remote_device.get_node_id()
+            # xbeeNodeIdentifier = getNodeId(xbeeRemoteDevice, xbeeMacAddress, xbee)
             timestamp = xbeeMessage.timestamp
             data = xbeeMessage.data
 
-            print("Received data from %s: %s %s" % (xbeeMacAddress, xbeeNodeIdentifier, data))
+            print("Received data from %s: %s %s" % (xbeeMacAddress, data))
 
         xbee.add_data_received_callback(dataReceiveCallback)
 
