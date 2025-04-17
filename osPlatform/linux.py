@@ -1,10 +1,11 @@
 import sys
 import time
 # from xbee import XBee
+from datetime import datetime
 from digi.xbee.devices import XBeeDevice
 from modules.serialSelector import selectUsbPort
 # from modules.xbeeData import getNodeId
-from modules.variables import xbeeBaudRate
+from modules.variables import xbeeBaudRate, knownXbeeAddress
 
 serialPort = selectUsbPort()
 
@@ -26,10 +27,18 @@ def xbeePolling():
             xbeeMacAddress = xbeeMessage.remote_device.get_64bit_addr()
             xbeeRemoteDevice = xbeeMessage.remote_device
             # xbeeNodeIdentifier = getNodeId(xbeeRemoteDevice, xbeeMacAddress, xbee)
-            timestamp = xbeeMessage.timestamp
+            timestamp = datetime.fromtimestamp(xbeeMessage.timestamp)
             data = xbeeMessage.data
 
-            print("Received data from %s: %s %s" % (xbeeMacAddress, data))
+            if str(xbeeMacAddress) not in knownXbeeAddress:
+
+                print (f"\nNew XBee Address Discovered: {xbeeMacAddress}")
+
+                knownXbeeAddress.append(str(xbeeMacAddress))
+
+                print (f"List of addresses discovered so far is: {knownXbeeAddress}\n")
+
+            print(f"Received data from {xbeeMacAddress} @ {timestamp}: {data}\n")
 
         xbee.add_data_received_callback(dataReceiveCallback)
 
