@@ -1,8 +1,8 @@
-import sys
-import time
+import sys, time
 # from xbee import XBee
 from datetime import datetime
 from digi.xbee.devices import XBeeDevice
+from digi.xbee.exception import XBeeException
 from modules.serialSelector import selectUsbPort
 # from modules.xbeeData import getNodeId
 from modules.variables import xbeeBaudRate, knownXbeeAddress
