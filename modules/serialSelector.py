@@ -1,5 +1,4 @@
-import serial
-import argparse
+import serial, argparse, sys
 import serial.tools.list_ports
 from .variables import prefferedRadioSerialNumber
 
@@ -32,7 +31,7 @@ def selectUsbPort():
 
                 print ("\nCopy desired device serial number and replace in variable.py file\n")
 
-                return 
+                sys.exit(0) 
             
             # Select the first port number that matches the serial number which idealy would be only one
             selectedPort = next((retrievedPort["port"] for retrievedPort in usbPorts if prefferedRadioSerialNumber in retrievedPort.get("hwid")), None)
