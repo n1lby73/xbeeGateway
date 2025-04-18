@@ -40,6 +40,8 @@ def xbeePolling():
 
             print(f"Received data from {xbeeMacAddress} @ {timestamp}: {variables.xbeeData}\n")
 
+            cayenneParse(variables.xbeeData)
+            
         xbee.add_data_received_callback(dataReceiveCallback)
 
         while True:
