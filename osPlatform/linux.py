@@ -5,6 +5,7 @@ from digi.xbee.devices import XBeeDevice
 from digi.xbee.exception import XBeeException
 from modules.serialSelector import selectUsbPort
 from modules.xbeeData import cayenneParse
+from modules.modbus import floatToRegisters, contextManager
 from modules import variables
 
 serialPort = selectUsbPort()
@@ -25,10 +26,10 @@ def xbeePolling():
         def dataReceiveCallback(xbeeMessage):
 
             xbeeMacAddress = xbeeMessage.remote_device.get_64bit_addr()
-            xbeeRemoteDevice = xbeeMessage.remote_device
+            # xbeeRemoteDevice = xbeeMessage.remote_device
             # xbeeNodeIdentifier = getNodeId(xbeeRemoteDevice, xbeeMacAddress, xbee)
             timestamp = datetime.fromtimestamp(xbeeMessage.timestamp)
-            variables.xbeeData = xbeeMessage.data
+            variables.xbeeDataAsByte = xbeeMessage.data
 
             if str(xbeeMacAddress) not in variables.knownXbeeAddress:
 
@@ -38,10 +39,10 @@ def xbeePolling():
 
                 print (f"List of addresses discovered so far is: {variables.knownXbeeAddress}\n")
 
-            print(f"Received data from {xbeeMacAddress} @ {timestamp}: {variables.xbeeData}\n")
+            print(f"Received data from {xbeeMacAddress} @ {timestamp}: {variables.xbeeDataAsByte}\n")
 
-            cayenneParse(variables.xbeeData)
-            
+            cayenneParse(str(xbeeMacAddress), variables.xbeeDataAsByte)
+
         xbee.add_data_received_callback(dataReceiveCallback)
 
         while True:
@@ -60,7 +61,7 @@ def xbeePolling():
 
             xbee.close()
 
-def modbusPolling():
+def modbusPolling(contextValue):
 
 
 
