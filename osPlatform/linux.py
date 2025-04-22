@@ -78,39 +78,71 @@ async def modbusPolling(contextValue):
     while True:
 
         mac, raw_data, ismac = await xbeeQueue.get()
+        # sensorValues, xbeeMac = await cayenneParse(mac, raw_data, ismac)
+        # print (f"sensor value is {type(variables.nextModbusAddressStart)}")
 
         try:
-            await cayenneParse(mac, raw_data, ismac)
 
-            for macAddress, macData in variables.xbeeMacAndDataMap.items():
+            sensorValues, xbeeMac = await cayenneParse(mac, raw_data, ismac)
 
-                sensorValues = macData.get("sensorValues", [])
+            # Assign a block if first time 
+            if xbeeMac not in variables.xbeeAddressModbusMap:
 
-                 # Assign a block if first time
-                if macAddress not in variables.xbeeAddressModbusMap:
-                    variables.xbeeAddressModbusMap[macAddress] = variables.nextModbusAddressStart
-                    variables.nextModbusAddressStart += 50
+                variables.xbeeAddressModbusMap[xbeeMac] = variables.nextModbusAddressStart
+                variables.nextModbusAddressStart += 50  # Reserve 50 registers per device
 
-                # Convert floats to register values
-                register_values = []
-                for val in sensorValues:
-                    register_values.extend(floatToRegisters(val))
+            # variables.xbeeAddressModbusMap[xbeeMac]["sensorValues"] = sensorValues
 
-                # Limit to 20 registers (10 floats)
-                regs = register_values[:20]
-                start_addr = variables.xbeeAddressModbusMap[macAddress]
+            # Convert floats to register values
+            register_values = []
+            for val in sensorValues:
+                register_values.extend(floatToRegisters(val))
+            
+            # Limit to 20 registers (10 floats)
+            regs = register_values[:20]
+            start_addr = variables.xbeeAddressModbusMap[xbeeMac]
+            # Write to Holding (FC3) and Input (FC4) registers
+            # contextValue.setValues(3, start_addr, regs)
+            # contextValue.setValues(4, start_addr, regs)
+            # for i in contextValue:
+            #     print (i)
+            # slave = contextValue.getSlaveContext(0)
+            # slave =contextValue[0]
+            # slave.setValues(3, start_addr, regs)
+            # slave.setValues(4, start_addr, regs)
+            contextValue.setValues(3, start_addr, regs)
+            contextValue.setValues(4, start_addr, regs)
+            # print (f"sensor value is {sensorValues} and mac is {xbeeMac}")
 
-                # Write to Holding (FC3) and Input (FC4) registers
-                # contextValue.setValues(3, start_addr, regs)
-                # contextValue.setValues(4, start_addr, regs)
-                # for i in contextValue:
-                #     print (i)
-                # slave = contextValue.getSlaveContext(0)
-                # slave =contextValue[0]
-                # slave.setValues(3, start_addr, regs)
-                # slave.setValues(4, start_addr, regs)
-                contextValue.setValues(3, start_addr, regs)
-                contextValue.setValues(4, start_addr, regs)
+            # for macAddress, macData in variables.xbeeMacAndDataMap.items():
+
+            #     sensorValues = macData.get("sensorValues", [])
+
+            #      # Assign a block if first time
+            #     if macAddress not in variables.xbeeAddressModbusMap:
+            #         variables.xbeeAddressModbusMap[macAddress] = variables.nextModbusAddressStart
+            #         variables.nextModbusAddressStart += 50
+
+            #     # Convert floats to register values
+            #     register_values = []
+            #     for val in sensorValues:
+            #         register_values.extend(floatToRegisters(val))
+
+            #     # Limit to 20 registers (10 floats)
+            #     regs = register_values[:20]
+            #     start_addr = variables.xbeeAddressModbusMap[macAddress]
+
+            #     # Write to Holding (FC3) and Input (FC4) registers
+            #     # contextValue.setValues(3, start_addr, regs)
+            #     # contextValue.setValues(4, start_addr, regs)
+            #     # for i in contextValue:
+            #     #     print (i)
+            #     # slave = contextValue.getSlaveContext(0)
+            #     # slave =contextValue[0]
+            #     # slave.setValues(3, start_addr, regs)
+            #     # slave.setValues(4, start_addr, regs)
+            #     contextValue.setValues(3, start_addr, regs)
+            #     contextValue.setValues(4, start_addr, regs)
 
         except Exception as e:
             
