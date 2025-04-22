@@ -5,7 +5,7 @@ from .variables import prefferedRadioSerialNumber
 def selectUsbPort(get=False):
 
     selectedPort = None
-    print (get)
+
     try:
 
         ports = list(serial.tools.list_ports.comports())
