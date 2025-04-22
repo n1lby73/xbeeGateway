@@ -12,6 +12,7 @@ from pymodbus.device import ModbusDeviceIdentification
 
 # Async queue to store incoming packets
 xbeeQueue = asyncio.Queue() # Stores recieved mac address and data temporarily for processing
+xbeeMacDataQueue = asyncio.Queue()
 # xbeeDataMacLock = asyncio.Lock()
 serialPort = selectUsbPort()
 
@@ -79,7 +80,7 @@ async def modbusPolling(contextValue):
         mac, raw_data, ismac = await xbeeQueue.get()
 
         try:
-            cayenneParse(mac, raw_data, ismac)
+            await cayenneParse(mac, raw_data, ismac)
 
             for macAddress, macData in variables.xbeeMacAndDataMap.items():
 
@@ -102,11 +103,14 @@ async def modbusPolling(contextValue):
                 # Write to Holding (FC3) and Input (FC4) registers
                 # contextValue.setValues(3, start_addr, regs)
                 # contextValue.setValues(4, start_addr, regs)
-                for i in contextValue:
-                    print (i)
-                slave = contextValue.getSlaveContext(0)
-                slave.setValues(3, start_addr, regs)
-                slave.setValues(4, start_addr, regs)
+                # for i in contextValue:
+                #     print (i)
+                # slave = contextValue.getSlaveContext(0)
+                # slave =contextValue[0]
+                # slave.setValues(3, start_addr, regs)
+                # slave.setValues(4, start_addr, regs)
+                contextValue.setValues(3, start_addr, regs)
+                contextValue.setValues(4, start_addr, regs)
 
         except Exception as e:
             
@@ -114,6 +118,7 @@ async def modbusPolling(contextValue):
 
         finally:
             xbeeQueue.task_done()
+            await asyncio.sleep(0)
         # time.sleep(1)
 
 
