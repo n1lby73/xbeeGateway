@@ -2,18 +2,10 @@ import serial, argparse, sys
 import serial.tools.list_ports
 from .variables import prefferedRadioSerialNumber
 
-def selectUsbPort():
+def selectUsbPort(get=False):
 
     selectedPort = None
-
-    parser = argparse.ArgumentParser(description="USB Port Selector Script")
-    
-    # Define flags
-    parser.add_argument("-g", "--get", action="store_true", help="Retrieve and display the USB port with the preferred serial number.")
-    
-    # Parse the arguments
-    args = parser.parse_args()
-    
+    print (get)
     try:
 
         ports = list(serial.tools.list_ports.comports())
@@ -22,7 +14,7 @@ def selectUsbPort():
 
         if usbPorts:
             
-            if args.get:
+            if get:
 
                 print("serial number starts with ser\n\nAvaialbe serial devices and info are:\n")
 
@@ -64,11 +56,13 @@ def selectUsbPort():
         print(txt)
         return None
     
-def handleUsbDisconnection():
+def handleUsbDisconnection(xbee):
     
     usbDetected = False
-
+    xbee.close()
     while not usbDetected:
+
+        print ("here..............................")
 
         if selectUsbPort() is not None:
 
@@ -78,4 +72,13 @@ def handleUsbDisconnection():
     # print ("Usb disconnected")
     
 if __name__ == "__main__":
-    selectUsbPort()
+
+    parser = argparse.ArgumentParser(description="USB Port Selector Script")
+    
+    # Define flags
+    parser.add_argument("-g", "--get", action="store_true", help="Retrieve and display the USB port with the preferred serial number.")
+    
+    # Parse the arguments
+    args = parser.parse_args()
+
+    selectUsbPort(get=args.get)
