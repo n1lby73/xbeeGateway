@@ -81,7 +81,7 @@
 
 from digi.xbee.devices import RemoteXBeeDevice, XBee64BitAddress
 from python_cayennelpp.decoder import decode
-from .variables import sensorValues
+from .variables import xbeeMacAndDataMap
 
 
 def getNodeId(macAddress, initializedXbee):
@@ -101,32 +101,38 @@ def getNodeId(macAddress, initializedXbee):
 
     return "UNKNOWN"
 
-def cayenneParse(xbeeByteData):
+def cayenneParse(xbeeMacAddress,xbeeByteData, isKnownMack):
 
     # Convert bytes payload to hex string
     hexConversion = xbeeByteData.hex()
     
     convertedHexValues = decode(hexConversion)
-    
+
+    print (f"converted is {convertedHexValues}")
+    sensorValues = []
+
     for item in convertedHexValues:
 
         value = item.get("value")  # Extract the value section from the item
-
+        print(value)
         if value is not None:
 
-            try:
-
-                sensorValues.append(float(value))  # Add float values to the list
-
-            except ValueError: # why do you have to still append a value after a value error exception has been raised
-
-                sensorValues.append(float(value))
+            sensorValues.append(float(value))  # Add float values to the list
 
     if sensorValues[7] < 0:
 
         fakeValue = sensorValues[7] * -1
         sensorValues[7] = fakeValue
+    
+    if isKnownMack == 0:
 
-    print("List of values extracted from the JSON file:", sensorValues)
+        xbeeMacAndDataMap[xbeeMacAddress]["sensorValues"] = sensorValues
+    
+    else:
+        
+        xbeeMacAndDataMap[xbeeMacAddress] = {'sensorValues': sensorValues}
+
+    print(f"List of values extracted from {xbeeMacAddress} byte array are: {sensorValues}\n")
+    print(f"Dictionary Data is: {xbeeMacAndDataMap}")
 
     return sensorValues
