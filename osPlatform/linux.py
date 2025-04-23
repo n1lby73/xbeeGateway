@@ -91,8 +91,6 @@ async def modbusPolling(contextValue):
                 variables.xbeeAddressModbusMap[xbeeMac] = variables.nextModbusAddressStart
                 variables.nextModbusAddressStart += 50  # Reserve 50 registers per device
 
-            # variables.xbeeAddressModbusMap[xbeeMac]["sensorValues"] = sensorValues
-
             # Convert floats to register values
             register_values = []
             for val in sensorValues:
@@ -101,49 +99,14 @@ async def modbusPolling(contextValue):
             # Limit to 20 registers (10 floats)
             regs = register_values[:20]
             start_addr = variables.xbeeAddressModbusMap[xbeeMac]
+
             # Write to Holding (FC3) and Input (FC4) registers
-            # contextValue.setValues(3, start_addr, regs)
-            # contextValue.setValues(4, start_addr, regs)
-            # for i in contextValue:
-            #     print (i)
-            # slave = contextValue.getSlaveContext(0)
-            # slave =contextValue[0]
-            # slave.setValues(3, start_addr, regs)
-            # slave.setValues(4, start_addr, regs)
-            contextValue.setValues(3, start_addr, regs)
-            contextValue.setValues(4, start_addr, regs)
-            # print (f"sensor value is {sensorValues} and mac is {xbeeMac}")
-
-            # for macAddress, macData in variables.xbeeMacAndDataMap.items():
-
-            #     sensorValues = macData.get("sensorValues", [])
-
-            #      # Assign a block if first time
-            #     if macAddress not in variables.xbeeAddressModbusMap:
-            #         variables.xbeeAddressModbusMap[macAddress] = variables.nextModbusAddressStart
-            #         variables.nextModbusAddressStart += 50
-
-            #     # Convert floats to register values
-            #     register_values = []
-            #     for val in sensorValues:
-            #         register_values.extend(floatToRegisters(val))
-
-            #     # Limit to 20 registers (10 floats)
-            #     regs = register_values[:20]
-            #     start_addr = variables.xbeeAddressModbusMap[macAddress]
-
-            #     # Write to Holding (FC3) and Input (FC4) registers
-            #     # contextValue.setValues(3, start_addr, regs)
-            #     # contextValue.setValues(4, start_addr, regs)
-            #     # for i in contextValue:
-            #     #     print (i)
-            #     # slave = contextValue.getSlaveContext(0)
-            #     # slave =contextValue[0]
-            #     # slave.setValues(3, start_addr, regs)
-            #     # slave.setValues(4, start_addr, regs)
-            #     contextValue.setValues(3, start_addr, regs)
-            #     contextValue.setValues(4, start_addr, regs)
-
+            contextValue[0].setValues(3, start_addr, regs)
+            contextValue[0].setValues(4, start_addr, regs)
+            # contextValue[0][0].setValues(3, start_addr, regs)
+            # contextValue[0][0].setValues(4, start_addr, regs)
+            print(f"register values is {register_values}")
+            
         except Exception as e:
             
             print(f"Modbus polling error: {e}")
@@ -165,8 +128,10 @@ async def modbusServer(context):
     identity.ModelName = 'ModbusTCPv1'
     identity.MajorMinorRevision = '1.0'
 
+    unpackedContext = context[0]
     print("Starting Modbus TCP server on port 5020...")
     await StartAsyncTcpServer(context, identity=identity, address=("0.0.0.0", 5020))
+    # await StartAsyncTcpServer(unpackedContext, identity=identity, address=("0.0.0.0", 5020))
 
 
 # if __name__ == "__main__":
@@ -176,6 +141,19 @@ async def modbusServer(context):
 # Main entry
 async def main():
     context = contextManager()
+    # print (context[0][0].getValues)
+    # print(context)
+
+    # # Equivalent with dict-like access:
+    # slave = context[0]
+    # print (slave)
+    # values = slave.getValues(3, 0, count=20)
+    # print("Holding Registers (0–19):", values)
+
+    # context = contextManager()
+    # print(context)
+    # slave = context.getSlaveContext(0)
+    # slave.getValues(3, 0, count=20)
     await asyncio.gather(
         xbeePolling(),
         modbusPolling(context),
