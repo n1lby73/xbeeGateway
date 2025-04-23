@@ -6,7 +6,7 @@ from modules.xbeeData import cayenneParse
 from digi.xbee.exception import XBeeException
 from pymodbus.server import StartAsyncTcpServer
 from modules.serialSelector import selectUsbPort
-from modules.xbeeData import cayenneParse
+from pymodbus.device import ModbusDeviceIdentification
 from modules.modbus import floatToRegisters, contextManager
 from modules import variables
 from pymodbus.server import StartAsyncTcpServer
