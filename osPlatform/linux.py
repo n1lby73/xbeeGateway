@@ -15,6 +15,7 @@ xbeeQueue = asyncio.Queue() # Stores recieved mac address and data temporarily f
 xbeeMacDataQueue = asyncio.Queue()
 # xbeeDataMacLock = asyncio.Lock()
 serialPort = selectUsbPort()
+xbee = XBeeDevice(serialPort, variables.xbeeBaudRate)
 
 
 
