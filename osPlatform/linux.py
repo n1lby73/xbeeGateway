@@ -106,7 +106,7 @@ async def modbusPolling(contextValue):
             # contextValue[0][0].setValues(3, start_addr, regs)
             # contextValue[0][0].setValues(4, start_addr, regs)
             print(f"register values is {register_values}")
-            
+
         except Exception as e:
             
             print(f"Modbus polling error: {e}")
@@ -121,12 +121,12 @@ async def modbusPolling(contextValue):
 async def modbusServer(context):
 
     identity = ModbusDeviceIdentification()
-    identity.VendorName = 'XbeeGateway'
-    identity.ProductCode = 'XBEE'
-    identity.VendorUrl = 'http://yourdomain.com'
-    identity.ProductName = 'Modbus TCP Xbee Gateway'
-    identity.ModelName = 'ModbusTCPv1'
-    identity.MajorMinorRevision = '1.0'
+    identity.VendorName = 'Cors System'
+    identity.ProductCode = 'CSG'
+    identity.VendorUrl = 'https://corssystem.com'
+    identity.ProductName = 'Core Terminal Unit Gateway'
+    identity.ModelName = 'Genesis'
+    identity.MajorMinorRevision = '2.0'
 
     unpackedContext = context[0]
     print("Starting Modbus TCP server on port 5020...")
@@ -141,19 +141,7 @@ async def modbusServer(context):
 # Main entry
 async def main():
     context = contextManager()
-    # print (context[0][0].getValues)
-    # print(context)
 
-    # # Equivalent with dict-like access:
-    # slave = context[0]
-    # print (slave)
-    # values = slave.getValues(3, 0, count=20)
-    # print("Holding Registers (0–19):", values)
-
-    # context = contextManager()
-    # print(context)
-    # slave = context.getSlaveContext(0)
-    # slave.getValues(3, 0, count=20)
     await asyncio.gather(
         xbeePolling(),
         modbusPolling(context),
