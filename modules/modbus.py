@@ -18,6 +18,7 @@ def contextManager():
         ir=ModbusSequentialDataBlock(0, [0]*1000),  # Input Registers
     )
 
-    context = ModbusServerContext(slaves={0: store}, single=True)
+    contextAsNextedDic = ModbusServerContext(slaves={0: store, 1:store}, single=False)
+    context = contextAsNextedDic[0]
 
-    return context
+    return contextAsNextedDic
