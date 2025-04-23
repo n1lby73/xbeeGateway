@@ -50,7 +50,6 @@ async def xbeePolling():
 
             print(f"Received data from {xbeeMacAddress} @ {timestamp} are: {xbeeDataAsByte}\n")
             xbeeQueue.put_nowait((xbeeMacAddress, xbeeDataAsByte, macIsNew))
-            # cayenneParse(str(xbeeMacAddress), variables.xbeeDataAsByte, macIsNew)
 
         xbee.add_data_received_callback(dataReceiveCallback)
 
@@ -72,14 +71,9 @@ async def xbeePolling():
 
 async def modbusPolling(contextValue):
 
-    # nextModbusAddressStart = 0
-
-
     while True:
 
         mac, raw_data, ismac = await xbeeQueue.get()
-        # sensorValues, xbeeMac = await cayenneParse(mac, raw_data, ismac)
-        # print (f"sensor value is {type(variables.nextModbusAddressStart)}")
 
         try:
 
@@ -101,11 +95,10 @@ async def modbusPolling(contextValue):
             start_addr = variables.xbeeAddressModbusMap[xbeeMac]
 
             # Write to Holding (FC3) and Input (FC4) registers
-            contextValue[0].setValues(3, start_addr, regs)
-            contextValue[0].setValues(4, start_addr, regs)
             # contextValue[0][0].setValues(3, start_addr, regs)
             # contextValue[0][0].setValues(4, start_addr, regs)
-            print(f"register values is {register_values}")
+            contextValue[0].setValues(3, start_addr, regs)
+            contextValue[0].setValues(4, start_addr, regs)
 
         except Exception as e:
             
@@ -128,25 +121,22 @@ async def modbusServer(context):
     identity.ModelName = 'Genesis'
     identity.MajorMinorRevision = '2.0'
 
-    unpackedContext = context[0]
+    # unpackedContext = context[0]
     print("Starting Modbus TCP server on port 5020...")
     await StartAsyncTcpServer(context, identity=identity, address=("0.0.0.0", 5020))
     # await StartAsyncTcpServer(unpackedContext, identity=identity, address=("0.0.0.0", 5020))
 
-
-# if __name__ == "__main__":
-#     await asyncio.gather(
-#         xbeePolling())
 
 # Main entry
 async def main():
     context = contextManager()
 
     await asyncio.gather(
+
         xbeePolling(),
         modbusPolling(context),
         modbusServer(context)
-        # process_data(context),
+
     )
 
 if __name__ == "__main__":
