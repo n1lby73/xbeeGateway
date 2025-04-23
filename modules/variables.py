@@ -1,8 +1,9 @@
 # prefferedRadioSerialNumber = "SER=AQ016E77"
-prefferedRadioSerialNumber = "SER=AQ015ZB9"
+# prefferedRadioSerialNumber = "SER=AQ015ZB9"
+prefferedRadioSerialNumber = "SER=A10NX8UT"
 xbeeBaudRate = 9600
-xbeeData = None
+xbeeDataAsByte = None # not used
 knownXbeeAddress = []
 xbeeAddressModbusMap = {}
-nextModbusAddressStart = 50
-sensorValues = []
+nextModbusAddressStart = 0
+xbeeMacAndDataMap = {}
