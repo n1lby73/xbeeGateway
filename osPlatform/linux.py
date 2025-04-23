@@ -1,5 +1,4 @@
-import sys, time, asyncio
-# from xbee import XBee
+import sys, asyncio
 from datetime import datetime
 from digi.xbee.devices import XBeeDevice
 from digi.xbee.exception import XBeeException
