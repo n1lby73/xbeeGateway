@@ -8,17 +8,13 @@ from pymodbus.server import StartAsyncTcpServer
 from modules.serialSelector import selectUsbPort
 from pymodbus.device import ModbusDeviceIdentification
 from modules.modbus import floatToRegisters, contextManager
-from modules import variables
-from pymodbus.server import StartAsyncTcpServer
-from pymodbus.device import ModbusDeviceIdentification
 
 # Async queue to store incoming packets
 xbeeQueue = asyncio.Queue() # Stores recieved mac address and data temporarily for processing
-xbeeMacDataQueue = asyncio.Queue()
+# xbeeMacDataQueue = asyncio.Queue()
 # xbeeDataMacLock = asyncio.Lock()
 serialPort = selectUsbPort()
 xbee = XBeeDevice(serialPort, variables.xbeeBaudRate)
-
 
 
 if not serialPort:
@@ -32,7 +28,6 @@ async def xbeePolling():
 
     try:
 
-        xbee = XBeeDevice(serialPort, variables.xbeeBaudRate)
         xbee.open()
 
         def dataReceiveCallback(xbeeMessage):
@@ -108,11 +103,9 @@ async def modbusPolling(contextValue):
             print(f"Modbus polling error: {e}")
 
         finally:
+
             xbeeQueue.task_done()
             await asyncio.sleep(0)
-        # time.sleep(1)
-
-
 
 async def modbusServer(context):
 
@@ -129,7 +122,6 @@ async def modbusServer(context):
     await StartAsyncTcpServer(context, identity=identity, address=("0.0.0.0", 5020))
     # await StartAsyncTcpServer(unpackedContext, identity=identity, address=("0.0.0.0", 5020))
 
-
 # Main entry
 async def main():
     context = contextManager()
@@ -143,4 +135,21 @@ async def main():
     )
 
 if __name__ == "__main__":
-    asyncio.run(main())
+
+    try:
+
+        asyncio.run(main())
+
+    except KeyboardInterrupt:
+
+        print(f"\nUser cancelled operation\n")
+    
+    except Exception as e:
+
+        print(f"Unknown error with info as: {e}")
+
+    finally:
+
+        if xbee is not None and xbee.is_open():
+
+            xbee.close()
