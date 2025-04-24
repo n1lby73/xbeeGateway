@@ -81,7 +81,7 @@ async def modbusPolling(contextValue):
             if xbeeMac not in variables.xbeeAddressModbusMap:
 
                 variables.xbeeAddressModbusMap[xbeeMac] = variables.nextModbusAddressStart
-                variables.nextModbusAddressStart += 50  # Reserve 50 registers per device
+                variables.nextModbusAddressStart += variables.incrementalModbusAddress  # Reserve 50 registers per device
 
             # Convert floats to register values
             register_values = []
