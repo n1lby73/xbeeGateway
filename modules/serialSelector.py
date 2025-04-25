@@ -1,6 +1,7 @@
 import serial, argparse, sys
 import serial.tools.list_ports
-from .variables import prefferedRadioSerialNumber
+from digi.xbee.devices import XBeeDevice
+from .variables import prefferedRadioSerialNumber, xbeeBaudRate
 
 def selectUsbPort(get=False):
 
