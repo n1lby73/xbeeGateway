@@ -123,10 +123,12 @@ async def modbusServer(context):
 # Main entry
 async def main():
     context = contextManager()
+    variables.xbeePollingTask = asyncio.create_task(xbeePolling())
 
     await asyncio.gather(
 
-        xbeePolling(),
+        # xbeePolling(),
+        variables.xbeePollingTask,
         modbusPolling(context),
         modbusServer(context)
 
