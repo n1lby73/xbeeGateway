@@ -6,4 +6,5 @@ xbeeDataAsByte = None # not used
 knownXbeeAddress = []
 xbeeAddressModbusMap = {}
 nextModbusAddressStart = 0
+incrementalModbusAddress = 30
 xbeeMacAndDataMap = {}
