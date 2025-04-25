@@ -11,8 +11,6 @@ from modules.modbus import floatToRegisters, contextManager
 
 # Async queue to store incoming packets
 xbeeQueue = asyncio.Queue() # Stores recieved mac address and data temporarily for processing
-# xbeeMacDataQueue = asyncio.Queue()
-# xbeeDataMacLock = asyncio.Lock()
 serialPort = selectUsbPort()
 xbee = XBeeDevice(serialPort, variables.xbeeBaudRate)
 
