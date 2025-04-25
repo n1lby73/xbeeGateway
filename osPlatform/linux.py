@@ -12,7 +12,7 @@ from modules.modbus import floatToRegisters, contextManager
 # Async queue to store incoming packets
 xbeeQueue = asyncio.Queue() # Stores recieved mac address and data temporarily for processing
 serialPort = selectUsbPort()
-xbee = XBeeDevice(serialPort, variables.xbeeBaudRate)
+variables.xbeeInstance = XBeeDevice(serialPort, variables.xbeeBaudRate)
 
 
 if not serialPort:
@@ -26,7 +26,7 @@ async def xbeePolling():
 
     try:
 
-        xbee.open()
+        variables.xbeeInstance.open()
 
         def dataReceiveCallback(xbeeMessage):
 
@@ -61,9 +61,9 @@ async def xbeePolling():
 
     finally:
 
-        if xbee is not None and xbee.is_open():
+        if variables.xbeeInstance is not None and variables.xbeeInstance.is_open():
 
-            xbee.close()
+            variables.xbeeInstance.close()
 
 async def modbusPolling(contextValue):
 
@@ -148,6 +148,6 @@ if __name__ == "__main__":
 
     finally:
 
-        if xbee is not None and xbee.is_open():
+        if variables.xbeeInstance is not None and variables.xbeeInstance.is_open():
 
-            xbee.close()
+            variables.xbeeInstance.close()
