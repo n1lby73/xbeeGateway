@@ -2,7 +2,7 @@ import platform
 import asyncio
 import importlib
 
-baseModuleName = "os"
+baseModuleName = "osPlatform"
 
 osModuleMap = {
 
