@@ -57,17 +57,21 @@ def selectUsbPort(get=False):
         print(txt)
         return None
     
-def handleUsbDisconnection(xbee):
-    
+def handleUsbDisconnection(err, xbeeObject=None):
+
     usbDetected = False
-    xbee.close()
+    xbeeObject.close()
+
     while not usbDetected:
 
-        print ("here..............................")
+        detectPort = selectUsbPort()
 
-        if selectUsbPort() is not None:
+        if detectPort is not None:
 
             usbDetected = True
+            # xbeeObject.open(port=detectPort)
+            xbee = XBeeDevice(detectPort, xbeeBaudRate)
+            xbee.open()
             print ("usb connected")
 
     # print ("Usb disconnected")
