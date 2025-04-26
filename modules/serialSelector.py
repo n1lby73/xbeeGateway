@@ -27,7 +27,7 @@ def selectUsbPort(get=False):
                 sys.exit(0) 
             
             # Select the first port number that matches the serial number which idealy would be only one
-            selectedPort = next((retrievedPort["port"] for retrievedPort in usbPorts if prefferedRadioSerialNumber in retrievedPort.get("hwid")), None)
+            selectedPort = next((retrievedPort["port"] for retrievedPort in usbPorts if variables.prefferedRadioSerialNumber in retrievedPort.get("hwid")), None)
         
         if selectedPort:
 
