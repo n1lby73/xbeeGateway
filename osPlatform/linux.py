@@ -8,6 +8,7 @@ from pymodbus.server import StartAsyncTcpServer
 from modules.serialSelector import selectUsbPort, handleUsbDisconnection
 from pymodbus.device import ModbusDeviceIdentification
 from modules.modbus import floatToRegisters, contextManager
+# from functools import partial
 
 # Async queue to store incoming packets
 xbeeQueue = asyncio.Queue() # Stores recieved mac address and data temporarily for processing
@@ -47,7 +48,8 @@ async def xbeePolling():
             print(f"Received data from {xbeeMacAddress} @ {timestamp} are: {xbeeDataAsByte}\n")
             xbeeQueue.put_nowait((xbeeMacAddress, xbeeDataAsByte, macIsNew))
 
-        xbee.add_data_received_callback(dataReceiveCallback)
+        variables.xbeeInstance.add_data_received_callback(dataReceiveCallback)
+        # variables.xbeeInstance.add_error_callback(partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance))
 
         while True:
             # This is to make sure that the data is open and awaiting data

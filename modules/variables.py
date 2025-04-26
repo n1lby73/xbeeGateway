@@ -8,3 +8,6 @@ xbeeAddressModbusMap = {}
 nextModbusAddressStart = 0
 incrementalModbusAddress = 30
 xbeeMacAndDataMap = {}
+xbeeInstance = None # Holds the current xbee object instance
+xbeePollingTask = None # Holds the current polling task
+data_callback = None
