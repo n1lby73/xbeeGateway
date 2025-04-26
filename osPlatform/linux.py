@@ -90,13 +90,13 @@ async def modbusPolling(contextValue):
             
             # Limit to 20 registers (10 floats)
             regs = register_values[:20]
-            start_addr = variables.xbeeAddressModbusMap[xbeeMac]
+            startAddress = variables.xbeeAddressModbusMap[xbeeMac]
 
             # Write to Holding (FC3) and Input (FC4) registers
             # contextValue[0][0].setValues(3, start_addr, regs)
             # contextValue[0][0].setValues(4, start_addr, regs)
-            contextValue[0].setValues(3, start_addr, regs)
-            contextValue[0].setValues(4, start_addr, regs)
+            contextValue[0].setValues(3, startAddress, regs)
+            contextValue[0].setValues(4, startAddress, regs)
 
         except Exception as e:
             
