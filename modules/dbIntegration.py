@@ -2,8 +2,24 @@ import pymongo
 
 dbclient = pymongo.MongoClient("mongodb://localhost:27017/")
 
-mydb = dbclient["Gateway"]
-mycol = mydb["radioModbusMap"]
+gatewayDb = dbclient["Gateway"]
+modbusStartAddressCollectioin = gatewayDb["radioModbusMap"]
+
+def dbQueryModbusStartAddress(macAddress):
+
+    xbeeDetails = modbusStartAddressCollectioin.find_one({"xbeeMac":macAddress})
+
+    if xbeeDetails:
+
+        startAddress = xbeeDetails["modbusStartAddress"]
+
+        return startAddress
+    
+    else:
+
+        return None
+
+
 
 
 mydict = { "xbeeMac": "123456", "modbusStartAddress": "0" }
