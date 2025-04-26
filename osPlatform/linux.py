@@ -8,6 +8,7 @@ from pymodbus.server import StartAsyncTcpServer
 from modules.serialSelector import selectUsbPort, handleUsbDisconnection
 from pymodbus.device import ModbusDeviceIdentification
 from modules.modbus import floatToRegisters, contextManager
+from modules.dbIntegration import dbQueryModbusStartAddress
 # from functools import partial
 
 # Async queue to store incoming packets
