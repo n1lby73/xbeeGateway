@@ -86,8 +86,8 @@ async def modbusPolling(contextValue):
                 # Assign a block if first time 
                 # if xbeeMac not in variables.xbeeAddressModbusMap:
 
-                variables.xbeeAddressModbusMap[xbeeMac] = variables.nextModbusAddressStart
-                variables.nextModbusAddressStart += variables.incrementalModbusAddress  # Reserve 50 registers per device
+                #     variables.xbeeAddressModbusMap[xbeeMac] = variables.nextModbusAddressStart
+                #     variables.nextModbusAddressStart += variables.incrementalModbusAddress  # Reserve 50 registers per device
 
                 # Convert floats to register values
                 registerValues = []
