@@ -83,20 +83,24 @@ async def modbusPolling(contextValue):
                 variables.xbeeAddressModbusMap[xbeeMac] = variables.nextModbusAddressStart
                 variables.nextModbusAddressStart += variables.incrementalModbusAddress  # Reserve 50 registers per device
 
-            # Convert floats to register values
-            register_values = []
-            for val in sensorValues:
-                register_values.extend(floatToRegisters(val))
-            
-            # Limit to 20 registers (10 floats)
-            regs = register_values[:20]
-            startAddress = variables.xbeeAddressModbusMap[xbeeMac]
+                # Convert floats to register values
+                registerValues = []
+                for val in sensorValues:
+                    registerValues.extend(floatToRegisters(val))
+                
+                # Limit to 20 registers (10 floats)
+                registers = registerValues[:20]
+                # startAddress = variables.xbeeAddressModbusMap[xbeeMac]
 
-            # Write to Holding (FC3) and Input (FC4) registers
-            # contextValue[0][0].setValues(3, start_addr, regs)
-            # contextValue[0][0].setValues(4, start_addr, regs)
-            contextValue[0].setValues(3, startAddress, regs)
-            contextValue[0].setValues(4, startAddress, regs)
+                # Write to Holding (FC3) and Input (FC4) registers
+                # contextValue[0][0].setValues(3, start_addr, regs)
+                # contextValue[0][0].setValues(4, start_addr, regs)
+                contextValue[0].setValues(3, startAddress, registers)
+                contextValue[0].setValues(4, startAddress, registers)
+            
+            else:
+
+                print (f"Xbee radio with mac address {xbeeMac}, has not been configured")
 
         except Exception as e:
             
