@@ -57,9 +57,13 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
         xbeeData = {"xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "xbeeNodeIdentifier":nodeIdentifier}
 
-        modbusStartAddressCollectioin.insert_one(xbeeData)
+        configuredXbee = modbusStartAddressCollectioin.insert_one(xbeeData)
 
-        return {"success":xbeeData}
+        if configuredXbee.inserted_id > 0:
+
+            return {"success":"radio configured successfully"}
+        
+        return {"error": "Configuration request received, but no changes were made."}
     
     except Exception as e:
 
