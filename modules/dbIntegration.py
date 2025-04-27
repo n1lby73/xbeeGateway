@@ -147,7 +147,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
         
         incomingUpdate = {"$set": jsonParameterToBeUpdated}
 
-        update = modbusStartAddressCollectioin.update_one({"xbeeMac":xbeeMacAddress}, incomingUpdate)
+        update = modbusStartAddressCollectioin.update_one({"xbeeMac":oldXbeeMacAddress}, incomingUpdate)
 
         if update.modified_count > 0:
 
