@@ -101,3 +101,27 @@ def updateXbeeDetails(xbeeMacAddress, jsonParameterToBeUpdated):
     except Exception as e:
 
         return {"error": e}
+
+def deleteXbeeDetails(xbeeMacAddress):
+
+    try:
+
+        macExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": xbeeMacAddress})
+
+        if not macExistence:
+
+            return {"error": f"xbeeMac ({xbeeMacAddress}) not in existence."}
+        
+        macDetailsToDelete = {"xbeeMac":xbeeMacAddress}
+
+        deleteXbeeDetails = modbusStartAddressCollectioin.delete_one(macDetailsToDelete)
+
+        if deleteXbeeDetails.deleted_count > 0:
+
+            return {"success": f"{xbeeMacAddress} deleted successfully."}
+        
+        return {"error": "delete request received, but no changes were made."}
+
+    except Exception as e:
+
+        return {"error": e}
