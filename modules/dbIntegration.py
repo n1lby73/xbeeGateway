@@ -197,6 +197,46 @@ def storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp):
         print (f"Fatal error with details as; {e}")
         return None
 
+# Swap history for cases where two radio location was swapped
+# In such scenerio, updating the xbee mac address would return an error
+# Using this swap function is recommended as it also swap the history records of the two location
+
+def swapXbeeHistoryAndMacAddress(firstXbeeMacAddress, secondXbeeMacAddress):
+
+    try:
+
+        validateFirstXbee = radioModbusMapCollection.find_one({"xbeeMac": firstXbeeMacAddress})
+        validateSecondXbee = radioModbusMapCollection.find_one({"xbeeMac": secondXbeeMacAddress})
+        
+        if not validateFirstXbee:
+
+            return {"error": f"first xbee mac address {(firstXbeeMacAddress)} not configured yet"}
+        
+        if not validateSecondXbee:
+
+            return {"error": f"second xbee mac address {(secondXbeeMacAddress)} not configured yet"}
+
+        # Carry out swapping
+
+        gatewayDb[str(firstXbeeMacAddress)].rename(str(secondXbeeMacAddress))
+        gatewayDb[str(secondXbeeMacAddress)].rename(str(firstXbeeMacAddress))
+
+        firstXbeeUpdate = {"$set": {"xbeeMac":secondXbeeMacAddress}}
+        secondXbeeUpdate = {"$set": {"xbeeMac":firstXbeeMacAddress}}
+
+        firstUpdate = radioModbusMapCollection.update_one({"xbeeMac":firstXbeeMacAddress}, firstXbeeUpdate)
+        secondUpdate = radioModbusMapCollection.update_one({"xbeeMac":secondXbeeMacAddress}, secondXbeeUpdate)
+
+        if firstUpdate.modified_count > 0 and secondUpdate.modified_count > 0:
+
+            return {"success": "Document updated successfully."}
+        
+        return {"error": "Update request received, but no changes were made."}
+
+    except Exception as e:
+
+        return {"error": str(e)}
+
 def deleteXbeeDetails(xbeeMacAddress):
 
     try:
