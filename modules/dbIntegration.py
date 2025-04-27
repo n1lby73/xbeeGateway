@@ -65,3 +65,40 @@ def configureXbeeModbusStartAddress(macAddress, startAddress, nodeIdentifier):
     except Exception as e:
 
         return json.dumps({"error":e})
+    
+def updateXbeeDetails(xbeeMac, jsonParameterToBeUpdated):
+
+    validKeys = ["xbeeMac", "modbusStartAddress", "xbeeNodeIdentifier"]
+
+    try:
+
+        if not isinstance(jsonParameterToBeUpdated, dict):
+
+            return {"error": "Invalid JSON format. Expected a dictionary."}
+        
+        invalidKey = [key for key in jsonParameterToBeUpdated if key not in validKeys]
+
+        if invalidKey:
+
+            return {"error": f"Invalid keys found: {invalidKey}. Allowed keys: {validKeys}"}
+        
+        macExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": xbeeMac})
+
+        if not macExistence:
+
+            return {"error": f"xbeeMac ({xbeeMac}) not configured, hence not available for update."}
+        
+        incomingUpdate = {"$set": jsonParameterToBeUpdated}
+
+        update = modbusStartAddressCollectioin.update_one({"xbeeMac":xbeeMac}, incomingUpdate)
+
+        if update.modified_count > 0:
+
+            return {"success": "Document updated successfully."}
+        
+        return {"error": "Update request received, but no changes were made."}
+
+
+    except Exception as e:
+
+        return {"error": e}
