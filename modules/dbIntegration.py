@@ -210,7 +210,7 @@ def deleteXbeeDetails(xbeeMacAddress):
         macDetailsToDelete = {"xbeeMac":xbeeMacAddress}
 
         deleteXbeeDetails = modbusStartAddressCollectioin.delete_one(macDetailsToDelete)
-        deleteXbeeHistory = gatewayDb[xbeeMacAddress].drop()
+        gatewayDb[xbeeMacAddress].drop()
 
         if deleteXbeeDetails.deleted_count > 0 and xbeeMacAddress not in gatewayDb.list_collection_names():
 
