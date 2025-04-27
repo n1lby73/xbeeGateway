@@ -9,15 +9,23 @@ modbusStartAddressCollectioin = gatewayDb["radioModbusMap"]
 
 def dbQueryModbusStartAddress(macAddress):
 
-    xbeeDetails = modbusStartAddressCollectioin.find_one({"xbeeMac":macAddress})
+    try:
 
-    if xbeeDetails:
+        xbeeDetails = modbusStartAddressCollectioin.find_one({"xbeeMac":macAddress})
 
-        startAddress = xbeeDetails["modbusStartAddress"]
+        if xbeeDetails:
 
-        return startAddress
+            startAddress = xbeeDetails["modbusStartAddress"]
+
+            return startAddress
+        
+        else:
+
+            return None
     
-    else:
+    except Exception as e:
+
+        print (f"Fatal error with details as: {e}")
 
         return None
 
