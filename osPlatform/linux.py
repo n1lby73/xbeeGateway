@@ -1,14 +1,14 @@
 import sys, asyncio
-from datetime import datetime
 from modules import variables
+from datetime import datetime
 from digi.xbee.devices import XBeeDevice
 from modules.xbeeData import cayenneParse
 from digi.xbee.exception import XBeeException
 from pymodbus.server import StartAsyncTcpServer
-from modules.serialSelector import selectUsbPort, handleUsbDisconnection
 from pymodbus.device import ModbusDeviceIdentification
-from modules.modbus import floatToRegisters, contextManager
 from modules.dbIntegration import dbQueryModbusStartAddress
+from modules.serialSelector import selectUsbPort, handleUsbDisconnection
+from modules.modbus import floatToRegisters, contextManager, getIpAddress
 # from functools import partial
 
 # Async queue to store incoming packets
@@ -126,9 +126,11 @@ async def modbusServer(context):
     identity.ModelName = 'Genesis'
     identity.MajorMinorRevision = '2.0'
 
+    ipAddress = getIpAddress()
+
     # unpackedContext = context[0]
-    print("Starting Modbus TCP server on port 5020...")
-    await StartAsyncTcpServer(context, identity=identity, address=("0.0.0.0", 5020))
+    print(f"Starting Modbus TCP server on port {variables.modbusPort}...")
+    await StartAsyncTcpServer(context, identity=identity, address=(ipAddress, variables.modbusPort))
     # await StartAsyncTcpServer(unpackedContext, identity=identity, address=("0.0.0.0", 5020))
 
 # Main entry
