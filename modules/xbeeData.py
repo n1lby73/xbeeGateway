@@ -21,7 +21,7 @@ def getNodeId(macAddress, initializedXbee):
 
     return "UNKNOWN"
 
-async def cayenneParse(xbeeMacAddress,xbeeByteData, isKnownMack):
+async def cayenneParse(xbeeMacAddress,xbeeByteData):
 
     # Convert bytes payload to hex string
     hexConversion = xbeeByteData.hex()

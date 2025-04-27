@@ -35,19 +35,17 @@ async def xbeePolling():
             xbeeMacAddress = str(xbeeMessage.remote_device.get_64bit_addr())
             timestamp = datetime.fromtimestamp(xbeeMessage.timestamp)
             xbeeDataAsByte = xbeeMessage.data
-            macIsNew = 0 # This value is used to denote if it's a newly found mac address so that cayenne parse would not need to query the xbeeMacAndDataMap before knowing if it's to update data or insert a new value
 
             if str(xbeeMacAddress) not in variables.knownXbeeAddress:
 
                 print (f"\nNew XBee Address Discovered: {xbeeMacAddress}")
 
                 variables.knownXbeeAddress.append(str(xbeeMacAddress))
-                macIsNew = 1
 
                 print (f"List of addresses discovered so far are: {variables.knownXbeeAddress}\n")
 
             print(f"Received data from {xbeeMacAddress} @ {timestamp} are: {xbeeDataAsByte}\n")
-            xbeeQueue.put_nowait((xbeeMacAddress, xbeeDataAsByte, macIsNew))
+            xbeeQueue.put_nowait((xbeeMacAddress, xbeeDataAsByte))
 
         variables.xbeeInstance.add_data_received_callback(dataReceiveCallback)
         # variables.xbeeInstance.add_error_callback(partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance))
@@ -72,7 +70,7 @@ async def modbusPolling(contextValue):
 
     while True:
 
-        mac, raw_data, ismac = await xbeeQueue.get()
+        mac, raw_data = await xbeeQueue.get()
 
         try:
 
@@ -82,7 +80,7 @@ async def modbusPolling(contextValue):
 
             if startAddress:
 
-                sensorValues, xbeeMac = await cayenneParse(mac, raw_data, ismac)
+                sensorValues, xbeeMac = await cayenneParse(mac, raw_data)
 
                 # Assign a block if first time 
                 # if xbeeMac not in variables.xbeeAddressModbusMap:
