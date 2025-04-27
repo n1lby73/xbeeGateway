@@ -2,7 +2,8 @@
 # prefferedRadioSerialNumber = "SER=AQ015ZB9"
 prefferedRadioSerialNumber = "SER=A10NX8UT"
 xbeeBaudRate = 9600
-xbeeDataAsByte = None # not used
+modbusPort = 5020
+# xbeeDataAsByte = None # not used
 knownXbeeAddress = []
 xbeeAddressModbusMap = {}
 nextModbusAddressStart = 0
