@@ -1,6 +1,7 @@
 from digi.xbee.devices import RemoteXBeeDevice, XBee64BitAddress
 from python_cayennelpp.decoder import decode
-from .variables import xbeeMacAndDataMap
+from .dbIntegration import storeXbeeHistoryData
+import datetime
 
 
 def getNodeId(macAddress, initializedXbee):
@@ -27,24 +28,17 @@ async def cayenneParse(xbeeMacAddress,xbeeByteData, isKnownMack):
     
     convertedHexValues = decode(hexConversion)
 
-    # print (f"converted is {convertedHexValues}")
     sensorValues = []
 
     for item in convertedHexValues:
 
         value = item.get("value")  # Extract the value section from the item
-        # print(value)
+
         if value is not None:
 
             sensorValues.append(float(value))  # Add float values to the list
-    
-    if isKnownMack == 0:
 
-        xbeeMacAndDataMap[xbeeMacAddress]["sensorValues"] = sensorValues
-    
-    else:
-        
-        xbeeMacAndDataMap[xbeeMacAddress] = {'sensorValues': sensorValues}
+    storeXbeeHistoryData(str(xbeeMacAddress), sensorValues, datetime.datetime.now())
 
     print(f"List of values extracted from {xbeeMacAddress} byte array are: {sensorValues}\n")
 
