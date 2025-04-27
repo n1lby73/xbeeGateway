@@ -76,13 +76,13 @@ async def modbusPolling(contextValue):
 
         try:
 
-            sensorValues, xbeeMac = await cayenneParse(mac, raw_data, ismac)
-
             # Query database to find out start address of the retrieved mac address
 
-            startAddress = dbQueryModbusStartAddress(xbeeMac)
+            startAddress = dbQueryModbusStartAddress(mac)
 
             if startAddress:
+
+                sensorValues, xbeeMac = await cayenneParse(mac, raw_data, ismac)
 
                 # Assign a block if first time 
                 # if xbeeMac not in variables.xbeeAddressModbusMap:
