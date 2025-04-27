@@ -6,11 +6,11 @@ dbclient = pymongo.MongoClient("mongodb://localhost:27017/")
 gatewayDb = dbclient["Gateway"]
 modbusStartAddressCollectioin = gatewayDb["radioModbusMap"]
 
-def dbQueryModbusStartAddress(macAddress):
+def dbQueryModbusStartAddress(xbeeMacAddress):
 
     try:
 
-        xbeeDetails = modbusStartAddressCollectioin.find_one({"xbeeMac":macAddress})
+        xbeeDetails = modbusStartAddressCollectioin.find_one({"xbeeMac":xbeeMacAddress})
 
         if xbeeDetails:
 
@@ -28,11 +28,11 @@ def dbQueryModbusStartAddress(macAddress):
 
         return None
 
-def configureXbeeModbusStartAddress(macAddress, startAddress, nodeIdentifier):
+def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier):
 
     try:
 
-        validateUniqueMacAddress = modbusStartAddressCollectioin.find_one({"xbeeMac":macAddress})
+        validateUniqueMacAddress = modbusStartAddressCollectioin.find_one({"xbeeMac":xbeeMacAddress})
         validateStartAddress = modbusStartAddressCollectioin.find_one({"modbusStartAddress":startAddress})
 
         if validateUniqueMacAddress or validateStartAddress:
@@ -40,7 +40,7 @@ def configureXbeeModbusStartAddress(macAddress, startAddress, nodeIdentifier):
             xbeeStartAddress = validateUniqueMacAddress["modbusStartAddress"]
             xbeeNodeId = validateUniqueMacAddress["xbeeNodeIdentifier"]
 
-            return {"error":f"Mac address ({macAddress}) already configured with start address as {xbeeStartAddress} and node identifier as {xbeeNodeId} "}
+            return {"error":f"Mac address ({xbeeMacAddress}) already configured with start address as {xbeeStartAddress} and node identifier as {xbeeNodeId} "}
 
         # Validate that specified modbus address is not in between two xbee device
 
@@ -55,7 +55,7 @@ def configureXbeeModbusStartAddress(macAddress, startAddress, nodeIdentifier):
 
             return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
 
-        xbeeData = {"xbeeMac":macAddress, "modbusStartAddress":startAddress, "xbeeNodeIdentifier":nodeIdentifier}
+        xbeeData = {"xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "xbeeNodeIdentifier":nodeIdentifier}
 
         modbusStartAddressCollectioin.insert_one(xbeeData)
 
@@ -65,7 +65,7 @@ def configureXbeeModbusStartAddress(macAddress, startAddress, nodeIdentifier):
 
         return {"error":e}
     
-def updateXbeeDetails(xbeeMac, jsonParameterToBeUpdated):
+def updateXbeeDetails(xbeeMacAddress, jsonParameterToBeUpdated):
 
     validKeys = ["xbeeMac", "modbusStartAddress", "xbeeNodeIdentifier"]
 
@@ -81,15 +81,15 @@ def updateXbeeDetails(xbeeMac, jsonParameterToBeUpdated):
 
             return {"error": f"Invalid keys found: {invalidKey}. Allowed keys: {validKeys}"}
         
-        macExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": xbeeMac})
+        macExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": xbeeMacAddress})
 
         if not macExistence:
 
-            return {"error": f"xbeeMac ({xbeeMac}) not configured, hence not available for update."}
+            return {"error": f"xbeeMac ({xbeeMacAddress}) not configured, hence not available for update."}
         
         incomingUpdate = {"$set": jsonParameterToBeUpdated}
 
-        update = modbusStartAddressCollectioin.update_one({"xbeeMac":xbeeMac}, incomingUpdate)
+        update = modbusStartAddressCollectioin.update_one({"xbeeMac":xbeeMacAddress}, incomingUpdate)
 
         if update.modified_count > 0:
 
