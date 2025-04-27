@@ -32,6 +32,10 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
     try:
 
+        if type(startAddress) is not int:
+
+            return {"error": f"Pass {startAddress} as an integer"}
+        
         validateUniqueMacAddress = modbusStartAddressCollectioin.find_one({"xbeeMac":xbeeMacAddress})
         validateStartAddress = modbusStartAddressCollectioin.find_one({"modbusStartAddress":startAddress})
 
