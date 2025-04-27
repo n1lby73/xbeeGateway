@@ -79,7 +79,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
         return {"error":e}
     
-def updateXbeeDetails(xbeeMacAddress, jsonParameterToBeUpdated):
+def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
     validKeys = ["xbeeMac", "modbusStartAddress", "xbeeNodeIdentifier"]
 
