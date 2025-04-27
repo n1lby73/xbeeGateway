@@ -29,6 +29,7 @@ def getIpAddress():
     interfaces = psutil.net_if_addrs()
     ethernet_ip = None
     wifi_ip = None
+    default = "0.0.0.0"
 
     for interfaceName, interfaceAddresses in interfaces.items():
 
@@ -58,4 +59,5 @@ def getIpAddress():
     else:
 
         print("No Ethernet or Wi-Fi network detected on this machine.")
-        return None
+        print(f"Using default address {default}")
+        return default
