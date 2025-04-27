@@ -1,5 +1,4 @@
 import pymongo
-import json
 from . import variables
 
 dbclient = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -41,7 +40,7 @@ def configureXbeeModbusStartAddress(macAddress, startAddress, nodeIdentifier):
             xbeeStartAddress = validateUniqueMacAddress["modbusStartAddress"]
             xbeeNodeId = validateUniqueMacAddress["xbeeNodeIdentifier"]
 
-            return json.dumps({"error":f"Mac address ({macAddress}) already configured with start address as {xbeeStartAddress} and node identifier as {xbeeNodeId} "})
+            return {"error":f"Mac address ({macAddress}) already configured with start address as {xbeeStartAddress} and node identifier as {xbeeNodeId} "}
 
         # Validate that specified modbus address is not in between two xbee device
 
@@ -54,17 +53,17 @@ def configureXbeeModbusStartAddress(macAddress, startAddress, nodeIdentifier):
 
             print('selected memory map would cause adress overlapping')
 
-            return json.dumps({"error":f"next availiable start address is {validAvailableModbusAddress}"})
+            return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
 
         xbeeData = {"xbeeMac":macAddress, "modbusStartAddress":startAddress, "xbeeNodeIdentifier":nodeIdentifier}
 
         modbusStartAddressCollectioin.insert_one(xbeeData)
 
-        return json.dumps({"success":xbeeData})
+        return {"success":xbeeData}
     
     except Exception as e:
 
-        return json.dumps({"error":e})
+        return {"error":e}
     
 def updateXbeeDetails(xbeeMac, jsonParameterToBeUpdated):
 
