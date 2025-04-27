@@ -95,9 +95,9 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
             return {"error": f"Invalid keys found: {invalidKey}. Allowed keys: {validKeys}"}
         
-        macExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": oldXbeeMacAddress})
+        oldMacExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": oldXbeeMacAddress})
 
-        if not macExistence:
+        if not oldMacExistence:
 
             return {"error": f"xbeeMac ({oldXbeeMacAddress}) not configured, hence not available for update."}
         
@@ -132,7 +132,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
                 # Confirm that user is not sending same node identifier to update
 
-                if str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")) == str(macExistence.get("xbeeNodeIdentifier")):
+                if str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")) == str(oldMacExistence.get("xbeeNodeIdentifier")):
 
                     return {"error":"new node identifier still same as current node identifier"}
 
