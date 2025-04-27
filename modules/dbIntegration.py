@@ -160,6 +160,42 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
         return {"error": e}
 
+def storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp):
+    
+    try:
+
+        # Validate that mac address has been configured by checking if it exist in the general radio and modbus map collection
+        
+        validateMacAddress = modbusStartAddressCollectioin.find_one({"xbeeMac":xbeeMacAddress})
+
+        if not validateMacAddress:
+            
+            print ("Mac Address has not been configured")
+            return None
+        
+        # Validate that data is a list object
+
+        if not isinstance(xbeeData, list):
+
+            print (f"Expected data {xbeeData} should be passed as list")
+            return None
+        
+        dataToInsert = {"timestamp": xbeeDataTimestamp, "data":xbeeData}
+        xbeeHistoryEntry = gatewayDb[xbeeMacAddress]
+        historian = xbeeHistoryEntry.insert_one(dataToInsert)
+
+        if historian > 0:
+
+            return True
+
+        print ("Could not update the database")    
+        return None
+    
+    except Exception as e:
+
+        print (f"Fatal error with details as; {e}")
+        return None
+
 def deleteXbeeDetails(xbeeMacAddress):
 
     try:
