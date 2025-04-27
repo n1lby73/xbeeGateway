@@ -99,7 +99,51 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
         if not macExistence:
 
-            return {"error": f"xbeeMac ({xbeeMacAddress}) not configured, hence not available for update."}
+            return {"error": f"xbeeMac ({oldXbeeMacAddress}) not configured, hence not available for update."}
+        
+        for key in jsonParameterToBeUpdated:
+
+            if key == "xbeeMac":
+
+                # Confirm that user is not sending same mac address to update
+
+                if str(jsonParameterToBeUpdated.get("xbeeMac")) == str(oldXbeeMacAddress):
+
+                    return {"error":"new mac address still same as current mac address"}
+
+                # confirm new xbee mac not in existence
+
+                newMacExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": jsonParameterToBeUpdated.get("xbeeMac")})
+
+                if newMacExistence:
+
+                    return {"error": "new mac address already exist"}
+                
+                # Update the already existing historian collection for the specified xbee mac address
+
+                gatewayDb[oldXbeeMacAddress].rename(str(jsonParameterToBeUpdated.get("xbeeMac")))
+
+            if key == "modbusStartAddress":
+                
+                # Validate that modbus start address would not conflict
+                pass # would come back when modbus adress assigner helper function is created
+
+            if key == "xbeeNodeIdentefier":
+
+                # Confirm that user is not sending same node identifier to update
+
+                if str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")) == str(macExistence.get("xbeeNodeIdentifier")):
+
+                    return {"error":"new node identifier still same as current node identifier"}
+
+                # confirm new node identifier not in existence
+
+                newNodeIdentifierExistence = modbusStartAddressCollectioin.find_one({"xbeeNodeIdentifier": jsonParameterToBeUpdated.get("xbeeNodeIdentifier")})
+
+                if newNodeIdentifierExistence:
+
+                    return {"error": "new node identifier already exist"}
+
         
         incomingUpdate = {"$set": jsonParameterToBeUpdated}
 
