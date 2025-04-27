@@ -95,7 +95,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
             return {"error": f"Invalid keys found: {invalidKey}. Allowed keys: {validKeys}"}
         
-        macExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": xbeeMacAddress})
+        macExistence = modbusStartAddressCollectioin.find_one({"xbeeMac": oldXbeeMacAddress})
 
         if not macExistence:
 
