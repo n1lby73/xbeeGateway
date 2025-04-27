@@ -73,7 +73,7 @@ def updateXbeeDetails(xbeeMac, jsonParameterToBeUpdated):
 
         if not isinstance(jsonParameterToBeUpdated, dict):
 
-            return {"error": "Invalid JSON format. Expected a dictionary."}
+            return {"error": "Invalid data type. Expected a dictionary."}
         
         invalidKey = [key for key in jsonParameterToBeUpdated if key not in validKeys]
 
