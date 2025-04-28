@@ -37,6 +37,18 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
             return {"error": f"Pass {startAddress} as an integer"}
         
+        if len(xbeeMacAddress) != variables.validMacAddressLength:
+
+            return {"error": "Invalid mac address entered"}
+        
+        if len(str(startAddress)) != variables.validModbusAddressLength:
+
+            return {"error": "Invalid modbus address"}
+        
+        if nodeIdentifier == "":
+
+            return {"error":"Invalid node identifier"}
+        
         validateUniqueMacAddress = radioModbusMapCollection.find_one({"xbeeMac":xbeeMacAddress})
         validateStartAddress = radioModbusMapCollection.find_one({"modbusStartAddress":startAddress})
 
@@ -73,7 +85,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         initializationData = {"timestamp": datetime.datetime.now(), "data":"[0,0,0,0,0,0,0,0,0]"}
         historian = xbeeHistoryEntry.insert_one(initializationData)
 
-        if configuredXbee.inserted_id > 0 and historian.inserted_id > 0:
+        if configuredXbee.inserted_id and historian.inserted_id:
 
             return {"success":"radio configured successfully"}
         
@@ -153,7 +165,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
         update = radioModbusMapCollection.update_one({"xbeeMac":oldXbeeMacAddress}, incomingUpdate)
 
-        if update.modified_count > 0:
+        if update.modified_count:
 
             return {"success": "Document updated successfully."}
         
@@ -230,7 +242,7 @@ def swapXbeeHistoryAndMacAddress(firstXbeeMacAddress, secondXbeeMacAddress):
         firstUpdate = radioModbusMapCollection.update_one({"xbeeMac":firstXbeeMacAddress}, firstXbeeUpdate)
         secondUpdate = radioModbusMapCollection.update_one({"xbeeMac":secondXbeeMacAddress}, secondXbeeUpdate)
 
-        if firstUpdate.modified_count > 0 and secondUpdate.modified_count > 0:
+        if firstUpdate.modified_count and secondUpdate.modified_count:
 
             return {"success": "Document updated successfully."}
         
@@ -255,7 +267,7 @@ def deleteXbeeDetails(xbeeMacAddress):
         deleteXbee = radioModbusMapCollection.delete_one(macDetailsToDelete)
         gatewayDb[xbeeMacAddress].drop()
 
-        if deleteXbee.deleted_count > 0 and xbeeMacAddress not in gatewayDb.list_collection_names():
+        if deleteXbee.deleted_count and xbeeMacAddress not in gatewayDb.list_collection_names():
 
             return {"success": f"Deleted {xbeeMacAddress} and it's history data successfully."}
         
