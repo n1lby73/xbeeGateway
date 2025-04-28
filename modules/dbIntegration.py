@@ -51,8 +51,9 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         
         validateUniqueMacAddress = radioModbusMapCollection.find_one({"xbeeMac":xbeeMacAddress})
         validateStartAddress = radioModbusMapCollection.find_one({"modbusStartAddress":startAddress})
+        validateNodeIdentifier = radioModbusMapCollection.find_one({"xbeeNodeIdentifier":nodeIdentifier})
 
-        if validateUniqueMacAddress or validateStartAddress:
+        if validateUniqueMacAddress or validateStartAddress or validateNodeIdentifier:
 
             xbeeStartAddress = validateUniqueMacAddress["modbusStartAddress"]
             xbeeNodeId = validateUniqueMacAddress["xbeeNodeIdentifier"]
