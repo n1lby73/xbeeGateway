@@ -81,11 +81,15 @@ class Modbus_GUI(tk.Tk):
 
         try:
             result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
-            self.get_database()
+
             if result.get("error") == None:
                 self.radio_address_input.delete(0, tk.END)
                 self.modbus_address_input.delete(0, tk.END) 
                 self.node_identifier_input.delete(0, tk.END)
+
+                messagebox.showinfo(title="Success", message="Entry added successfully.")
+                self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
+                self.get_database()  # Repopulate the treeview with updated data
             else:
                 error_message = result.get("error")
                 messagebox.showerror(title="Error", message=error_message)
@@ -109,8 +113,12 @@ class Modbus_GUI(tk.Tk):
             print(response)  # 'yes' or 'no'
             if response == 'yes':
                 radio_mac_address = self.tree.item(selected_item)["values"][1]
-                return deleteXbeeDetails(radio_mac_address)
-            self.get_database()
+                result = deleteXbeeDetails(radio_mac_address)
+                if result.get("success") != None:
+                    messagebox.showinfo(title="Success", message="Entry deleted successfully.")
+                    self.tree.delete(selected_item)
+        print(result)
+
 
 
 
