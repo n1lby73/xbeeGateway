@@ -7,7 +7,7 @@ class Modbus_GUI(tk.Tk):
         self.title("Modbus GUI")
         self.geometry("800x600")
 
-        self.title = tk.Label(self, text="CORS MODBUS SERVER", font=("Arial", 20, "bold"))
+        self.title = tk.Label(self, text="CORS GATEWAY CONFIGURATION", font=("Arial", 20, "bold"))
         self.title.pack(pady=20)
 
 
