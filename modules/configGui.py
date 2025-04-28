@@ -6,7 +6,7 @@ from .dbIntegration import configureXbeeModbusStartAddress, retrieveAllConfigure
 class Modbus_GUI(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Modbus GUI")
+        self.title("Gateway GUI")
         self.geometry("800x650")
 
         self.title = tk.Label(self, text="CORS GATEWAY CONFIGURATION", font=("Arial", 20, "bold"))
@@ -19,7 +19,7 @@ class Modbus_GUI(tk.Tk):
         self.add_entry_frame = tk.Frame(self)
         self.add_entry_frame.pack(fill="both")
 
-        self.radio_address_label = tk.Label(self.add_entry_frame, text="Radio Address: ", width=40)
+        self.radio_address_label = tk.Label(self.add_entry_frame, text="Radio MAC Address: ", width=40)
         self.radio_address_label.grid(row=1, column=0,padx=10, pady=10, sticky='w')
         self.radio_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.radio_address_input.grid(row=1, column=1, pady=10, sticky='w')
@@ -50,18 +50,18 @@ class Modbus_GUI(tk.Tk):
         self.tree = ttk.Treeview(self.show_entry_frame)
 
         # Define columns
-        self.tree['columns'] = ('S/N', 'RadioAddress', 'ModbusAddress', "Node Identifier")
+        self.tree['columns'] = ('S/N', 'RadioMACAddress', 'ModbusAddress', "Node Identifier")
 
         # Format columns
         self.tree.column("#0", width=0, stretch=tk.NO)  # Hide first empty column
         
         self.tree.column("S/N", anchor=tk.CENTER, width=50)
-        self.tree.column("RadioAddress", anchor=tk.CENTER, width=250)
+        self.tree.column("RadioMACAddress", anchor=tk.CENTER, width=250)
         self.tree.column("ModbusAddress", anchor=tk.CENTER, width=200)
         self.tree.column("Node Identifier", anchor=tk.CENTER, width=250)
 
         self.tree.heading("S/N", text="S/N")
-        self.tree.heading("RadioAddress", text="Radio Address")
+        self.tree.heading("RadioMACAddress", text="Radio MAC Address")
         self.tree.heading("ModbusAddress", text="Modbus Start Address")
         self.tree.heading("Node Identifier", text="Node Identifier")
 
