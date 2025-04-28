@@ -89,6 +89,9 @@ class Modbus_GUI(tk.Tk):
                 self.radio_address_input.delete(0, tk.END)
                 self.modbus_address_input.delete(0, tk.END) 
                 self.node_identifier_input.delete(0, tk.END)
+            else:
+                error_message = result.get("error")
+                messagebox.showerror(title="Error", message=error_message)
 
         except ValueError:
             messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")      
