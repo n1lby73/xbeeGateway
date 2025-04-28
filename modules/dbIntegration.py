@@ -37,6 +37,18 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
             return {"error": f"Pass {startAddress} as an integer"}
         
+        if len(xbeeMacAddress) != variables.validMacAddressLength:
+
+            return {"error": "Invalid mac address entered"}
+        
+        if len(str(startAddress)) != variables.validModbusAddressLength:
+
+            return {"error": "Invalid modbus address"}
+        
+        if nodeIdentifier == "":
+
+            return {"error":"Invalid node identifier"}
+        
         validateUniqueMacAddress = radioModbusMapCollection.find_one({"xbeeMac":xbeeMacAddress})
         validateStartAddress = radioModbusMapCollection.find_one({"modbusStartAddress":startAddress})
 
