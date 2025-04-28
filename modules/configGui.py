@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from .dbIntegration import configureXbeeModbusStartAddress, retrieveAllConfiguredMacAddress, deleteXbeeDetails
 
 class Modbus_GUI(tk.Tk):
@@ -81,12 +82,17 @@ class Modbus_GUI(tk.Tk):
         self.modbus_address = self.modbus_address_input.get()
         self.node_identifier = self.node_identifier_input.get()
 
-        result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
-        
-        if result.get("error") == None:
-            self.radio_address_input.delete(0, tk.END)
-            self.modbus_address_input.delete(0, tk.END) 
-            self.node_identifier_input.delete(0, tk.END)
+        try:
+            result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
+
+            if result.get("error") == None:
+                self.radio_address_input.delete(0, tk.END)
+                self.modbus_address_input.delete(0, tk.END) 
+                self.node_identifier_input.delete(0, tk.END)
+
+        except ValueError:
+            messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")      
+            
 
         print(result)
 
