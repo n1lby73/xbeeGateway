@@ -52,7 +52,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         lastData = radioModbusMapCollection.find_one(sort=[("_id", -1)])
 
         if lastData is not None:
-            
+
             retrieveLastConfiguredAddress = lastData["modbusStartAddress"]
 
             validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress
@@ -73,7 +73,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         initializationData = {"timestamp": datetime.datetime.now(), "data":"[0,0,0,0,0,0,0,0,0]"}
         historian = xbeeHistoryEntry.insert_one(initializationData)
 
-        if configuredXbee.inserted_id > 0 and historian > 0:
+        if configuredXbee.inserted_id > 0 and historian.inserted_id > 0:
 
             return {"success":"radio configured successfully"}
         
