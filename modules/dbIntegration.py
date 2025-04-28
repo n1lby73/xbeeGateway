@@ -25,7 +25,7 @@ def dbQueryModbusStartAddress(xbeeMacAddress):
     
     except Exception as e:
 
-        print (f"Fatal error with details as: {e}")
+        print (f"Fatal error with details as: {str(e)}")
 
         return None
 
@@ -94,7 +94,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
     
     except Exception as e:
 
-        return {"error":e}
+        return {"error":str(e)}
     
 def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
@@ -175,7 +175,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
     except Exception as e:
 
-        return {"error": e}
+        return {"error": str(e)}
 
 def storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp):
     
@@ -210,7 +210,7 @@ def storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp):
     
     except Exception as e:
 
-        print (f"Fatal error with details as; {e}")
+        print (f"Fatal error with details as; {str(e)}")
         return None
 
 # Swap history for cases where two radio location was swapped
@@ -276,7 +276,7 @@ def deleteXbeeDetails(xbeeMacAddress):
 
     except Exception as e:
 
-        return {"error": e}
+        return {"error": str(e)}
 
 def retrieveAllConfiguredMacAddress():
 
