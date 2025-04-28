@@ -50,15 +50,18 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         # Validate that specified modbus address is not in between two xbee device
 
         lastData = radioModbusMapCollection.find_one(sort=[("_id", -1)])
-        retrieveLastConfiguredAddress = lastData["modbusStartAddress"]
 
-        validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress
+        if lastData is not None:
+            
+            retrieveLastConfiguredAddress = lastData["modbusStartAddress"]
 
-        if validAvailableModbusAddress < startAddress: # would still need to work on this to make it more robust and stay safe of memory gap
+            validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress
 
-            print('selected memory map would cause adress overlapping')
+            if validAvailableModbusAddress < startAddress: # would still need to work on this to make it more robust and stay safe of memory gap
 
-            return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
+                print('selected memory map would cause adress overlapping')
+
+                return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
 
         xbeeData = {"xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "xbeeNodeIdentifier":nodeIdentifier}
 
