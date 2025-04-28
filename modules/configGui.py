@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from .dbIntegration import configureXbeeModbusStartAddress
 
 class Modbus_GUI(tk.Tk):
     def __init__(self):
