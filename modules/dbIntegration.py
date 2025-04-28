@@ -161,6 +161,10 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
             if key == "xbeeNodeIdentifier":
 
+                if str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")) == "":
+
+                    return {"error":"Invalid node identifier"}
+
                 # Confirm that user is not sending same node identifier to update
 
                 if str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")) == str(oldMacExistence.get("xbeeNodeIdentifier")):
