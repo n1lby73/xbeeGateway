@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from .dbIntegration import configureXbeeModbusStartAddress
+from .dbIntegration import configureXbeeModbusStartAddress, retrieveAllConfiguredMacAddress, deleteXbeeDetails
 
 class Modbus_GUI(tk.Tk):
     def __init__(self):
@@ -22,13 +22,12 @@ class Modbus_GUI(tk.Tk):
         self.radio_address_label.grid(row=1, column=0,padx=10, pady=10, sticky='w')
         self.radio_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.radio_address_input.grid(row=1, column=1, pady=10, sticky='w')
-
+        
 
         self.modbus_address_label = tk.Label(self.add_entry_frame, text="Modbus Start Address: ", width=40)
         self.modbus_address_label.grid(row=2, column=0, padx=10, pady=10, sticky='w')
         self.modbus_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.modbus_address_input.grid(row=2, column=1, pady=10, sticky='w')
-
 
 
         self.node_identifier_label = tk.Label(self.add_entry_frame, text="Node Identifier: ", width=40)
@@ -84,9 +83,10 @@ class Modbus_GUI(tk.Tk):
 
         result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
         
-        self.radio_address_input.delete(0, tk.END)
-        self.modbus_address_input.delete(0, tk.END) 
-        self.node_identifier_input.delete(0, tk.END)
+        if result.get("error") == None:
+            self.radio_address_input.delete(0, tk.END)
+            self.modbus_address_input.delete(0, tk.END) 
+            self.node_identifier_input.delete(0, tk.END)
 
         print(result)
 
