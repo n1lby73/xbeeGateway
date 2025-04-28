@@ -109,7 +109,7 @@ async def modbusPolling(contextValue):
 
         except Exception as e:
             
-            print(f"Modbus polling error: {e}")
+            print(f"Modbus polling error: {str(e)}")
 
         finally:
 
