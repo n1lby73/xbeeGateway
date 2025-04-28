@@ -153,7 +153,11 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
                 
                 startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress"))
 
-                if startAddress < variables.lowestRegister and startAddress > variables.highestRegister:
+                if len(str(startAddress)) != variables.validModbusAddressLength:
+
+                    return {"error": "Invalid modbus address"}
+                
+                if startAddress > variables.lowestRegister and startAddress > variables.highestRegister:
 
                     return {"error":"Modbus address out of range"}
                 # Validate that modbus start address would not conflict
