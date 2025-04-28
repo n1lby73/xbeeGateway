@@ -57,7 +57,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
             validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress
 
-            if validAvailableModbusAddress < startAddress: # would still need to work on this to make it more robust and stay safe of memory gap
+            if validAvailableModbusAddress > startAddress: # would still need to work on this to make it more robust and stay safe of memory gap
 
                 print('selected memory map would cause adress overlapping')
 
