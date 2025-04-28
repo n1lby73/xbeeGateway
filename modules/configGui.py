@@ -83,7 +83,10 @@ class Modbus_GUI(tk.Tk):
         self.node_identifier = self.node_identifier_input.get()
 
         result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
-        print(self.modbus_address)
+        
+        self.radio_address_input.delete(0, tk.END)
+        self.modbus_address_input.delete(0, tk.END) 
+        self.node_identifier_input.delete(0, tk.END)
 
         print(result)
 
