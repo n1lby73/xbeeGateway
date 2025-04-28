@@ -4,7 +4,9 @@ from tkinter import messagebox
 from .dbIntegration import configureXbeeModbusStartAddress, retrieveAllConfiguredMacAddress, deleteXbeeDetails, updateXbeeDetails
 
 class Modbus_GUI(tk.Tk):
+
     def __init__(self):
+
         super().__init__()
         self.title("Gateway GUI")
         self.geometry("800x650")
@@ -78,17 +80,18 @@ class Modbus_GUI(tk.Tk):
     
         self.get_database()
 
-
-
     def on_click(self):
+
         self.radio_address = self.radio_address_input.get()
         self.modbus_address = self.modbus_address_input.get()
         self.node_identifier = self.node_identifier_input.get()
 
         try:
+
             result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
 
             if result.get("error") == None:
+
                 self.radio_address_input.delete(0, tk.END)
                 self.modbus_address_input.delete(0, tk.END) 
                 self.node_identifier_input.delete(0, tk.END)
@@ -96,42 +99,58 @@ class Modbus_GUI(tk.Tk):
                 messagebox.showinfo(title="Success", message="Entry added successfully.")
                 self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
                 self.get_database()  # Repopulate the treeview with updated data
+
             else:
+
                 error_message = result.get("error")
                 messagebox.showerror(title="Error", message=error_message)
 
         except ValueError:
+
             messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")   
 
     def get_database(self):
+
         result = retrieveAllConfiguredMacAddress()
 
         for index, item in enumerate(result, start=1):
+
             self.tree.insert("", "end", values=(index, item[0], item[1], item[2]))
 
     def delete_selected(self): 
+
         selected_item = self.tree.selection()
+
         if not selected_item:
+
             messagebox.showerror(title="Error", message="Please select an item to delete.")
         
         else:
+
             response = messagebox.askquestion("Confirm", "Are you sure you want to proceed?")
 
             if response == 'yes':
+
                 radio_mac_address = self.tree.item(selected_item)["values"][1]
                 result = deleteXbeeDetails(radio_mac_address)
+
                 if result.get("success") != None:
+
                     messagebox.showinfo(title="Success", message="Entry deleted successfully.")
                     self.tree.delete(selected_item)
                     self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
                     self.get_database()  # Repopulate the treeview with updated data
 
     def update_selected(self):
+
         self.selected_item = self.tree.selection()
+
         if not self.selected_item:
+
             messagebox.showerror(title="Error", message="Please select an item to update.")
 
         else:
+
             self.update_window = tk.Toplevel(self)
             self.update_window.title("Update Entry")
 
@@ -168,6 +187,7 @@ class Modbus_GUI(tk.Tk):
 
 
     def click_update(self):
+
         self.json_data = {}
 
         self.new_mac_address = self.radio_input.get()
@@ -176,28 +196,28 @@ class Modbus_GUI(tk.Tk):
     
             
         if self.new_mac_address != self.old_mac_address:
+
             self.json_data["xbeeMac"] = self.new_mac_address
+
         if self.new_modbus_address != self.old_modbus_address:
+
             self.json_data["modbusStartAddress"] = int(self.new_modbus_address)
+
         if self.new_node_identifier != self.old_node_identifier:
+
             self.json_data["xbeeNodeIdentifier"] = self.new_node_identifier
 
         if self.json_data:
+
             updateXbeeDetails(self.old_mac_address, self.json_data)
             self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
             self.get_database() 
             messagebox.showinfo(title="Success", message="Entry updated successfully.")
 
-
         else:
             messagebox.showerror(title="Error", message="No new update detected.")
 
-        
-
-        
-
         self.update_window.destroy()
-        
-            
+          
 my_app = Modbus_GUI()
 my_app.mainloop()
