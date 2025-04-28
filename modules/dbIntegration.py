@@ -265,5 +265,26 @@ def deleteXbeeDetails(xbeeMacAddress):
 
         return {"error": e}
 
+def retrieveAllConfiguredMacAddress():
+
+    try:
+
+        retrievedData = []
+        allConfiguredData = radioModbusMapCollection.find({},{"_id":0})
+
+        for data in allConfiguredData:
+
+            currentDataList = []
+
+            for key, value in data.items():
+
+                currentDataList.append(value)
+            
+            retrievedData.append(currentDataList)
+
+    except Exception as e:
+
+        return {"error": str(e)}
+    
 if __name__ == "__main__":
     pass
