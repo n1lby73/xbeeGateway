@@ -96,8 +96,5 @@ class Modbus_GUI(tk.Tk):
         except ValueError:
             messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")      
             
-
-        print(result)
-
 my_app = Modbus_GUI()
 my_app.mainloop()
