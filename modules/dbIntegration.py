@@ -282,6 +282,8 @@ def retrieveAllConfiguredMacAddress():
             
             retrievedData.append(currentDataList)
 
+        return retrievedData
+
     except Exception as e:
 
         return {"error": str(e)}

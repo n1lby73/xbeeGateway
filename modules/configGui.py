@@ -41,39 +41,36 @@ class Modbus_GUI(tk.Tk):
         self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.on_click)
         self.button.pack(pady=10)
 
-
+        #Let's talk database here
         #database entries
         self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Database Entries", padding=10)
         self.show_entry_frame.pack(fill="both")
 
         # Treeview with scrollbar
-        self.tree = ttk.Treeview(self.show_entry_frame, columns=('ID', 'RadioAddress', 'ModbusAddress'), show='headings')
+        self.tree = ttk.Treeview(self.show_entry_frame)
 
         # Define columns
-        self.tree.heading('ID', text='ID')
-        self.tree.heading('RadioAddress', text='Radio Address')
-        self.tree.heading('ModbusAddress', text='Modbus Start Address')
-        
-        # # Set column widths
-        # self.tree.column('ID', width=10, anchor=tk.CENTER)
-        # self.tree.column('RadioAddress', width=150, anchor=tk.CENTER)
-        # self.tree.column('ModbusAddress', width=150, anchor=tk.CENTER)
-        
-        # Add scrollbar
-        scrollbar = ttk.Scrollbar(self.show_entry_frame, orient=tk.VERTICAL, command=self.tree.yview)
-        self.tree.configure(yscroll=scrollbar.set)
-        
-        # Grid layout
-        self.tree.grid(row=0, column=0, sticky=tk.NSEW)
-        scrollbar.grid(row=0, column=1, sticky=tk.NS)
-        
-        # Configure grid weights
-        self.show_entry_frame.rowconfigure(0, weight=1)
-        self.show_entry_frame.columnconfigure(0, weight=1)
+        self.tree['columns'] = ('S/N', 'RadioAddress', 'ModbusAddress', "Node Identifier")
 
+        # Format columns
+        self.tree.column("#0", width=0, stretch=tk.NO)  # Hide first empty column
+        
+        self.tree.column("S/N", anchor=tk.CENTER, width=50)
+        self.tree.column("RadioAddress", anchor=tk.CENTER, width=250)
+        self.tree.column("ModbusAddress", anchor=tk.CENTER, width=200)
+        self.tree.column("Node Identifier", anchor=tk.CENTER, width=250)
+
+        self.tree.heading("S/N", text="S/N")
+        self.tree.heading("RadioAddress", text="Radio Address")
+        self.tree.heading("ModbusAddress", text="Modbus Start Address")
+        self.tree.heading("Node Identifier", text="Node Identifier")
+
+        self.tree.pack()
 
         self.button = tk.Button(self, text = "Delete Selected", padx=20, pady=10,bg="blue", fg="white")
         self.button.pack(pady=10)
+    
+        self.get_database()
 
 
 
@@ -94,7 +91,14 @@ class Modbus_GUI(tk.Tk):
                 messagebox.showerror(title="Error", message=error_message)
 
         except ValueError:
-            messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")      
+            messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")   
+
+    def get_database(self):
+        result = retrieveAllConfiguredMacAddress()
+
+        for index, item in enumerate(result, start=1):
+            self.tree.insert("", "end", values=(index, item[0], item[1], item[2]))
+
             
 my_app = Modbus_GUI()
 my_app.mainloop()
