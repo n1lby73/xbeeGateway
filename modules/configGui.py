@@ -67,7 +67,7 @@ class Modbus_GUI(tk.Tk):
 
         self.tree.pack()
 
-        self.button = tk.Button(self, text = "Delete Selected", padx=20, pady=10,bg="blue", fg="white")
+        self.button = tk.Button(self, text = "Delete Selected", padx=20, pady=10,bg="blue", fg="white", command=self.delete_selected)
         self.button.pack(pady=10)
     
         self.get_database()
@@ -81,7 +81,7 @@ class Modbus_GUI(tk.Tk):
 
         try:
             result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
-
+            self.get_database()
             if result.get("error") == None:
                 self.radio_address_input.delete(0, tk.END)
                 self.modbus_address_input.delete(0, tk.END) 
@@ -98,6 +98,24 @@ class Modbus_GUI(tk.Tk):
 
         for index, item in enumerate(result, start=1):
             self.tree.insert("", "end", values=(index, item[0], item[1], item[2]))
+
+    def delete_selected(self): 
+        selected_item = self.tree.selection()
+        if not selected_item:
+            messagebox.showerror(title="Error", message="Please select an item to delete.")
+        
+        else:
+            response = messagebox.askquestion("Confirm", "Are you sure you want to proceed?")
+            print(response)  # 'yes' or 'no'
+            if response == 'yes':
+                radio_mac_address = self.tree.item(selected_item)["values"][1]
+                return deleteXbeeDetails(radio_mac_address)
+            self.get_database()
+
+
+
+
+
 
             
 my_app = Modbus_GUI()
