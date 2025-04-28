@@ -1,12 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
-from .dbIntegration import configureXbeeModbusStartAddress
 
 class Modbus_GUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Modbus GUI")
-        self.geometry("800x600")
+        self.geometry("800x650")
 
         self.title = tk.Label(self, text="CORS GATEWAY CONFIGURATION", font=("Arial", 20, "bold"))
         self.title.pack(pady=20)
@@ -27,6 +26,11 @@ class Modbus_GUI(tk.Tk):
         self.modbus_address_label.grid(row=2, column=0, padx=10, pady=10, sticky='w')
         self.modbus_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.modbus_address_input.grid(row=2, column=1, pady=10, sticky='w')
+
+        self.node_identifier_label = tk.Label(self.add_entry_frame, text="Node Identifier: ", width=40)
+        self.node_identifier_label.grid(row=3, column=0, padx=10, pady=10, sticky='w')
+        self.node_identifier_input = tk.Entry(self.add_entry_frame, width=50)
+        self.node_identifier_input.grid(row=3, column=1, pady=10, sticky='w')
 
         self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white")
         self.button.pack(pady=10)
