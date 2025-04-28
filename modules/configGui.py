@@ -117,6 +117,8 @@ class Modbus_GUI(tk.Tk):
                 if result.get("success") != None:
                     messagebox.showinfo(title="Success", message="Entry deleted successfully.")
                     self.tree.delete(selected_item)
+                    self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
+                    self.get_database()
         print(result)
 
 
