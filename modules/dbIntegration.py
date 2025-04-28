@@ -206,7 +206,7 @@ def storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp):
         xbeeHistoryEntry = gatewayDb[xbeeMacAddress]
         historian = xbeeHistoryEntry.insert_one(dataToInsert)
 
-        if historian > 0:
+        if historian.inserted_id:
 
             return True
 
