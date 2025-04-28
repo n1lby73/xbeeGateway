@@ -105,7 +105,7 @@ async def modbusPolling(contextValue):
             
             else:
 
-                print (f"Xbee radio with mac address {xbeeMac}, has not been configured")
+                print (f"Xbee radio with mac address {mac}, has not been configured")
 
         except Exception as e:
             
