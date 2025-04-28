@@ -53,12 +53,17 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         validateStartAddress = radioModbusMapCollection.find_one({"modbusStartAddress":startAddress})
         validateNodeIdentifier = radioModbusMapCollection.find_one({"xbeeNodeIdentifier":nodeIdentifier})
 
-        if validateUniqueMacAddress or validateStartAddress or validateNodeIdentifier:
+        if validateUniqueMacAddress:
 
-            xbeeStartAddress = validateUniqueMacAddress["modbusStartAddress"]
-            xbeeNodeId = validateUniqueMacAddress["xbeeNodeIdentifier"]
+            return {"error":f"Mac address already utilized by {validateUniqueMacAddress["xbeeNodeIdentifier"]}"}
 
-            return {"error":f"Mac address ({xbeeMacAddress}) already configured with start address as {xbeeStartAddress} and node identifier as {xbeeNodeId} "}
+        if validateStartAddress:
+            
+            return {"error":f"Start address already utilized by {validateStartAddress["xbeeNodeIdentifier"]}"}
+
+        if validateNodeIdentifier:
+
+            return {"error":f"Node identifier already utiilized by ({validateNodeIdentifier["xbeeMac"]})"}
 
         # Validate that specified modbus address is not in between two xbee device
 
