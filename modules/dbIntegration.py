@@ -2,7 +2,7 @@ import pymongo
 import datetime
 from . import variables
 
-dbclient = pymongo.MongoClient("mongodb://localhost:27017/")
+dbclient = pymongo.MongoClient("mongodb://10.140.241.6:27017/")
 
 gatewayDb = dbclient["Gateway"]
 radioModbusMapCollection = gatewayDb["radioModbusMap"]
