@@ -23,14 +23,12 @@ class Modbus_GUI(tk.Tk):
         self.radio_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.radio_address_input.grid(row=1, column=1, pady=10, sticky='w')
 
-        self.radio_address = self.radio_address_input.get()
 
         self.modbus_address_label = tk.Label(self.add_entry_frame, text="Modbus Start Address: ", width=40)
         self.modbus_address_label.grid(row=2, column=0, padx=10, pady=10, sticky='w')
         self.modbus_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.modbus_address_input.grid(row=2, column=1, pady=10, sticky='w')
 
-        self.modbus_address = self.modbus_address_input.get()
 
 
         self.node_identifier_label = tk.Label(self.add_entry_frame, text="Node Identifier: ", width=40)
@@ -38,10 +36,9 @@ class Modbus_GUI(tk.Tk):
         self.node_identifier_input = tk.Entry(self.add_entry_frame, width=50)
         self.node_identifier_input.grid(row=3, column=1, pady=10, sticky='w')
 
-        self.node_identifier = self.node_identifier_input.get()
 
 
-        self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=lambda:self.configureXbeeModbusStartAddress(self.radio_address, self.modbus_address, self.node_identifier))
+        self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.on_click)
         self.button.pack(pady=10)
 
 
@@ -80,8 +77,15 @@ class Modbus_GUI(tk.Tk):
 
 
 
-    def on_button_click(self):
-        configureXbeeModbusStartAddress(self.radio_address, self.modbus_address, self.node_identifier)
+    def on_click(self):
+        self.radio_address = self.radio_address_input.get()
+        self.modbus_address = self.modbus_address_input.get()
+        self.node_identifier = self.node_identifier_input.get()
+
+        result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
+        print(self.modbus_address)
+
+        print(result)
 
 my_app = Modbus_GUI()
 my_app.mainloop()
