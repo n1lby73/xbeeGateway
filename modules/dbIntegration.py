@@ -150,7 +150,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
                 # Validate that modbus start address would not conflict
                 pass # would come back when modbus adress assigner helper function is created
 
-            if key == "xbeeNodeIdentefier":
+            if key == "xbeeNodeIdentifier":
 
                 # Confirm that user is not sending same node identifier to update
 
