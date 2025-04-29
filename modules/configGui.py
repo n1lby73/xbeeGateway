@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from PIL import Image, ImageTk
 from .dbIntegration import configureXbeeModbusStartAddress, retrieveAllConfiguredMacAddress, deleteXbeeDetails, updateXbeeDetails
 
 class Modbus_GUI(tk.Tk):
@@ -41,9 +42,20 @@ class Modbus_GUI(tk.Tk):
         self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.on_click)
         self.button.pack(pady=10)
 
+        refresh_image_path = "refresh.png"  # Replace with your image path
+        refresh_image = Image.open(refresh_image_path)
+        refresh_image = ImageTk.PhotoImage(refresh_image)
+
+        self.refresh_image = refresh_image
+
+        refresh_label = tk.Label(self, image=self.refresh_image, width=20, height=20)
+        refresh_label.pack()
+
         #Let's talk database here
         self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Configured Xbee Radios", padding=10)
         self.show_entry_frame.pack(fill="both")
+
+        
 
         self.tree = ttk.Treeview(self.show_entry_frame)
 
@@ -222,8 +234,8 @@ class Modbus_GUI(tk.Tk):
 
             
         if self.json_data:
-            
-            response = messagebox.askyesno(title="Are you sure?", message=f"Are you fine with this update? \n\n{', \n'.join(str(item) for item in self.result)}")
+            joined_response = ', \n'.join(str(item) for item in self.result)
+            response = messagebox.askyesno(title="Are you sure?", message=f"Are you fine with this update? \n\n{joined_response}")
 
             if response:
 
@@ -234,6 +246,8 @@ class Modbus_GUI(tk.Tk):
                 if result.get("error") == None:
 
                     messagebox.showinfo(title="Success", message="Entry updated successfully.")
+                    self.update_window.destroy()
+
 
                 else:
                     
@@ -244,7 +258,6 @@ class Modbus_GUI(tk.Tk):
 
             messagebox.showerror(title="Error", message="No new update detected.")
 
-        self.update_window.destroy()
           
 my_app = Modbus_GUI()
 my_app.mainloop()
