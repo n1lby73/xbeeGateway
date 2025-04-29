@@ -23,7 +23,7 @@ def dbQueryModbusStartAddress(xbeeMacAddress):
     try:
 
         xbeeMacAddress = str(xbeeMacAddress).upper()
-        xbeeDetails = radioModbusMapCollection.find_one({"xbeeMac":xbeeMacAddress})
+        xbeeDetails = configuredRadioCollection.find_one({"xbeeMac":xbeeMacAddress})
 
         if xbeeDetails:
 
@@ -68,9 +68,9 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
             return {"error":"Invalid node identifier"}
         
-        validateUniqueMacAddress = radioModbusMapCollection.find_one({"xbeeMac":xbeeMacAddress})
-        validateStartAddress = radioModbusMapCollection.find_one({"modbusStartAddress":startAddress})
-        validateNodeIdentifier = radioModbusMapCollection.find_one({"xbeeNodeIdentifier":nodeIdentifier})
+        validateUniqueMacAddress = configuredRadioCollection.find_one({"xbeeMac":xbeeMacAddress})
+        validateStartAddress = configuredRadioCollection.find_one({"modbusStartAddress":startAddress})
+        validateNodeIdentifier = configuredRadioCollection.find_one({"xbeeNodeIdentifier":nodeIdentifier})
 
         if validateUniqueMacAddress:
 
@@ -86,7 +86,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
         # Validate that specified modbus address is not in between two xbee device
 
-        lastData = radioModbusMapCollection.find_one(sort=[("_id", -1)])
+        lastData = configuredRadioCollection.find_one(sort=[("_id", -1)])
 
         if lastData is not None:
 
@@ -102,7 +102,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
         xbeeData = {"xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "xbeeNodeIdentifier":nodeIdentifier}
 
-        configuredXbee = radioModbusMapCollection.insert_one(xbeeData)
+        configuredXbee = configuredRadioCollection.insert_one(xbeeData)
 
         # Create collection with the name been the xbee mac address to hold the recived radio data and timestamp for history purpose
 
@@ -138,7 +138,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
         
         oldXbeeMacAddress = str(oldXbeeMacAddress).upper()
         
-        oldMacExistence = radioModbusMapCollection.find_one({"xbeeMac": oldXbeeMacAddress})
+        oldMacExistence = configuredRadioCollection.find_one({"xbeeMac": oldXbeeMacAddress})
 
         if not oldMacExistence:
 
@@ -164,7 +164,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
                 # confirm new xbee mac not in existence
 
-                newMacExistence = radioModbusMapCollection.find_one({"xbeeMac": newMacAddress})
+                newMacExistence = configuredRadioCollection.find_one({"xbeeMac": newMacAddress})
 
                 if newMacExistence:
 
@@ -204,7 +204,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
                 # confirm new node identifier not in existence
 
-                newNodeIdentifierExistence = radioModbusMapCollection.find_one({"xbeeNodeIdentifier": nodeIdentifier})
+                newNodeIdentifierExistence = configuredRadioCollection.find_one({"xbeeNodeIdentifier": nodeIdentifier})
 
                 if newNodeIdentifierExistence:
 
@@ -213,7 +213,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
         
         incomingUpdate = {"$set": jsonParameterToBeUpdated}
 
-        update = radioModbusMapCollection.update_one({"xbeeMac":oldXbeeMacAddress}, incomingUpdate)
+        update = configuredRadioCollection.update_one({"xbeeMac":oldXbeeMacAddress}, incomingUpdate)
 
         if update.modified_count:
 
@@ -234,7 +234,7 @@ def storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp):
 
         # Validate that mac address has been configured by checking if it exist in the general radio and modbus map collection
         
-        validateMacAddress = radioModbusMapCollection.find_one({"xbeeMac":xbeeMacAddress})
+        validateMacAddress = configuredRadioCollection.find_one({"xbeeMac":xbeeMacAddress})
 
         if not validateMacAddress:
             
@@ -275,8 +275,8 @@ def swapXbeeHistoryAndMacAddress(firstXbeeMacAddress, secondXbeeMacAddress):
         firstXbeeMacAddress = str(firstXbeeMacAddress).upper()
         secondXbeeMacAddress = str(secondXbeeMacAddress).upper()
 
-        validateFirstXbee = radioModbusMapCollection.find_one({"xbeeMac": firstXbeeMacAddress})
-        validateSecondXbee = radioModbusMapCollection.find_one({"xbeeMac": secondXbeeMacAddress})
+        validateFirstXbee = configuredRadioCollection.find_one({"xbeeMac": firstXbeeMacAddress})
+        validateSecondXbee = configuredRadioCollection.find_one({"xbeeMac": secondXbeeMacAddress})
         
         if not validateFirstXbee:
 
@@ -294,8 +294,8 @@ def swapXbeeHistoryAndMacAddress(firstXbeeMacAddress, secondXbeeMacAddress):
         firstXbeeUpdate = {"$set": {"xbeeMac":secondXbeeMacAddress}}
         secondXbeeUpdate = {"$set": {"xbeeMac":firstXbeeMacAddress}}
 
-        firstUpdate = radioModbusMapCollection.update_one({"xbeeMac":firstXbeeMacAddress}, firstXbeeUpdate)
-        secondUpdate = radioModbusMapCollection.update_one({"xbeeMac":secondXbeeMacAddress}, secondXbeeUpdate)
+        firstUpdate = configuredRadioCollection.update_one({"xbeeMac":firstXbeeMacAddress}, firstXbeeUpdate)
+        secondUpdate = configuredRadioCollection.update_one({"xbeeMac":secondXbeeMacAddress}, secondXbeeUpdate)
 
         if firstUpdate.modified_count and secondUpdate.modified_count:
 
@@ -313,7 +313,7 @@ def deleteXbeeDetails(xbeeMacAddress):
 
         xbeeMacAddress = str(xbeeMacAddress).upper()
 
-        macExistence = radioModbusMapCollection.find_one({"xbeeMac": xbeeMacAddress})
+        macExistence = configuredRadioCollection.find_one({"xbeeMac": xbeeMacAddress})
 
         if not macExistence:
 
@@ -321,7 +321,7 @@ def deleteXbeeDetails(xbeeMacAddress):
         
         macDetailsToDelete = {"xbeeMac":xbeeMacAddress}
 
-        deleteXbee = radioModbusMapCollection.delete_one(macDetailsToDelete)
+        deleteXbee = configuredRadioCollection.delete_one(macDetailsToDelete)
         gatewayDb[xbeeMacAddress].drop()
 
         if deleteXbee.deleted_count and xbeeMacAddress not in gatewayDb.list_collection_names():
@@ -339,7 +339,7 @@ def retrieveAllConfiguredMacAddress():
     try:
 
         retrievedData = []
-        allConfiguredData = radioModbusMapCollection.find({},{"_id":0})
+        allConfiguredData = configuredRadioCollection.find({},{"_id":0})
 
         for data in allConfiguredData:
 
