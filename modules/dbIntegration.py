@@ -92,7 +92,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
             retrieveLastConfiguredAddress = lastData["modbusStartAddress"]
 
-            validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress
+            validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress + 1
 
             if validAvailableModbusAddress > startAddress: # would still need to work on this to make it more robust and stay safe of memory gap
 
