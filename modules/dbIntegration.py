@@ -62,7 +62,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         
         if startAddress > variables.lowestRegister and startAddress > variables.highestRegister:
 
-            return {"error":"Modbus address out of range"}
+            return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
         
         if nodeIdentifier == "":
 
@@ -184,7 +184,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
                 
                 if startAddress > variables.lowestRegister and startAddress > variables.highestRegister:
 
-                    return {"error":"Modbus address out of range"}
+                    return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
                 # Validate that modbus start address would not conflict
                 pass # would come back when modbus adress assigner helper function is created
 
