@@ -9,7 +9,6 @@ def floatToRegisters(floatValue):
     binaryData = pack('<f', floatValue)
     return list(unpack('<HH', binaryData))
 
-
 def contextManager():
 
     store = ModbusSlaveContext(
