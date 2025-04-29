@@ -60,7 +60,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
             return {"error": "Invalid modbus address"}
         
-        if startAddress > variables.lowestRegister and startAddress > variables.highestRegister:
+        if startAddress < variables.lowestRegister or startAddress > variables.highestRegister:
 
             return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
         
