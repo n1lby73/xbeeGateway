@@ -100,7 +100,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
                 return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
 
-        endAddress = startAddress + variables.incrementalModbusAddress
+        endAddress = startAddress + variables.incrementalModbusAddress - 1
 
         xbeeData = {"xbeeNodeIdentifier":nodeIdentifier, "xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "modbusEndAddress":endAddress}
 
