@@ -100,7 +100,9 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
                 return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
 
-        xbeeData = {"xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "xbeeNodeIdentifier":nodeIdentifier}
+        endAddress = startAddress + variables.incrementalModbusAddress
+
+        xbeeData = {"xbeeNodeIdentifier":nodeIdentifier, "xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "modbusEndAddress":endAddress}
 
         configuredXbee = configuredRadioCollection.insert_one(xbeeData)
 
