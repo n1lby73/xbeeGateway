@@ -47,7 +47,6 @@ class Modbus_GUI(tk.Tk):
         self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Database Entries", padding=10)
         self.show_entry_frame.pack(fill="both")
 
-        # Treeview with scrollbar
         self.tree = ttk.Treeview(self.show_entry_frame)
 
         # Define columns
