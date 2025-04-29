@@ -11,6 +11,7 @@ def dbQueryModbusStartAddress(xbeeMacAddress):
 
     try:
 
+        xbeeMacAddress = str(xbeeMacAddress).upper()
         xbeeDetails = radioModbusMapCollection.find_one({"xbeeMac":xbeeMacAddress})
 
         if xbeeDetails:
@@ -32,6 +33,9 @@ def dbQueryModbusStartAddress(xbeeMacAddress):
 def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier):
 
     try:
+
+        xbeeMacAddress = str(xbeeMacAddress).upper()
+        nodeIdentifier = str(nodeIdentifier).upper()
 
         if type(startAddress) is not int:
 
@@ -121,25 +125,35 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
             return {"error": f"Invalid keys found: {invalidKey}. Allowed keys: {validKeys}"}
         
+        oldXbeeMacAddress = str(oldXbeeMacAddress).upper()
+        
         oldMacExistence = radioModbusMapCollection.find_one({"xbeeMac": oldXbeeMacAddress})
 
         if not oldMacExistence:
 
             return {"error": f"xbeeMac ({oldXbeeMacAddress}) not configured, hence not available for update."}
         
+        jsonParameterToBeUpdated = {key: value.upper() if isinstance(value, str) else value for key, value in jsonParameterToBeUpdated.items()}
+
         for key in jsonParameterToBeUpdated:
 
             if key == "xbeeMac":
 
+                newMacAddress = str(jsonParameterToBeUpdated.get("xbeeMac")).upper()
+
+                if len(newMacAddress) != variables.validMacAddressLength:
+
+                    return {"error": "Invalid mac address entered"}
+
                 # Confirm that user is not sending same mac address to update
 
-                if str(jsonParameterToBeUpdated.get("xbeeMac")) == str(oldXbeeMacAddress):
+                if newMacAddress == oldXbeeMacAddress:
 
                     return {"error":"new mac address still same as current mac address"}
 
                 # confirm new xbee mac not in existence
 
-                newMacExistence = radioModbusMapCollection.find_one({"xbeeMac": jsonParameterToBeUpdated.get("xbeeMac")})
+                newMacExistence = radioModbusMapCollection.find_one({"xbeeMac": newMacAddress})
 
                 if newMacExistence:
 
@@ -147,7 +161,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
                 
                 # Update the already existing historian collection for the specified xbee mac address
 
-                gatewayDb[oldXbeeMacAddress].rename(str(jsonParameterToBeUpdated.get("xbeeMac")))
+                gatewayDb[oldXbeeMacAddress].rename(newMacAddress)
 
             if key == "modbusStartAddress":
                 
@@ -165,19 +179,21 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
             if key == "xbeeNodeIdentifier":
 
-                if str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")) == "":
+                nodeIdentifier = str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")).upper()
+
+                if nodeIdentifier == "":
 
                     return {"error":"Invalid node identifier"}
 
                 # Confirm that user is not sending same node identifier to update
 
-                if str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")) == str(oldMacExistence.get("xbeeNodeIdentifier")):
+                if nodeIdentifier == str(oldMacExistence.get("xbeeNodeIdentifier")):
 
                     return {"error":"new node identifier still same as current node identifier"}
 
                 # confirm new node identifier not in existence
 
-                newNodeIdentifierExistence = radioModbusMapCollection.find_one({"xbeeNodeIdentifier": jsonParameterToBeUpdated.get("xbeeNodeIdentifier")})
+                newNodeIdentifierExistence = radioModbusMapCollection.find_one({"xbeeNodeIdentifier": nodeIdentifier})
 
                 if newNodeIdentifierExistence:
 
@@ -202,6 +218,8 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 def storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp):
     
     try:
+
+        xbeeMacAddress = str(xbeeMacAddress).upper()
 
         # Validate that mac address has been configured by checking if it exist in the general radio and modbus map collection
         
@@ -243,6 +261,9 @@ def swapXbeeHistoryAndMacAddress(firstXbeeMacAddress, secondXbeeMacAddress):
 
     try:
 
+        firstXbeeMacAddress = str(firstXbeeMacAddress).upper()
+        secondXbeeMacAddress = str(secondXbeeMacAddress).upper()
+
         validateFirstXbee = radioModbusMapCollection.find_one({"xbeeMac": firstXbeeMacAddress})
         validateSecondXbee = radioModbusMapCollection.find_one({"xbeeMac": secondXbeeMacAddress})
         
@@ -278,6 +299,8 @@ def swapXbeeHistoryAndMacAddress(firstXbeeMacAddress, secondXbeeMacAddress):
 def deleteXbeeDetails(xbeeMacAddress):
 
     try:
+
+        xbeeMacAddress = str(xbeeMacAddress).upper()
 
         macExistence = radioModbusMapCollection.find_one({"xbeeMac": xbeeMacAddress})
 
