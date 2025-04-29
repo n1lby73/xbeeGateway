@@ -5,7 +5,17 @@ from . import variables
 dbclient = pymongo.MongoClient("mongodb://10.140.241.6:27017/")
 
 gatewayDb = dbclient["Gateway"]
-radioModbusMapCollection = gatewayDb["radioModbusMap"]
+radioModbusMapCollection = gatewayDb["configuredRadio"]
+
+def modbusAddressPolice(startAddress):
+
+    # Retrieve all the modbus start range from the db
+    # Calculate the end range
+    # check for available gaps from end to start
+    # Store available range in db
+    # validate that user specified address is within the available range
+
+    pass
 
 def dbQueryModbusStartAddress(xbeeMacAddress):
 
