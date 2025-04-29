@@ -21,51 +21,50 @@ class Modbus_GUI(tk.Tk):
         self.add_entry_frame = tk.Frame(self)
         self.add_entry_frame.pack(fill="both")
 
+        self.node_identifier_label = tk.Label(self.add_entry_frame, text="Node Identifier: ", width=40)
+        self.node_identifier_label.grid(row=1, column=0, padx=10, pady=10, sticky='w')
+        self.node_identifier_input = tk.Entry(self.add_entry_frame, width=50)
+        self.node_identifier_input.grid(row=1, column=1, pady=10, sticky='w')
+
         self.radio_address_label = tk.Label(self.add_entry_frame, text="Radio MAC Address: ", width=40)
-        self.radio_address_label.grid(row=1, column=0,padx=10, pady=10, sticky='w')
+        self.radio_address_label.grid(row=2, column=0,padx=10, pady=10, sticky='w')
         self.radio_address_input = tk.Entry(self.add_entry_frame, width=50)
-        self.radio_address_input.grid(row=1, column=1, pady=10, sticky='w')
+        self.radio_address_input.grid(row=2, column=1, pady=10, sticky='w')
         
 
         self.modbus_address_label = tk.Label(self.add_entry_frame, text="Modbus Start Address: ", width=40)
-        self.modbus_address_label.grid(row=2, column=0, padx=10, pady=10, sticky='w')
+        self.modbus_address_label.grid(row=3, column=0, padx=10, pady=10, sticky='w')
         self.modbus_address_input = tk.Entry(self.add_entry_frame, width=50)
-        self.modbus_address_input.grid(row=2, column=1, pady=10, sticky='w')
-
-
-        self.node_identifier_label = tk.Label(self.add_entry_frame, text="Node Identifier: ", width=40)
-        self.node_identifier_label.grid(row=3, column=0, padx=10, pady=10, sticky='w')
-        self.node_identifier_input = tk.Entry(self.add_entry_frame, width=50)
-        self.node_identifier_input.grid(row=3, column=1, pady=10, sticky='w')
-
-
+        self.modbus_address_input.grid(row=3, column=1, pady=10, sticky='w')
+    
 
         self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.on_click)
         self.button.pack(pady=10)
 
         #Let's talk database here
-        #database entries
-        self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Database Entries", padding=10)
+        self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Configured Xbee Radios", padding=10)
         self.show_entry_frame.pack(fill="both")
 
-        # Treeview with scrollbar
         self.tree = ttk.Treeview(self.show_entry_frame)
 
         # Define columns
-        self.tree['columns'] = ('S/N', 'RadioMACAddress', 'ModbusAddress', "Node Identifier")
+        self.tree['columns'] = ('S/N',"Node Identifier", 'RadioMACAddress','ModbusAddress',  "ModbusEndAddress" )
 
         # Format columns
         self.tree.column("#0", width=0, stretch=tk.NO)  # Hide first empty column
         
-        self.tree.column("S/N", anchor=tk.CENTER, width=50)
-        self.tree.column("RadioMACAddress", anchor=tk.CENTER, width=250)
-        self.tree.column("ModbusAddress", anchor=tk.CENTER, width=200)
-        self.tree.column("Node Identifier", anchor=tk.CENTER, width=250)
+        self.tree.column("S/N", anchor=tk.CENTER, width=30)
+        self.tree.column("Node Identifier", anchor=tk.CENTER, width=150)
+        self.tree.column("RadioMACAddress", anchor=tk.CENTER, width=200)
+        self.tree.column("ModbusAddress", anchor=tk.CENTER, width=150)
+        self.tree.column("ModbusEndAddress", anchor=tk.CENTER, width=200)
+
 
         self.tree.heading("S/N", text="S/N")
+        self.tree.heading("Node Identifier", text="Node Identifier")
         self.tree.heading("RadioMACAddress", text="Radio MAC Address")
         self.tree.heading("ModbusAddress", text="Modbus Start Address")
-        self.tree.heading("Node Identifier", text="Node Identifier")
+        self.tree.heading("ModbusEndAddress", text="Modbus End Address")
 
         self.tree.pack()
 
@@ -77,6 +76,7 @@ class Modbus_GUI(tk.Tk):
 
         self.update_button = tk.Button(self.button_frame, text = "Update Selected", padx=20, pady=10,bg="blue", fg="white", command=self.update_selected)
         self.update_button.pack(padx=30)
+
     
         self.get_database()
 
@@ -102,8 +102,7 @@ class Modbus_GUI(tk.Tk):
 
             else:
 
-                error_message = result.get("error")
-                messagebox.showerror(title="Error", message=error_message)
+                messagebox.showerror(title="Error", message= str(result.get("error")))
 
         except ValueError:
 
@@ -115,7 +114,11 @@ class Modbus_GUI(tk.Tk):
 
         for index, item in enumerate(result, start=1):
 
-            self.tree.insert("", "end", values=(index, item[0], item[1], item[2]))
+            self.tree.insert("", "end", values=(index, item[0], item[1], item[2], item[3]))
+
+        if isinstance(result, dict) and result.get("error") != None: 
+                    
+            messagebox.showerror(title="Error", message= str(result.get("error")))
 
     def delete_selected(self): 
 
@@ -134,12 +137,16 @@ class Modbus_GUI(tk.Tk):
                 radio_mac_address = self.tree.item(selected_item)["values"][1]
                 result = deleteXbeeDetails(radio_mac_address)
 
-                if result.get("success") != None:
+                if result.get("error") == None:
 
                     messagebox.showinfo(title="Success", message="Entry deleted successfully.")
                     self.tree.delete(selected_item)
                     self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
                     self.get_database()  # Repopulate the treeview with updated data
+                
+                else: 
+                    
+                    messagebox.showerror(title="Error", message= str(result.get("error")))
 
     def update_selected(self):
 
@@ -157,64 +164,84 @@ class Modbus_GUI(tk.Tk):
             self.update_entry_frame = tk.Frame(self.update_window, padx=20, pady=20)
             self.update_entry_frame.pack(fill="both")
 
+            self.node_label = tk.Label(self.update_entry_frame, text="Node Identifier: ", width=20)
+            self.node_label.grid(row=1, column=0, pady=10, sticky='w')
+            self.node_input = tk.Entry(self.update_entry_frame, width=50)
+            self.node_input.grid(row=1, column=1, pady=10, sticky='w')
+
+
             self.radio_label = tk.Label(self.update_entry_frame, text="Radio MAC Address: ", width=20)
-            self.radio_label.grid(row=1, column=0, pady=10, sticky='w')
+            self.radio_label.grid(row=2, column=0, pady=10, sticky='w')
             self.radio_input = tk.Entry(self.update_entry_frame, width=50)
-            self.radio_input.grid(row=1, column=1, pady=10, sticky='w')
+            self.radio_input.grid(row=2, column=1, pady=10, sticky='w')
             
 
             self.modbus_label = tk.Label(self.update_entry_frame, text="Modbus Start Address: ", width=20)
-            self.modbus_label.grid(row=2, column=0, pady=10, sticky='w')
+            self.modbus_label.grid(row=3, column=0, pady=10, sticky='w')
             self.modbus_input = tk.Entry(self.update_entry_frame, width=50)
-            self.modbus_input.grid(row=2, column=1, pady=10, sticky='w')
-
-
-            self.node_label = tk.Label(self.update_entry_frame, text="Node Identifier: ", width=20)
-            self.node_label.grid(row=3, column=0, pady=10, sticky='w')
-            self.node_input = tk.Entry(self.update_entry_frame, width=50)
-            self.node_input.grid(row=3, column=1, pady=10, sticky='w')
+            self.modbus_input.grid(row=3, column=1, pady=10, sticky='w')
+            
 
             self.update_entry = tk.Button(self.update_entry_frame, text="Update Entry", padx=20, pady=10,bg="blue", fg="white", command=self.click_update)
             self.update_entry.grid(row=4, column=0, columnspan=2, pady=10)
 
-            self.old_mac_address = self.tree.item(self.selected_item)["values"][1]
-            self.old_modbus_address = int(self.tree.item(self.selected_item)["values"][2])
-            self.old_node_identifier = self.tree.item(self.selected_item)["values"][3]
+            self.old_node_identifier = self.tree.item(self.selected_item)["values"][1]
+            self.old_mac_address = self.tree.item(self.selected_item)["values"][2]
+            self.old_modbus_address = int(self.tree.item(self.selected_item)["values"][3])
 
+            self.node_input.insert(0, self.old_node_identifier)
             self.radio_input.insert(0, self.old_mac_address)
             self.modbus_input.insert(0, self.old_modbus_address)
-            self.node_input.insert(0, self.old_node_identifier)
 
 
     def click_update(self):
 
         self.json_data = {}
+        self.result = []
 
+        self.new_node_identifier = self.node_input.get()
         self.new_mac_address = self.radio_input.get()
         self.new_modbus_address = int(self.modbus_input.get())
-        self.new_node_identifier = self.node_input.get()
     
-            
+
+        if self.new_node_identifier != self.old_node_identifier:
+
+            self.json_data["xbeeNodeIdentifier"] = self.new_node_identifier 
+            self.result.append(f"New Node Identifier: {self.new_node_identifier}")
+
         if self.new_mac_address != self.old_mac_address:
 
             self.json_data["xbeeMac"] = self.new_mac_address
+            self.result.append(f"New Radio MAC Address: {self.new_mac_address}")
+
 
         if self.new_modbus_address != self.old_modbus_address:
 
             self.json_data["modbusStartAddress"] = int(self.new_modbus_address)
+            self.result.append(f"New Modbus Start Address: {self.new_modbus_address}")
 
-        if self.new_node_identifier != self.old_node_identifier:
-
-            self.json_data["xbeeNodeIdentifier"] = self.new_node_identifier
-
+            
         if self.json_data:
+            
+            response = messagebox.askyesno(title="Are you sure?", message=f"Are you fine with this update? \n\n{', \n'.join(str(item) for item in self.result)}")
 
-            updateXbeeDetails(self.old_mac_address, self.json_data)
-            self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
-            self.get_database() 
-            messagebox.showinfo(title="Success", message="Entry updated successfully.")
+            if response:
+
+                result = updateXbeeDetails(self.old_mac_address, self.json_data)
+                self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
+                self.get_database() 
+
+                if result.get("error") == None:
+
+                    messagebox.showinfo(title="Success", message="Entry updated successfully.")
+
+                else:
+                    
+                    messagebox.showerror(title="Error", message= str(result.get("error")))
+            
 
         else:
+
             messagebox.showerror(title="Error", message="No new update detected.")
 
         self.update_window.destroy()
