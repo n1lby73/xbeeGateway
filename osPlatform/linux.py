@@ -80,7 +80,7 @@ async def modbusPolling(contextValue):
 
             if startAddress:
 
-                sensorValues, xbeeMac = await cayenneParse(mac, raw_data)
+                sensorValues = await cayenneParse(mac, raw_data)
 
                 # Assign a block if first time 
                 # if xbeeMac not in variables.xbeeAddressModbusMap:

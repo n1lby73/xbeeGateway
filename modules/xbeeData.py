@@ -42,4 +42,4 @@ async def cayenneParse(xbeeMacAddress,xbeeByteData):
 
     print(f"List of values extracted from {xbeeMacAddress} byte array are: {sensorValues}\n")
 
-    return sensorValues, xbeeMacAddress
+    return sensorValues
