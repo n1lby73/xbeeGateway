@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from .dbIntegration import configureXbeeModbusStartAddress, retrieveAllConfiguredMacAddress, deleteXbeeDetails, updateXbeeDetails
+from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredMacAddress, deleteXbeeDetails, updateXbeeDetails
 
 class Modbus_GUI(tk.Tk):
 
@@ -112,7 +112,7 @@ class Modbus_GUI(tk.Tk):
 
         try:
 
-            result = configureXbeeModbusStartAddress(self.radio_address, int(self.modbus_address), self.node_identifier)
+            result = configureXbeeRadio(self.radio_address, int(self.modbus_address), self.node_identifier)
 
             if result.get("error") == None:
 
