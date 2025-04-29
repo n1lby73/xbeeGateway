@@ -66,7 +66,7 @@ def dbQueryModbusStartAddress(xbeeMacAddress):
 
         return None
 
-def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier):
+def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
     try:
 
