@@ -8,15 +8,56 @@ gatewayDb = dbclient["Gateway"]
 configuredRadioCollection = gatewayDb["configuredRadio"]
 radioModbusMapCollection = gatewayDb["radioModbusMap"]
 
-def modbusAddressPolice(startAddress):
+def modbusAddressPolice(proposedStartAddress):
 
-    # Retrieve all the modbus start range from the db
-    # Calculate the end range
-    # check for available gaps from end to start
-    # Store available range in db
-    # validate that user specified address is within the available range
+    try:
 
-    pass
+        if len(str(proposedStartAddress)) != variables.validModbusAddressLength:
+
+            return {"error": "Invalid modbus address"}
+        
+        if startAddress < variables.lowestRegister or startAddress > variables.highestRegister:
+
+            return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
+        
+        # Retrieve all the modbus start and end range from the db
+
+        allConfiguredAddress = configuredRadioCollection.find({}, {"modbusStartAddress": 1, "modbusEndAddress": 1, "_id": 0})
+        
+        # Check that passed address is available for use
+
+        for storedAddress in allConfiguredAddress:
+
+            startAddress = storedAddress.get("modbusStartAddress")
+            endAddress = storedAddress.get("modbusEndAddress")
+
+            # validate that user specified address is within the available range
+
+            if proposedStartAddress >= startAddress and proposedStartAddress <= endAddress:
+
+                return {"error":'Could not update:\n\nSelected modbus start address would cause adress overlapping'}
+        
+        return True
+
+    except Exception as e:
+
+        return {"error": f"{str(e)}"}       
+        # print(startAddress,endAddress)
+            # # update the collection named availablemodbus address with the current available address
+    # # check for available gaps from end to start
+
+    # # Store available range in db
+    #     for 
+    #     print (i)
+    #     print (type(i))
+    # 
+    # startAddress = type(allConfiguredAddress)
+    
+    # endAddress = allConfiguredAddress.get("modbusEndAddress")
+
+
+
+    # pass
 
 def dbQueryModbusStartAddress(xbeeMacAddress):
 
@@ -56,13 +97,13 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
             return {"error": "Invalid mac address entered"}
         
-        if len(str(startAddress)) != variables.validModbusAddressLength:
+        # if len(str(startAddress)) != variables.validModbusAddressLength:
 
-            return {"error": "Invalid modbus address"}
+        #     return {"error": "Invalid modbus address"}
         
-        if startAddress < variables.lowestRegister or startAddress > variables.highestRegister:
+        # if startAddress < variables.lowestRegister or startAddress > variables.highestRegister:
 
-            return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
+        #     return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
         
         if nodeIdentifier == "":
 
@@ -86,19 +127,24 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
 
         # Validate that specified modbus address is not in between two xbee device
 
-        lastData = configuredRadioCollection.find_one(sort=[("_id", -1)])
+        validAddress = modbusAddressPolice(startAddress)
 
-        if lastData is not None:
+        if validAddress != True:
 
-            retrieveLastConfiguredAddress = lastData["modbusStartAddress"]
+            return validAddress
+        # lastData = configuredRadioCollection.find_one(sort=[("_id", -1)])
 
-            validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress + 1
+        # if lastData is not None:
 
-            if validAvailableModbusAddress > startAddress: # would still need to work on this to make it more robust and stay safe of memory gap
+        #     retrieveLastConfiguredAddress = lastData["modbusStartAddress"]
 
-                print('selected memory map would cause adress overlapping')
+        #     validAvailableModbusAddress = int(retrieveLastConfiguredAddress) + variables.incrementalModbusAddress + 1
 
-                return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
+        #     if validAvailableModbusAddress > startAddress: # would still need to work on this to make it more robust and stay safe of memory gap
+
+        #         print('selected memory map would cause adress overlapping')
+
+        #         return {"error":f"next availiable start address is {validAvailableModbusAddress}"}
 
         endAddress = startAddress + variables.incrementalModbusAddress - 1
 
@@ -176,17 +222,24 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
                 gatewayDb[oldXbeeMacAddress].rename(newMacAddress)
 
-            if key == "modbusStartAddress":
+            if key == "modbusStartAddress": # create one for modbus end address
                 
                 startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress"))
 
-                if len(str(startAddress)) != variables.validModbusAddressLength:
+                # if len(str(startAddress)) != variables.validModbusAddressLength:
 
-                    return {"error": "Invalid modbus address"}
+                #     return {"error": "Invalid modbus address"}
                 
-                if startAddress > variables.lowestRegister and startAddress > variables.highestRegister:
+                # if startAddress > variables.lowestRegister and startAddress > variables.highestRegister:
 
-                    return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
+                #     return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
+
+                validAddress = modbusAddressPolice(startAddress)
+
+                if validAddress != True:
+
+                    return validAddress
+                
                 # Validate that modbus start address would not conflict
                 pass # would come back when modbus adress assigner helper function is created
 
