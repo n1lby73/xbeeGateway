@@ -5,7 +5,8 @@ from . import variables
 dbclient = pymongo.MongoClient("mongodb://10.140.241.6:27017/")
 
 gatewayDb = dbclient["Gateway"]
-radioModbusMapCollection = gatewayDb["configuredRadio"]
+configuredRadioCollection = gatewayDb["configuredRadio"]
+radioModbusMapCollection = gatewayDb["radioModbusMap"]
 
 def modbusAddressPolice(startAddress):
 
