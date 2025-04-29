@@ -92,7 +92,7 @@ def configureXbeeModbusStartAddress(xbeeMacAddress, startAddress, nodeIdentifier
         # Create collection with the name been the xbee mac address to hold the recived radio data and timestamp for history purpose
 
         xbeeHistoryEntry = gatewayDb[xbeeMacAddress]
-        initializationData = {"timestamp": datetime.datetime.now(), "data":"[0,0,0,0,0,0,0,0,0]"}
+        initializationData = {"timestamp": datetime.datetime.now(), "data":[0,0,0,0,0,0,0,0,0]}
         historian = xbeeHistoryEntry.insert_one(initializationData)
 
         if configuredXbee.inserted_id and historian.inserted_id:
