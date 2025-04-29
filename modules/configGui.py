@@ -246,6 +246,8 @@ class Modbus_GUI(tk.Tk):
                 if result.get("error") == None:
 
                     messagebox.showinfo(title="Success", message="Entry updated successfully.")
+                    self.update_window.destroy()
+
 
                 else:
                     
@@ -256,7 +258,6 @@ class Modbus_GUI(tk.Tk):
 
             messagebox.showerror(title="Error", message="No new update detected.")
 
-        self.update_window.destroy()
           
 my_app = Modbus_GUI()
 my_app.mainloop()
