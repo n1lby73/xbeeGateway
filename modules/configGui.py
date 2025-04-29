@@ -44,7 +44,6 @@ class Modbus_GUI(tk.Tk):
         self.button.pack(pady=10)
 
         #Let's talk database here
-        #database entries
         self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Database Entries", padding=10)
         self.show_entry_frame.pack(fill="both")
 
@@ -153,6 +152,7 @@ class Modbus_GUI(tk.Tk):
             messagebox.showerror(title="Error", message="Please select an item to update.")
 
         else:
+
             self.update_window = tk.Toplevel(self)
             self.update_window.title("Update Entry")
 
@@ -190,6 +190,7 @@ class Modbus_GUI(tk.Tk):
 
 
     def click_update(self):
+
         self.json_data = {}
         self.result = []
 
@@ -199,26 +200,28 @@ class Modbus_GUI(tk.Tk):
     
 
         if self.new_node_identifier != self.old_node_identifier:
+
             self.json_data["xbeeNodeIdentifier"] = self.new_node_identifier 
             self.result.append(f"New Node Identifier: {self.new_node_identifier}")
 
         if self.new_mac_address != self.old_mac_address:
+
             self.json_data["xbeeMac"] = self.new_mac_address
             self.result.append(f"New Radio MAC Address: {self.new_mac_address}")
 
 
         if self.new_modbus_address != self.old_modbus_address:
+
             self.json_data["modbusStartAddress"] = int(self.new_modbus_address)
             self.result.append(f"New Modbus Start Address: {self.new_modbus_address}")
 
-
-        
-        print(self.result)
             
         if self.json_data:
+            
             response = messagebox.askyesno(title="Are you sure?", message=f"Are you fine with this update? \n\n{', \n'.join(str(item) for item in self.result)}")
 
             if response:
+
                 updateXbeeDetails(self.old_mac_address, self.json_data)
                 self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
                 self.get_database() 
@@ -226,6 +229,7 @@ class Modbus_GUI(tk.Tk):
             
 
         else:
+
             messagebox.showerror(title="Error", message="No new update detected.")
 
         self.update_window.destroy()
