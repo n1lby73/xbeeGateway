@@ -13,7 +13,7 @@ class Modbus_GUI(tk.Tk):
         self.geometry("800x650")
 
         self.head = tk.Label(self, text="CORS GATEWAY CONFIGURATION", font=("Arial", 20, "bold"))
-        self.head.pack(pady=20)
+        self.head.pack(pady=10)
 
 
         self.label = tk.Label(self, text="Add New Entry")
@@ -42,20 +42,28 @@ class Modbus_GUI(tk.Tk):
         self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.on_click)
         self.button.pack(pady=10)
 
-        refresh_image_path = "refresh.png"  # Replace with your image path
-        refresh_image = Image.open(refresh_image_path)
-        refresh_image = ImageTk.PhotoImage(refresh_image)
+        # refresh_image_path = "refresh.png"  
+        # refresh_image = Image.open(refresh_image_path)
+        # refresh_image = refresh_image.resize((30, 30), Image.LANCZOS)
+        # refresh_image = ImageTk.PhotoImage(refresh_image)
+        # self.refresh_image = refresh_image
 
-        self.refresh_image = refresh_image
+        # refresh_button = tk.Button(self, image=self.refresh_image)
+        # refresh_button.pack( padx=10, pady=10)
 
-        refresh_label = tk.Label(self, image=self.refresh_image, width=20, height=20)
-        refresh_label.pack()
 
         #Let's talk database here
-        self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Configured Xbee Radios", padding=10)
+        self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Configured Xbee Radios", padding=5)
         self.show_entry_frame.pack(fill="both")
 
-        
+        self.search_frame = tk.Frame(self.show_entry_frame)
+        self.search_frame.pack()
+
+        self.search_bar = tk.Entry(self.search_frame, width=50)
+        self.search_bar.grid(row=0, column=0,  sticky='w')
+
+        self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white")
+        self.find_button.grid(row=0, column=1, padx=10, pady=10)
 
         self.tree = ttk.Treeview(self.show_entry_frame)
 
@@ -92,6 +100,10 @@ class Modbus_GUI(tk.Tk):
     
         self.get_database()
 
+    def find(self):
+        self.search = self.search_bar.get()
+
+        
     def on_click(self):
 
         self.radio_address = self.radio_address_input.get()
@@ -134,31 +146,33 @@ class Modbus_GUI(tk.Tk):
 
     def delete_selected(self): 
 
-        selected_item = self.tree.selection()
+        selected_items = self.tree.selection()
 
-        if not selected_item:
+        if not selected_items:
 
             messagebox.showerror(title="Error", message="Please select an item to delete.")
         
         else:
-
             response = messagebox.askquestion("Confirm", "Are you sure you want to proceed?")
 
             if response == 'yes':
-
-                radio_mac_address = self.tree.item(selected_item)["values"][1]
-                result = deleteXbeeDetails(radio_mac_address)
-
-                if result.get("error") == None:
-
-                    messagebox.showinfo(title="Success", message="Entry deleted successfully.")
-                    self.tree.delete(selected_item)
-                    self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
-                    self.get_database()  # Repopulate the treeview with updated data
+                for selected in selected_items:
                 
-                else: 
-                    
-                    messagebox.showerror(title="Error", message= str(result.get("error")))
+                    radio_mac_address = self.tree.item(selected)["values"][2]
+                    result = deleteXbeeDetails(radio_mac_address)
+
+                    if result.get("error") == None:
+
+                        self.tree.delete(selected)
+                 
+                    else: 
+                        
+                        messagebox.showerror(title="Error", message= str(result.get("error")))
+            
+                self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
+                self.get_database()  # Repopulate the treeview with updated data
+                messagebox.showinfo(title="Success", message="Entry deleted successfully.")
+                
 
     def update_selected(self):
 
