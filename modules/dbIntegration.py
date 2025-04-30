@@ -159,8 +159,6 @@ def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
             return validAddress
         
-        print (validAddress)
-
         xbeeData = {"xbeeNodeIdentifier":nodeIdentifier, "xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "modbusEndAddress":endAddress}
 
         configuredXbee = configuredRadioCollection.insert_one(xbeeData)
