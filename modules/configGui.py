@@ -2,12 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-<<<<<<< HEAD
 from .modbus import getIpAddress
-from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredMacAddress, deleteXbeeDetails, updateXbeeDetails
-=======
 from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails
->>>>>>> 4f3dd62a48563515c9e6c9f3952a7b7c618b65e0
 
 class Modbus_GUI(tk.Tk):
 
@@ -160,8 +156,7 @@ class Modbus_GUI(tk.Tk):
 
         if not self.match:
             messagebox.showinfo(title="No Match", message="No match found.")      
-                    
-
+                
         
     def sort_table(self, event=None):
         selection = self.dropdown.get()
