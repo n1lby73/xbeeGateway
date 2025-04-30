@@ -1,8 +1,7 @@
-import pymongo
-import datetime
 from . import variables
 from .modbus import getIpAddress
 from pymongo.errors import PyMongoError
+import pymongo, datetime, random, string
 
 dbclient = pymongo.MongoClient("mongodb://"+getIpAddress()+":27017/")
 
@@ -478,7 +477,19 @@ def retrieveAllConfiguredRadio():
     except Exception as e:
 
         return {"error": str(e)}
-    
+
+def populateDbHelper():
+
+    for i in range(10000):
+
+        xbeeMac = "".join(random.choices(string.ascii_uppercase + string.digits, k=16))
+        start = random.randint(39000, 39999)
+        # nodeidentifier = "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        nodeidentifier = "Radio " + str(i)
+
+        configureXbeeRadio(xbeeMac, start, nodeidentifier)
+        print (retrieveAllConfiguredRadio())
+
 if __name__ == "__main__":
 
     print(updateReusableAddress())
