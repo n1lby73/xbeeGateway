@@ -2,8 +2,12 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+<<<<<<< HEAD
 from .modbus import getIpAddress
 from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredMacAddress, deleteXbeeDetails, updateXbeeDetails
+=======
+from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails
+>>>>>>> 4f3dd62a48563515c9e6c9f3952a7b7c618b65e0
 
 class Modbus_GUI(tk.Tk):
 
@@ -67,7 +71,7 @@ class Modbus_GUI(tk.Tk):
         self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white", command=self.live_search)
         self.find_button.grid(row=0, column=1, padx=10, pady=10)
 
-        refresh_image_path = "refresh.png"  
+        refresh_image_path = "gateway/modules/guiModules/refresh.png"
         refresh_image = Image.open(refresh_image_path)
         refresh_image = refresh_image.resize((20, 20), Image.LANCZOS)
         refresh_image = ImageTk.PhotoImage(refresh_image)
@@ -213,7 +217,7 @@ class Modbus_GUI(tk.Tk):
 
     def get_database(self):
 
-        result = retrieveAllConfiguredMacAddress()
+        result = retrieveAllConfiguredRadio()
 
         for index, item in enumerate(result, start=1):
 
