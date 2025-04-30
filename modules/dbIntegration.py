@@ -2,6 +2,7 @@ import pymongo
 import datetime
 from . import variables
 from .modbus import getIpAddress
+from pymongo.errors import PyMongoError
 
 dbclient = pymongo.MongoClient("mongodb://"+getIpAddress()+":27017/")
 
@@ -44,9 +45,12 @@ def modbusAddressPolice(proposedStartAddress, supposedEndAddress):
 
         return {"error": f"{str(e)}"}       
 
-def updateReusableAddress():
+def updateReusableAddress(returnData=None):
 
     try:
+
+        availableModbusAddressCollection.drop()
+        dataList = []
 
         # Retrieve all configured ranges and sort by startAddress address
         utiilizedRange = list(configuredRadioCollection.find({}, {"modbusStartAddress": 1, "modbusEndAddress": 1, "_id": 0}))
@@ -55,8 +59,6 @@ def updateReusableAddress():
         # Define register bounds
         lowestPossibleAddress = variables.lowestRegister  # e.g., 30000
         highestPossibleAddress = variables.highestRegister  # e.g., 39999
-
-        availableRange = []
 
         # Initialize previous endAddress to the minimum address
         previousEnd = lowestPossibleAddress - 1
@@ -69,24 +71,74 @@ def updateReusableAddress():
             # If there is a gap between previous endAddress and current startAddress
             if startAddress - previousEnd > 1:
 
-                gap_start = previousEnd + 1
-                gap_end = startAddress - 1
-                gap_size = gap_end - gap_start + 1
+                gapStart = previousEnd + 1
+                gapEnd = startAddress - 1
+                gapSize = gapEnd - gapStart + 1
 
-                availableRange.append({"range": f"{gap_start}-{gap_end}", "size": gap_size})
+                if gapSize >= variables.incrementalModbusAddress:
+
+                    usable = "✅"
+
+                else:
+
+                    usable = "❌"
+
+                availableRange = {"modbusAddressRange": f"{gapStart}-{gapEnd}", "size": gapSize, "consumable": usable}
+
+                try:
+
+                    availableModbusAddressCollection.insert_one(availableRange)
+
+                    if returnData is not None:
+
+                        dataList.append(availableRange)
+                
+                except PyMongoError as e:
+
+                    return {"error":f"failed to store {availableRange} in database", "details": str(e)}
 
             previousEnd = max(previousEnd, endAddress)
 
         # Check for any remaining gap at the endAddress
         if highestPossibleAddress - previousEnd >= 1:
 
-            gap_start = previousEnd + 1
-            gap_end = highestPossibleAddress
-            gap_size = gap_end - gap_start + 1
+            gapStart = previousEnd + 1
+            gapEnd = highestPossibleAddress
+            gapSize = gapEnd - gapStart + 1
 
-            availableRange.append({"range": f"{gap_start}-{gap_end}", "size": gap_size})
+            if gapSize >= variables.incrementalModbusAddress:
 
-        return availableRange if availableRange else {"info": "No available address gaps found."}
+                usable = "✅"
+
+            else:
+
+                usable = "❌"
+
+            availableRange = {"modbusAddressRange": f"{gapStart}-{gapEnd}", "size": gapSize, "consumable":usable}
+
+            try:
+
+                availableModbusAddressCollection.insert_one(availableRange)
+
+                if returnData is not None:
+
+                    dataList.append(availableRange)
+                
+            except PyMongoError as e:
+
+                return {"error":f"failed to store {availableRange} in database", "details": str(e)}
+
+        if dataList and returnData is not None:
+
+            return dataList
+        
+        if not dataList and returnData is not None:
+
+            return {"info": "No available address gaps found."}
+        
+        if returnData is None:
+
+            return 
 
     except Exception as e:
 
@@ -163,6 +215,8 @@ def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
         configuredXbee = configuredRadioCollection.insert_one(xbeeData)
 
+        updateReusableAddress()
+
         # Create collection with the name been the xbee mac address to hold the recived radio data and timestamp for history purpose
 
         xbeeHistoryEntry = gatewayDb[xbeeMacAddress]
@@ -235,6 +289,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
             if key == "modbusStartAddress": # create one for modbus endAddress address
                 
+                updateNeeded = True
                 startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress"))
 
                 endAddress = startAddress + (variables.incrementalModbusAddress - 1)
@@ -275,6 +330,12 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
         update = configuredRadioCollection.update_one({"xbeeMac":oldXbeeMacAddress}, incomingUpdate)
 
         if update.modified_count:
+
+            if updateNeeded == True:
+
+                updateReusableAddress()
+
+                updateNeeded = False
 
             return {"success": "Document updated successfully."}
         
@@ -385,6 +446,8 @@ def deleteXbeeDetails(xbeeMacAddress):
 
         if deleteXbee.deleted_count and xbeeMacAddress not in gatewayDb.list_collection_names():
 
+            updateReusableAddress()
+
             return {"success": f"Deleted {xbeeMacAddress} and it's history data successfully."}
         
         return {"error": "delete request received, but no changes were made."}
@@ -417,5 +480,7 @@ def retrieveAllConfiguredRadio():
         return {"error": str(e)}
     
 if __name__ == "__main__":
+
+    print(updateReusableAddress())
 
     pass
