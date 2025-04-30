@@ -165,6 +165,8 @@ def updateAllEndAddress(newRange):
         
         if result.modified_count:
 
+            updateReusableAddress()
+
             return {"sucess":f"updated {result.modified_count}"}
         
     except Exception as e:
