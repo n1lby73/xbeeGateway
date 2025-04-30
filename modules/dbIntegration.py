@@ -264,7 +264,7 @@ def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
     
 def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
-    validKeys = ["xbeeMac", "modbusStartAddress", "xbeeNodeIdentifier"]
+    validKeys = ["xbeeMac", "modbusStartAddress", "modbusEndAddress", "xbeeNodeIdentifier"]
 
     try:
 
