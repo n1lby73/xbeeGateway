@@ -130,7 +130,7 @@ def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
             return {"error": "Invalid mac address entered"}
 
-        if nodeIdentifier == "":
+        if not nodeIdentifier.strip():
 
             return {"error":"Invalid node identifier"}
         
@@ -253,7 +253,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
                 nodeIdentifier = str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")).upper()
 
-                if nodeIdentifier == "":
+                if not nodeIdentifier.strip():
 
                     return {"error":"Invalid node identifier"}
 
