@@ -1,39 +1,44 @@
 import pymongo
 import datetime
 from . import variables
+from .modbus import getIpAddress
 
-dbclient = pymongo.MongoClient("mongodb://10.140.241.6:27017/")
+dbclient = pymongo.MongoClient("mongodb://"+getIpAddress()+":27017/")
 
 gatewayDb = dbclient["Gateway"]
 configuredRadioCollection = gatewayDb["configuredRadio"]
 availableModbusAddressCollection = gatewayDb["availableModbusAddress"]
 
-def modbusAddressPolice(proposedStartAddress):
+def modbusAddressPolice(proposedStartAddress, supposedEndAddress):
 
     try:
 
         if len(str(proposedStartAddress)) != variables.validModbusAddressLength:
 
             return {"error": "Invalid modbus address"}
-        
-        if proposedStartAddress < variables.lowestRegister or proposedStartAddress > variables.highestRegister:
+
+        if proposedStartAddress < variables.lowestRegister or supposedEndAddress > variables.highestRegister:
 
             return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
         
         # Retrieve all the modbus start and end range from the db
 
-        allConfiguredAddress = configuredRadioCollection.find({}, {"modbusStartAddress": 1, "modbusEndAddress": 1, "_id": 0})
+        allConfiguredAddress = list(configuredRadioCollection.find({}, {"modbusStartAddress": 1, "modbusEndAddress": 1, "_id": 0}))
         
         # Check that passed address is available for use
-
+        for i in allConfiguredAddress:
+            print (i)
+        print ("what the hell")
         for storedAddress in allConfiguredAddress:
-
+            print (storedAddress)
             startAddress = storedAddress.get("modbusStartAddress")
             endAddress = storedAddress.get("modbusEndAddress")
 
             # validate that user specified address is within the available range
-
-            if proposedStartAddress >= startAddress and proposedStartAddress <= endAddress:
+            print (startAddress,endAddress)
+            print (proposedStartAddress, supposedEndAddress)
+            # if proposedStartAddress >= startAddress and supposedEndAddress >= endAddress:
+            if supposedEndAddress >= startAddress and proposedStartAddress <= endAddress:
 
                 return {"error":'Could not update:\n\nSelected modbus start address would cause adress overlapping'}
         
@@ -42,6 +47,73 @@ def modbusAddressPolice(proposedStartAddress):
     except Exception as e:
 
         return {"error": f"{str(e)}"}       
+
+# def retrieveReusableAddress():
+
+#     allConfiguredAddress = configuredRadioCollection.find({}, {"modbusStartAddress": 1, "modbusEndAddress": 1, "_id": 0})
+
+#     for storedAddress in allConfiguredAddress:
+
+#         startAddress = storedAddress.get("modbusStartAddress")
+#         endAddress = storedAddress.get("modbusEndAddress")
+
+
+
+#     pass
+
+def modbusAddressP(proposedStartAddress, gapSize=50):
+
+    try:
+
+        # Check the length and range of the proposed start address
+        if len(str(proposedStartAddress)) != variables.validModbusAddressLength:
+            return {"error": "Invalid modbus address"}
+
+        if proposedStartAddress < variables.lowestRegister or proposedStartAddress > variables.highestRegister:
+            return {"error": f"Modbus address out of range\n\nRange: {variables.lowestRegister} - {variables.highestRegister}"}
+
+        # Retrieve all the modbus start and end range from the db
+        allConfiguredAddress = configuredRadioCollection.find({}, {"modbusStartAddress": 1, "modbusEndAddress": 1, "_id": 0})
+        
+        address_gaps = []  # Will store valid address gaps
+        
+        # Check that the passed address is available for use
+        for storedAddress in allConfiguredAddress:
+
+            startAddress = storedAddress.get("modbusStartAddress")
+            endAddress = storedAddress.get("modbusEndAddress")
+
+            # Check if the proposed start address is within any of the existing address ranges
+            if proposedStartAddress >= startAddress and proposedStartAddress <= endAddress:
+                return {"error": 'Could not update:\n\nSelected modbus start address would cause address overlapping'}
+
+            # Identify the gaps between the end of the previous address and the start of the next one
+            address_gaps.append((startAddress, endAddress))
+        
+        # Now we can check if the proposed start address fits in the available gaps
+        address_gaps.sort()  # Sorting to process gaps sequentially
+
+        # Let's check the available gaps for proposed start address
+        last_end = variables.lowestRegister  # starting from the lowest register
+        for start, end in address_gaps:
+            # Check for a valid gap of size `gapSize` between previous end and current start address
+            if start - last_end >= gapSize:
+                # If the gap size is enough, return this as a valid range for the start address
+                if last_end + gapSize <= proposedStartAddress <= start - gapSize:
+                    return True  # The proposed address fits in the gap
+
+            last_end = end  # Update the end to the current block's end
+
+        # Check at the end of the highest register boundary
+        if variables.highestRegister - last_end >= gapSize:
+            if last_end + gapSize <= proposedStartAddress <= variables.highestRegister - gapSize:
+                return True
+
+        return {"error": 'No valid gap for the proposed start address found'}
+    
+    except Exception as e:
+        return {"error": f"{str(e)}"}
+
 
 def dbQueryModbusStartAddress(xbeeMacAddress):
 
@@ -103,13 +175,14 @@ def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
         # Validate that specified modbus address is not in between two xbee device
 
-        validAddress = modbusAddressPolice(startAddress)
+        endAddress = startAddress + (variables.incrementalModbusAddress - 1)
+        validAddress = modbusAddressPolice(startAddress, endAddress)
 
         if validAddress != True:
 
             return validAddress
-
-        endAddress = startAddress + variables.incrementalModbusAddress - 1
+        
+        print (validAddress)
 
         xbeeData = {"xbeeNodeIdentifier":nodeIdentifier, "xbeeMac":xbeeMacAddress, "modbusStartAddress":startAddress, "modbusEndAddress":endAddress}
 
@@ -189,7 +262,8 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
                 
                 startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress"))
 
-                validAddress = modbusAddressPolice(startAddress)
+                endAddress = startAddress + (variables.incrementalModbusAddress - 1)
+                validAddress = modbusAddressPolice(startAddress, endAddress)
 
                 if validAddress != True:
 
@@ -368,4 +442,6 @@ def retrieveAllConfiguredMacAddress():
         return {"error": str(e)}
     
 if __name__ == "__main__":
+
+    # print(modbusAddressPolice(50000))
     pass
