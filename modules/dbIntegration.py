@@ -143,6 +143,34 @@ def updateReusableAddress(returnData=None):
 
         return {"error": str(e)}
 
+def updateAllEndAddress(newRange):
+
+    try:
+
+        updateOperation = []
+
+        for doc in configuredRadioCollection.find({}, {"modbusStartAddress":1}):
+
+            startAddress = doc.get("modbusStartAddress")
+
+            if startAddress is not None:
+                
+                newEndAddress = startAddress + (newRange - 1)
+
+                updateOperation.append(pymongo.UpdateOne({"_id":doc["_id"]}, {"$set":{"modbusEndAddress":newEndAddress}}))
+
+        if updateOperation:
+
+            result = configuredRadioCollection.bulk_write(updateOperation)
+        
+        if result.modified_count:
+
+            return {"sucess":f"updated {result.modified_count}"}
+        
+    except Exception as e:
+
+        return{"error":str(e)}
+
 def dbQueryModbusStartAddress(xbeeMacAddress):
 
     try:
