@@ -82,7 +82,7 @@ def updateReusableAddress(returnData=None):
 
                     usable = "❌"
 
-                availableRange = {"modbusAddressRange": f"{gapStart}-{gapEnd}", "size": gapSize, "consumable": usable}
+                availableRange = {"modbusAddressRange": f'{gapStart}-{gapEnd}', "size": gapSize, "consumable": usable}
 
                 try:
 
@@ -113,7 +113,7 @@ def updateReusableAddress(returnData=None):
 
                 usable = "❌"
 
-            availableRange = {"modbusAddressRange": f"{gapStart}-{gapEnd}", "size": gapSize, "consumable":usable}
+            availableRange = {"modbusAddressRange": f'{gapStart}-{gapEnd}', "size": gapSize, "consumable":usable}
 
             try:
 
@@ -125,7 +125,7 @@ def updateReusableAddress(returnData=None):
                 
             except PyMongoError as e:
 
-                return {"error":f"failed to store {availableRange} in database", "details": str(e)}
+                return {"error":f'failed to store {availableRange} in database', "details": str(e)}
 
         if dataList and returnData is not None:
 
