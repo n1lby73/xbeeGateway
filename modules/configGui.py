@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredMacAddress, deleteXbeeDetails, updateXbeeDetails
+from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails
 
 class Modbus_GUI(tk.Tk):
 
@@ -158,7 +158,7 @@ class Modbus_GUI(tk.Tk):
 
     def get_database(self):
 
-        result = retrieveAllConfiguredMacAddress()
+        result = retrieveAllConfiguredRadio()
 
         for index, item in enumerate(result, start=1):
 
