@@ -44,7 +44,7 @@ def modbusAddressPolice(proposedStartAddress, supposedEndAddress):
 
         return {"error": f"{str(e)}"}       
 
-def retrieveReusableAddress():
+def updateReusableAddress():
 
     try:
 
@@ -395,7 +395,7 @@ def deleteXbeeDetails(xbeeMacAddress):
 
         return {"error": str(e)}
 
-def retrieveAllConfiguredMacAddress():
+def retrieveAllConfiguredRadio():
 
     try:
 
