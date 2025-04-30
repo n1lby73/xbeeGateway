@@ -42,15 +42,6 @@ class Modbus_GUI(tk.Tk):
         self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.on_click)
         self.button.pack(pady=10)
 
-        # refresh_image_path = "refresh.png"  
-        # refresh_image = Image.open(refresh_image_path)
-        # refresh_image = refresh_image.resize((30, 30), Image.LANCZOS)
-        # refresh_image = ImageTk.PhotoImage(refresh_image)
-        # self.refresh_image = refresh_image
-
-        # refresh_button = tk.Button(self, image=self.refresh_image)
-        # refresh_button.pack( padx=10, pady=10)
-
 
         #Let's talk database here
         self.show_entry_frame = ttk.LabelFrame(self, border=1, text="Configured Xbee Radios", padding=5)
@@ -59,13 +50,28 @@ class Modbus_GUI(tk.Tk):
         self.search_frame = tk.Frame(self.show_entry_frame)
         self.search_frame.pack()
 
-        self.search_bar = tk.Entry(self.search_frame, width=50)
+        self.search_bar = tk.Entry(self.search_frame, width=50, font=("TkDefaultFont", 12))
         self.search_bar.grid(row=0, column=0,  sticky='w')
+        self.search_bar.bind("<Return>", self.find)
 
-        self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white")
+        self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white", command=self.find)
         self.find_button.grid(row=0, column=1, padx=10, pady=10)
 
-        self.tree = ttk.Treeview(self.show_entry_frame)
+        refresh_image_path = "refresh.png"  
+        refresh_image = Image.open(refresh_image_path)
+        refresh_image = refresh_image.resize((20, 20), Image.LANCZOS)
+        refresh_image = ImageTk.PhotoImage(refresh_image)
+        self.refresh_image = refresh_image
+
+        self.refresh_button = tk.Button(self.search_frame, image=self.refresh_image, bg= "#FFA500", command = self.refresh)
+        self.refresh_button.grid(row=0, column=3, padx=10, pady=10, sticky='e')
+
+        self.scroll_bar = ttk.Scrollbar(self.show_entry_frame, orient="vertical")
+        self.scroll_bar.pack(side='right', fill='y')
+
+        self.tree = ttk.Treeview(self.show_entry_frame, yscrollcommand=self.scroll_bar.set, selectmode="extended")
+        
+        self.scroll_bar.config(command=self.tree.yview)
 
         # Define columns
         self.tree['columns'] = ('S/N',"Node Identifier", 'RadioMACAddress','ModbusAddress',  "ModbusEndAddress" )
@@ -74,7 +80,7 @@ class Modbus_GUI(tk.Tk):
         self.tree.column("#0", width=0, stretch=tk.NO)  # Hide first empty column
         
         self.tree.column("S/N", anchor=tk.CENTER, width=30)
-        self.tree.column("Node Identifier", anchor=tk.CENTER, width=150)
+        self.tree.column("Node Identifier", anchor=tk.CENTER, width=180)
         self.tree.column("RadioMACAddress", anchor=tk.CENTER, width=200)
         self.tree.column("ModbusAddress", anchor=tk.CENTER, width=150)
         self.tree.column("ModbusEndAddress", anchor=tk.CENTER, width=200)
@@ -100,8 +106,22 @@ class Modbus_GUI(tk.Tk):
     
         self.get_database()
 
-    def find(self):
-        self.search = self.search_bar.get()
+    def find(self, event=None):
+        self.search = self.search_bar.get().lower()
+
+        self.tree.tag_configure("highlight", background="lightyellow")
+
+        # Remove previous highlights
+        for iid in self.tree.get_children():
+            self.tree.item(iid, tags=())
+
+        for iid in self.tree.get_children():
+            values = self.tree.item(iid)["values"]
+            for value in values:
+                if self.search == str(value).lower():
+                    self.tree.item(iid, tags=("highlight",))
+                    self.tree.selection_set(iid)
+                    self.tree.see(iid)
 
         
     def on_click(self):
@@ -130,7 +150,11 @@ class Modbus_GUI(tk.Tk):
 
         except ValueError:
 
-            messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")   
+            messagebox.showerror(title="Invalid Input", message= "Please enter a valid Modbus Start Address (integer).")
+
+    def refresh(self):
+        self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
+        self.get_database() 
 
     def get_database(self):
 
@@ -168,9 +192,8 @@ class Modbus_GUI(tk.Tk):
                     else: 
                         
                         messagebox.showerror(title="Error", message= str(result.get("error")))
-            
-                self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
-                self.get_database()  # Repopulate the treeview with updated data
+
+                self.refresh()
                 messagebox.showinfo(title="Success", message="Entry deleted successfully.")
                 
 
@@ -254,8 +277,7 @@ class Modbus_GUI(tk.Tk):
             if response:
 
                 result = updateXbeeDetails(self.old_mac_address, self.json_data)
-                self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
-                self.get_database() 
+                self.refresh() 
 
                 if result.get("error") == None:
 
