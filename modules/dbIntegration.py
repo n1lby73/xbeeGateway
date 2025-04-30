@@ -316,20 +316,72 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
                 gatewayDb[oldXbeeMacAddress].rename(newMacAddress)
 
-            if key == "modbusStartAddress": # create one for modbus endAddress address
-                
-                updateNeeded = True
-                startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress"))
+            if key in ("modbusStartAddress", "modbusEndAddress"):
 
-                endAddress = startAddress + (variables.incrementalModbusAddress - 1)
+                # Resolve startAddress and endAddress from input or fallback
+                startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress", oldMacExistence.get("modbusStartAddress")))
+                endAddress = int(jsonParameterToBeUpdated.get("modbusEndAddress", oldMacExistence.get("modbusEndAddress")))
+
+                updateNeeded = True
+
                 validAddress = modbusAddressPolice(startAddress, endAddress)
 
                 if validAddress != True:
-
+                    
                     return validAddress
+
+            # if key == "modbusStartAddress": # create one for modbus endAddress address
                 
-                # Validate that modbus startAddress address would not conflict
-                pass # would come back when modbus adress assigner helper function is created
+            #     startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress"))
+
+            #     if "modbusEndAddress" in jsonParameterToBeUpdated:
+
+            #         endAddress = jsonParameterToBeUpdated["modbusEndAddress"]
+                
+            #     else:
+
+            #         endAddress = oldMacExistence["modbusEndAddress"]
+
+            #     # Commented out the below block for cases where the user wants to edit the both address
+            #     # if endAddress > startAddress:
+
+            #     #     return {"error":"end address can't be lower than start address"}
+                
+            #     updateNeeded = True
+
+            #     validAddress = modbusAddressPolice(startAddress, endAddress)
+
+            #     if validAddress != True:
+
+            #         return validAddress
+                
+            #     # Validate that modbus startAddress address would not conflict 
+            #     pass # would come back when modbus adress assigner helper function is created
+
+            # if key == "modbusEndAddress":
+
+            #     endAddress = int(jsonParameterToBeUpdated.get("modbusEndAddress"))
+
+            #     if "modbusStartAddress" in jsonParameterToBeUpdated:
+
+            #         startAddress = jsonParameterToBeUpdated["modbusStartAddress"]
+                
+            #     else:
+
+            #         startAddress = oldMacExistence["modbusStartAddress"]
+        
+            #     # Commented out the below block for cases where the user wants to edit the both address
+            #     # if endAddress < startAddress:
+
+            #     #     return {"error":"end address can't be lower than start address"}
+                
+            #     updateNeeded = True
+
+            #     validAddress = modbusAddressPolice(startAddress, endAddress)
+
+            #     if validAddress != True:
+
+            #         return validAddress
 
             if key == "xbeeNodeIdentifier":
 
