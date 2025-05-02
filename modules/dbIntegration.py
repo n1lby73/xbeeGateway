@@ -19,7 +19,7 @@ def modbusAddressPolice(proposedStartAddress, supposedEndAddress):
 
         if proposedStartAddress < variables.lowestRegister or supposedEndAddress > variables.highestRegister+1:
 
-            return {"error":f"Modbus address out of range\n\nRange: 30000 - {variables.highestRegister}"}
+            return {"error":f"Modbus address out of range\n\nRange: 0 - {variables.highestRegister}"}
         
         # Retrieve all the modbus startAddress and endAddress range from the db
 
@@ -56,8 +56,8 @@ def updateReusableAddress(returnData=None):
         utiilizedRange.sort(key=lambda x: x["modbusStartAddress"])
 
         # Define register bounds
-        lowestPossibleAddress = variables.lowestRegister  # e.g., 30000
-        highestPossibleAddress = variables.highestRegister  # e.g., 39999
+        lowestPossibleAddress = variables.lowestRegister  # e.g., 0
+        highestPossibleAddress = variables.highestRegister  # e.g., 1000
 
         # Initialize previous endAddress to the minimum address
         previousEnd = lowestPossibleAddress - 1
@@ -332,59 +332,6 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
                     
                     return validAddress
 
-            # if key == "modbusStartAddress": # create one for modbus endAddress address
-                
-            #     startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress"))
-
-            #     if "modbusEndAddress" in jsonParameterToBeUpdated:
-
-            #         endAddress = jsonParameterToBeUpdated["modbusEndAddress"]
-                
-            #     else:
-
-            #         endAddress = oldMacExistence["modbusEndAddress"]
-
-            #     # Commented out the below block for cases where the user wants to edit the both address
-            #     # if endAddress > startAddress:
-
-            #     #     return {"error":"end address can't be lower than start address"}
-                
-            #     updateNeeded = True
-
-            #     validAddress = modbusAddressPolice(startAddress, endAddress)
-
-            #     if validAddress != True:
-
-            #         return validAddress
-                
-            #     # Validate that modbus startAddress address would not conflict 
-            #     pass # would come back when modbus adress assigner helper function is created
-
-            # if key == "modbusEndAddress":
-
-            #     endAddress = int(jsonParameterToBeUpdated.get("modbusEndAddress"))
-
-            #     if "modbusStartAddress" in jsonParameterToBeUpdated:
-
-            #         startAddress = jsonParameterToBeUpdated["modbusStartAddress"]
-                
-            #     else:
-
-            #         startAddress = oldMacExistence["modbusStartAddress"]
-        
-            #     # Commented out the below block for cases where the user wants to edit the both address
-            #     # if endAddress < startAddress:
-
-            #     #     return {"error":"end address can't be lower than start address"}
-                
-            #     updateNeeded = True
-
-            #     validAddress = modbusAddressPolice(startAddress, endAddress)
-
-            #     if validAddress != True:
-
-            #         return validAddress
-
             if key == "xbeeNodeIdentifier":
 
                 nodeIdentifier = str(jsonParameterToBeUpdated.get("xbeeNodeIdentifier")).upper()
@@ -575,7 +522,5 @@ def populateDbHelper():
         print (retrieveAllConfiguredRadio())
 
 if __name__ == "__main__":
-
-    print(updateReusableAddress())
 
     pass
