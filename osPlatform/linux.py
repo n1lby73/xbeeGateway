@@ -78,7 +78,7 @@ async def modbusPolling(contextValue):
 
             startAddress = dbQueryModbusStartAddress(mac)
 
-            if startAddress:
+            if isinstance(startAddress, int):
 
                 sensorValues = await cayenneParse(mac, raw_data)
 
@@ -105,7 +105,7 @@ async def modbusPolling(contextValue):
             
             else:
 
-                print (f"Xbee radio with mac address {mac}, has not been configured")
+                print (f"Xbee radio with mac address {mac}, has not been configured\nOther possible error are {startAddress}")
 
         except Exception as e:
             

@@ -189,13 +189,13 @@ def dbQueryModbusStartAddress(xbeeMacAddress):
         
         else:
 
-            return None
+            return (f"{xbeeMacAddress} not found in database")
     
     except Exception as e:
 
         print (f"Fatal error with details as: {str(e)}")
 
-        return None
+        return str(e)
 
 def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
