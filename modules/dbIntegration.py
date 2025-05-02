@@ -221,15 +221,15 @@ def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
         if validateUniqueMacAddress:
 
-            return {"error":f"Mac address already utilized by {validateUniqueMacAddress["xbeeNodeIdentifier"]}"}
+            return {"error":f"Mac address already utilized by {validateUniqueMacAddress['xbeeNodeIdentifier']}"}
 
         if validateStartAddress:
             
-            return {"error":f"Start address already utilized by {validateStartAddress["xbeeNodeIdentifier"]}"}
+            return {"error":f"Start address already utilized by {validateStartAddress['xbeeNodeIdentifier']}"}
 
         if validateNodeIdentifier:
 
-            return {"error":f"Node identifier already utiilized by ({validateNodeIdentifier["xbeeMac"]})"}
+            return {"error":f"Node identifier already utiilized by ({validateNodeIdentifier[xbeeMac]})"}
 
         # Validate that specified modbus address is not in between two xbee device
 
