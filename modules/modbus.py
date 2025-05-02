@@ -34,7 +34,7 @@ def getIpAddress():
     ethernetPatterns = [
 
         'eth', 'en', 'ethernet', 
-        'local area connection', 'lan', '有线'
+        'local area connection', '有线'
 
     ]
     
