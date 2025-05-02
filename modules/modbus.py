@@ -26,9 +26,24 @@ def contextManager():
 def getIpAddress():
 
     interfaces = psutil.net_if_addrs()
-    ethernet_ip = None
-    wifi_ip = None
+    ethernetIp = None
+    wifiIp = None
     default = "0.0.0.0"
+
+    # Common interface name patterns for different platforms
+    ethernetPatterns = [
+
+        'eth', 'en', 'ethernet', 
+        'local area connection', '有线'
+
+    ]
+    
+    wifiPatterns = [
+
+        'wifi', 'wi-fi', 'wireless', 
+        'wl', 'wlan', '无线', 'wi_fi'
+
+    ]
 
     for interfaceName, interfaceAddresses in interfaces.items():
 
@@ -36,24 +51,28 @@ def getIpAddress():
 
             if address.family == socket.AF_INET and not address.address.startswith("127."):
 
-                if "eth" in interfaceName.lower() or "en" in interfaceName.lower():
+                if any(pattern in interfaceName.lower() for pattern in ethernetPatterns):
 
-                    ethernet_ip = address.address
+                    if not ethernetIp:
 
-                elif "wifi" in interfaceName.lower() or "wl" in interfaceName.lower():
+                        ethernetIp = address.address
 
-                    wifi_ip = address.address
+                elif any(pattern in interfaceName.lower() for pattern in wifiPatterns):
 
-    if ethernet_ip:
+                    if not wifiIp:
 
-        print(f"Ethernet IP Address: {ethernet_ip}")
-        return ethernet_ip
+                        wifiIp = address.address
+
+    if ethernetIp:
+
+        print(f"Ethernet IP Address: {ethernetIp}")
+        return ethernetIp
     
-    elif wifi_ip:
+    elif wifiIp:
 
         print("No Ethernet interface detected. Falling back to Wi-Fi.")
-        print(f"Wi-Fi IP Address: {wifi_ip}")
-        return wifi_ip
+        print(f"Wi-Fi IP Address: {wifiIp}")
+        return wifiIp
     
     else:
 
