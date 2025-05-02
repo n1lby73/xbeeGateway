@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from .modbus import getIpAddress
-from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails
+# from .modbus import getIpAddress
+from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails, updateReusableAddress
 
 class Modbus_GUI(tk.Tk):
 
@@ -16,12 +16,14 @@ class Modbus_GUI(tk.Tk):
         self.head = tk.Label(self, text="CORS GATEWAY CONFIGURATION", font=("Arial", 20, "bold"))
         self.head.pack(pady=10)
 
+        self.head_frame = tk.Frame(self)
+        self.head_frame.pack(pady=10)
 
-        self.label = tk.Label(self, text="Add New Entry")
-        self.label.pack(pady=10)
+        self.label = tk.Label(self.head_frame, text="Add New Entry")
+        self.label.pack(padx= 100, side= tk.LEFT)
 
-        self.ip_address = tk.Label(self, text="Modbus Server Running At: " + getIpAddress())
-        self.ip_address.pack(pady=10)
+        self.ip_address = tk.Label(self.head_frame, text="Modbus Server Running At: " , fg="blue")
+        self.ip_address.pack()
 
         self.add_entry_frame = tk.Frame(self)
         self.add_entry_frame.pack(fill="both")
@@ -41,6 +43,9 @@ class Modbus_GUI(tk.Tk):
         self.modbus_address_label.grid(row=3, column=0, padx=10, pady=10, sticky='w')
         self.modbus_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.modbus_address_input.grid(row=3, column=1, pady=10, sticky='w')
+
+        self.available_address = tk.Button(self.add_entry_frame, text="Available Address",bg = "#FFA500", fg="white", command=self.get_available_address)
+        self.available_address.grid(row=3, column=2, padx=10, pady=10, sticky='w')
     
 
         self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.add_database)
@@ -64,20 +69,20 @@ class Modbus_GUI(tk.Tk):
         self.search_bar.bind("<KeyRelease>", self.live_search)
         self.search_bar.bind("<Return>", self.live_search)
 
-        self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white", command=self.live_search)
-        self.find_button.grid(row=0, column=1, padx=10, pady=10)
+        # self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white", command=self.live_search)
+        # self.find_button.grid(row=0, column=1, padx=10, pady=10)
 
-        refresh_image_path = "gateway/modules/guiModules/refresh.png"
+        refresh_image_path = "modules/guiModules/refresh.png"
         refresh_image = Image.open(refresh_image_path)
         refresh_image = refresh_image.resize((20, 20), Image.LANCZOS)
         refresh_image = ImageTk.PhotoImage(refresh_image)
         self.refresh_image = refresh_image
 
         self.refresh_button = tk.Button(self.search_frame, image=self.refresh_image, bg= "#FFA500", command = self.refresh)
-        self.refresh_button.grid(row=0, column=2, padx=2, pady=10, sticky='e')
+        self.refresh_button.grid(row=0, column=2, padx=10, pady=10, sticky='e')
 
 
-        self.dropdown_options = ["Arrange", "Last Modified", "First Modified", "Ascending Modbus Address", "Descending Modbus Address"]
+        self.dropdown_options = ["First Modified", "Last Modified", "Ascending Modbus Address", "Descending Modbus Address"]
         self.selected_option = tk.StringVar()
         self.selected_option.set(self.dropdown_options[0])
         self.dropdown = ttk.Combobox(self.search_frame, textvariable=self.selected_option, values=self.dropdown_options, state="readonly", width=15)
@@ -121,7 +126,10 @@ class Modbus_GUI(tk.Tk):
         self.update_button = tk.Button(self.button_frame, text = "Update Selected", padx=20, pady=10,bg="blue", fg="white", command=self.update_selected)
         self.update_button.pack(padx=30)
 
-    
+        self.available_addresses = updateReusableAddress() # Get available addresses from the db integration, returns it as a dictionary
+        for item in self.available_addresses.items():
+            print(item)
+
         self.get_database()
 
         self.data = []
@@ -130,52 +138,18 @@ class Modbus_GUI(tk.Tk):
             item = self.tree.item(iid)["values"]
             self.data.append((item, iid))
 
-    def clear_placeholder(self, event):
-
-        if self.search_bar.get() == "Search here":
-            self.search_bar.delete(0, tk.END)
-            self.search_bar.config(fg="black")
     
-    def add_placeholder(self, event):        
-        
-        if self.search_bar.get() == "":
-            self.search_bar.insert(0, "Search here")
-            self.search_bar.config(fg="grey")
+    def get_database(self):
 
-    def live_search(self, event=None):
-        self.match = False
-        self.search = self.search_bar.get().lower()
+        result = retrieveAllConfiguredRadio()
 
-        for iid in self.tree.get_children():
-            self.tree.detach(iid)
+        for index, item in enumerate(result, start=1):
 
-        for values, iid in self.data:
-            if any(self.search in str(value).lower() for value in values):
-                self.tree.reattach(iid, "", "end")
-                self.match = True
+            self.tree.insert("", "end", text= index, values=(index, item[0], item[1], item[2], item[3]))
 
-        if not self.match:
-            messagebox.showinfo(title="No Match", message="No match found.")      
-                
-        
-    def sort_table(self, event=None):
-        selection = self.dropdown.get()
-
-        if selection == "Last Modified":
-            self.data.sort(key=lambda x: x[0][0], reverse=True)
-
-        if selection == "First Modified" or selection == "Arrange":
-            self.data.sort(key=lambda x: x[0][0], reverse=False)
-
-        if selection == "Ascending Modbus Address":
-            self.data.sort(key=lambda x: x[0][3], reverse=False)
-        
-        if selection == "Descending Modbus Address":
-            self.data.sort(key=lambda x: x[0][3], reverse=True)
-
-        for index, (values, iid) in enumerate(self.data):
-            self.tree.move(iid, "", index)
-
+        if isinstance(result, dict) and result.get("error") != None: 
+                    
+            messagebox.showerror(title="Error", message= str(result.get("error")))
 
 
     def add_database(self):
@@ -210,17 +184,108 @@ class Modbus_GUI(tk.Tk):
         self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
         self.get_database() 
 
-    def get_database(self):
+    
 
-        result = retrieveAllConfiguredRadio()
+    def clear_placeholder(self, event):
 
-        for index, item in enumerate(result, start=1):
+        if self.search_bar.get() == "Search here":
+            self.search_bar.delete(0, tk.END)
+            self.search_bar.config(fg="black")
+    
+    def add_placeholder(self, event):        
+        
+        if self.search_bar.get() == "":
+            self.search_bar.insert(0, "Search here")
+            self.search_bar.config(fg="grey")
 
-            self.tree.insert("", "end", values=(index, item[0], item[1], item[2], item[3]))
+    def live_search(self, event=None):
+        self.match = False
+        self.search = self.search_bar.get().lower()
 
-        if isinstance(result, dict) and result.get("error") != None: 
+        for iid in self.tree.get_children():
+            self.tree.detach(iid)
+
+        for values, iid in self.data:
+            if any(self.search in str(value).lower() for value in values):
+                self.tree.reattach(iid, "", "end")
+                self.match = True
+
+        if not self.match:
+            messagebox.showinfo(title="No Match", message="No match found.")      
+                
+        
+    def sort_table(self, event=None):
+        selection = self.dropdown.get()
+
+        self.data = []
+
+        for iid in self.tree.get_children():
+            values = self.tree.item(iid)["values"]
+            sort_id = self.tree.item(iid)["text"]
+            self.data.append((values, iid, sort_id))
+
+        if selection == "First Modified":
+            self.data.sort(key=lambda x: x[2], reverse=False)
+
+        if selection == "Last Modified":
+            self.data.sort(key=lambda x: x[2], reverse=True)
+
+        if selection == "Ascending Modbus Address":
+            self.data.sort(key=lambda x: x[0][3], reverse=False)
+        
+        if selection == "Descending Modbus Address":
+            self.data.sort(key=lambda x: x[0][3], reverse=True)
+
+        for index, (values, iid, _) in enumerate(self.data):
+            values[0] = index + 1  # Reassign serial number
+            self.tree.item(iid, values=values)
+            self.tree.move(iid, "", index)
+
+
+    def get_available_address(self):   
+        self.available_address_window = tk.Toplevel(self)
+        self.available_address_window.title("Available Addresses")
+        self.available_address_window.geometry("800x300")
+
+
+        self.available_window = tk.Frame(self.available_address_window, padx=20, pady=20)
+        self.available_window.pack(fill="both")
+
+        self.tree = ttk.Treeview(self.available_window, yscrollcommand=self.scroll_bar.set, selectmode="extended")
+
+        self.scroll_bar = ttk.Scrollbar(self.available_window, orient="vertical")
+        self.scroll_bar.pack(side='right', fill='y')
+        self.scroll_bar.config(command=self.tree.yview)
+
+        # Define columns
+        self.tree['columns'] = ('S/N',"Available Range", 'Range Size','Usuability')
+
+        # Format columns
+        self.tree.column("#0", width=0, stretch=tk.NO)  # Hide first empty column
+        
+        self.tree.column("S/N", anchor=tk.CENTER, width=30)
+        self.tree.column("Available Range", anchor=tk.CENTER, width=250)
+        self.tree.column('Range Size', anchor=tk.CENTER, width=250)
+        self.tree.column('Usuability', anchor=tk.CENTER, width=200)
+
+
+        self.tree.heading("S/N", text="S/N")
+        self.tree.heading("Available Range", text="Available Range")
+        self.tree.heading("Range Size", text="Range Size")
+        self.tree.heading("Usuability", text="Usuability")
+        
+        self.tree.pack()
+
+        # self.available_addresses
+        # for item in self.available_addresses:
+            
+        #     self.tree.insert("", "end", text= index, values=(index, item[0], item[1], item[2], item[3]))
+
+        # if isinstance(result, dict) and result.get("error") != None: 
                     
-            messagebox.showerror(title="Error", message= str(result.get("error")))
+        #     messagebox.showerror(title="Error", message= str(result.get("error")))
+
+
 
     def delete_selected(self): 
 
@@ -283,10 +348,15 @@ class Modbus_GUI(tk.Tk):
             self.modbus_label.grid(row=3, column=0, pady=10, sticky='w')
             self.modbus_input = tk.Entry(self.update_entry_frame, width=50)
             self.modbus_input.grid(row=3, column=1, pady=10, sticky='w')
+
+            self.modbus_end_label = tk.Label(self.update_entry_frame, text="Modbus End Address: ", width=20)
+            self.modbus_end_label.grid(row=4, column=0, pady=10, sticky='w')
+            self.modbus_end_input = tk.Entry(self.update_entry_frame, width=50)
+            self.modbus_end_input.grid(row=4, column=1, pady=10, sticky='w')
             
 
             self.update_entry = tk.Button(self.update_entry_frame, text="Update Entry", padx=20, pady=10,bg="blue", fg="white", command=self.click_update)
-            self.update_entry.grid(row=4, column=0, columnspan=2, pady=10)
+            self.update_entry.grid(row=5, column=0, columnspan=2, pady=10)
 
             self.old_node_identifier = self.tree.item(self.selected_item)["values"][1]
             self.old_mac_address = self.tree.item(self.selected_item)["values"][2]
