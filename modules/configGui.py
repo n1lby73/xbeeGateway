@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from .modbus import getIpAddress
 from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails
 
 class Modbus_GUI(tk.Tk):
@@ -18,6 +19,9 @@ class Modbus_GUI(tk.Tk):
 
         self.label = tk.Label(self, text="Add New Entry")
         self.label.pack(pady=10)
+
+        self.ip_address = tk.Label(self, text="Modbus Server Running At: " + getIpAddress())
+        self.ip_address.pack(pady=10)
 
         self.add_entry_frame = tk.Frame(self)
         self.add_entry_frame.pack(fill="both")
@@ -39,7 +43,7 @@ class Modbus_GUI(tk.Tk):
         self.modbus_address_input.grid(row=3, column=1, pady=10, sticky='w')
     
 
-        self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.on_click)
+        self.button = tk.Button(self, text="Add to Database", padx=20, pady=10,bg="blue", fg="white", command=self.add_database)
         self.button.pack(pady=10)
 
 
@@ -51,10 +55,16 @@ class Modbus_GUI(tk.Tk):
         self.search_frame.pack()
 
         self.search_bar = tk.Entry(self.search_frame, width=50, font=("TkDefaultFont", 12))
+        self.search_bar.insert(0, "Search here")
+        self.search_bar.config(fg="grey")
         self.search_bar.grid(row=0, column=0,  sticky='w')
-        self.search_bar.bind("<Return>", self.find)
+        
+        self.search_bar.bind("<FocusIn>", self.clear_placeholder)
+        self.search_bar.bind("<FocusOut>", self.add_placeholder)
+        self.search_bar.bind("<KeyRelease>", self.live_search)
+        self.search_bar.bind("<Return>", self.live_search)
 
-        self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white", command=self.find)
+        self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white", command=self.live_search)
         self.find_button.grid(row=0, column=1, padx=10, pady=10)
 
         refresh_image_path = "gateway/modules/guiModules/refresh.png"
@@ -64,7 +74,15 @@ class Modbus_GUI(tk.Tk):
         self.refresh_image = refresh_image
 
         self.refresh_button = tk.Button(self.search_frame, image=self.refresh_image, bg= "#FFA500", command = self.refresh)
-        self.refresh_button.grid(row=0, column=3, padx=10, pady=10, sticky='e')
+        self.refresh_button.grid(row=0, column=2, padx=2, pady=10, sticky='e')
+
+
+        self.dropdown_options = ["Arrange", "Last Modified", "First Modified", "Ascending Modbus Address", "Descending Modbus Address"]
+        self.selected_option = tk.StringVar()
+        self.selected_option.set(self.dropdown_options[0])
+        self.dropdown = ttk.Combobox(self.search_frame, textvariable=self.selected_option, values=self.dropdown_options, state="readonly", width=15)
+        self.dropdown.grid(row=0, column=3, padx=10, pady=10, sticky='w')
+        self.dropdown.bind("<<ComboboxSelected>>", self.sort_table)
 
         self.scroll_bar = ttk.Scrollbar(self.show_entry_frame, orient="vertical")
         self.scroll_bar.pack(side='right', fill='y')
@@ -106,25 +124,61 @@ class Modbus_GUI(tk.Tk):
     
         self.get_database()
 
-    def find(self, event=None):
+        self.data = []
+
+        for iid in self.tree.get_children():
+            item = self.tree.item(iid)["values"]
+            self.data.append((item, iid))
+
+    def clear_placeholder(self, event):
+
+        if self.search_bar.get() == "Search here":
+            self.search_bar.delete(0, tk.END)
+            self.search_bar.config(fg="black")
+    
+    def add_placeholder(self, event):        
+        
+        if self.search_bar.get() == "":
+            self.search_bar.insert(0, "Search here")
+            self.search_bar.config(fg="grey")
+
+    def live_search(self, event=None):
+        self.match = False
         self.search = self.search_bar.get().lower()
 
-        self.tree.tag_configure("highlight", background="lightyellow")
-
-        # Remove previous highlights
         for iid in self.tree.get_children():
-            self.tree.item(iid, tags=())
+            self.tree.detach(iid)
 
-        for iid in self.tree.get_children():
-            values = self.tree.item(iid)["values"]
-            for value in values:
-                if self.search == str(value).lower():
-                    self.tree.item(iid, tags=("highlight",))
-                    self.tree.selection_set(iid)
-                    self.tree.see(iid)
+        for values, iid in self.data:
+            if any(self.search in str(value).lower() for value in values):
+                self.tree.reattach(iid, "", "end")
+                self.match = True
 
+        if not self.match:
+            messagebox.showinfo(title="No Match", message="No match found.")      
+                
         
-    def on_click(self):
+    def sort_table(self, event=None):
+        selection = self.dropdown.get()
+
+        if selection == "Last Modified":
+            self.data.sort(key=lambda x: x[0][0], reverse=True)
+
+        if selection == "First Modified" or selection == "Arrange":
+            self.data.sort(key=lambda x: x[0][0], reverse=False)
+
+        if selection == "Ascending Modbus Address":
+            self.data.sort(key=lambda x: x[0][3], reverse=False)
+        
+        if selection == "Descending Modbus Address":
+            self.data.sort(key=lambda x: x[0][3], reverse=True)
+
+        for index, (values, iid) in enumerate(self.data):
+            self.tree.move(iid, "", index)
+
+
+
+    def add_database(self):
 
         self.radio_address = self.radio_address_input.get()
         self.modbus_address = self.modbus_address_input.get()
