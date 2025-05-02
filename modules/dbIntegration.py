@@ -229,7 +229,7 @@ def configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier):
 
         if validateNodeIdentifier:
 
-            return {"error":f"Node identifier already utiilized by ({validateNodeIdentifier[xbeeMac]})"}
+            return {"error":f"Node identifier already utiilized by ({validateNodeIdentifier["xbeeMac"]})"}
 
         # Validate that specified modbus address is not in between two xbee device
 
