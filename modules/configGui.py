@@ -67,7 +67,7 @@ class Modbus_GUI(tk.Tk):
         self.find_button = tk.Button(self.search_frame, text="Find", padx=20, bg="blue", fg="white", command=self.live_search)
         self.find_button.grid(row=0, column=1, padx=10, pady=10)
 
-        refresh_image_path = "gateway/modules/guiModules/refresh.png"
+        refresh_image_path = "modules/guiModules/refresh.png"
         refresh_image = Image.open(refresh_image_path)
         refresh_image = refresh_image.resize((20, 20), Image.LANCZOS)
         refresh_image = ImageTk.PhotoImage(refresh_image)
