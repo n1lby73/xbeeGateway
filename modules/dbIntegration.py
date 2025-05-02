@@ -268,6 +268,8 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
     try:
 
+        reusableAddressUpdateNeeded = None
+
         if not isinstance(jsonParameterToBeUpdated, dict):
 
             return {"error": "Structure of updated value is invalid. Expected a dictionary."}
@@ -322,7 +324,7 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
                 startAddress = int(jsonParameterToBeUpdated.get("modbusStartAddress", oldMacExistence.get("modbusStartAddress")))
                 endAddress = int(jsonParameterToBeUpdated.get("modbusEndAddress", oldMacExistence.get("modbusEndAddress")))
 
-                updateNeeded = True
+                reusableAddressUpdateNeeded = True
 
                 validAddress = modbusAddressPolice(startAddress, endAddress)
 
@@ -412,11 +414,11 @@ def updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated):
 
         if update.modified_count:
 
-            if updateNeeded == True:
+            if reusableAddressUpdateNeeded == True:
 
                 updateReusableAddress()
 
-                updateNeeded = False
+                reusableAddressUpdateNeeded = False
 
             return {"success": "Document updated successfully."}
         
