@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-# from .modbus import getIpAddress
+from .modbus import getIpAddress
 from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails, updateReusableAddress
 
 class Modbus_GUI(tk.Tk):
@@ -22,7 +22,8 @@ class Modbus_GUI(tk.Tk):
         self.label = tk.Label(self.head_frame, text="Add New Entry")
         self.label.pack(padx= 100, side= tk.LEFT)
 
-        self.ip_address = tk.Label(self.head_frame, text="Modbus Server Running At: " , fg="blue")
+        self.ip_address = getIpAddress()
+        self.ip_address = tk.Label(self.head_frame, text="Modbus Server Running At: " + self.ip_address , fg="blue")
         self.ip_address.pack()
 
         self.add_entry_frame = tk.Frame(self)
@@ -44,7 +45,7 @@ class Modbus_GUI(tk.Tk):
         self.modbus_address_input = tk.Entry(self.add_entry_frame, width=50)
         self.modbus_address_input.grid(row=3, column=1, pady=10, sticky='w')
 
-        self.available_address = tk.Button(self.add_entry_frame, text="Available Address",bg = "#FFA500", fg="white", command=self.get_available_address)
+        self.available_address = tk.Button(self.add_entry_frame, text="Available Addresses", bg = "#FFA500", fg="white", command=self.get_available_address)
         self.available_address.grid(row=3, column=2, padx=10, pady=10, sticky='w')
     
 
@@ -123,12 +124,11 @@ class Modbus_GUI(tk.Tk):
         self.button = tk.Button(self.button_frame, text = "Delete Selected", padx=20, pady=10,bg="blue", fg="white", command=self.delete_selected)
         self.button.pack(side=tk.LEFT)
 
-        self.update_button = tk.Button(self.button_frame, text = "Update Selected", padx=20, pady=10,bg="blue", fg="white", command=self.update_selected)
+        self.update_button = tk.Button(self.button_frame, text = "Update Selected", padx=20, pady=10,bg="blue", fg="white", state = "normal", command=self.update_selected)
         self.update_button.pack(padx=30)
 
-        self.available_addresses = updateReusableAddress() # Get available addresses from the db integration, returns it as a dictionary
-        for item in self.available_addresses.items():
-            print(item)
+        self.available_addresses = updateReusableAddress("test") # Get available addresses from the db integration, returns it as a dictionary
+        
 
         self.get_database()
 
@@ -217,26 +217,26 @@ class Modbus_GUI(tk.Tk):
     def sort_table(self, event=None):
         selection = self.dropdown.get()
 
-        self.data = []
+        self.sort_data = []
 
         for iid in self.tree.get_children():
             values = self.tree.item(iid)["values"]
             sort_id = self.tree.item(iid)["text"]
-            self.data.append((values, iid, sort_id))
+            self.sort_data.append((values, iid, sort_id))
 
         if selection == "First Modified":
-            self.data.sort(key=lambda x: x[2], reverse=False)
+            self.sort_data.sort(key=lambda x: x[2], reverse=False)
 
         if selection == "Last Modified":
-            self.data.sort(key=lambda x: x[2], reverse=True)
+            self.sort_data.sort(key=lambda x: x[2], reverse=True)
 
         if selection == "Ascending Modbus Address":
-            self.data.sort(key=lambda x: x[0][3], reverse=False)
+            self.sort_data.sort(key=lambda x: x[0][3], reverse=False)
         
         if selection == "Descending Modbus Address":
-            self.data.sort(key=lambda x: x[0][3], reverse=True)
+            self.sort_data.sort(key=lambda x: x[0][3], reverse=True)
 
-        for index, (values, iid, _) in enumerate(self.data):
+        for index, (values, iid, _) in enumerate(self.sort_data):
             values[0] = index + 1  # Reassign serial number
             self.tree.item(iid, values=values)
             self.tree.move(iid, "", index)
@@ -250,42 +250,41 @@ class Modbus_GUI(tk.Tk):
 
         self.available_window = tk.Frame(self.available_address_window, padx=20, pady=20)
         self.available_window.pack(fill="both")
+        
+        self.scroll_bar_available = ttk.Scrollbar(self.available_window, orient="vertical")
+        self.scroll_bar_available.pack(side='right', fill='y')
 
-        self.tree = ttk.Treeview(self.available_window, yscrollcommand=self.scroll_bar.set, selectmode="extended")
+        self.tree_available = ttk.Treeview(self.available_window, yscrollcommand=self.scroll_bar_available.set, selectmode="extended")
 
-        self.scroll_bar = ttk.Scrollbar(self.available_window, orient="vertical")
-        self.scroll_bar.pack(side='right', fill='y')
-        self.scroll_bar.config(command=self.tree.yview)
+        self.scroll_bar_available.config(command=self.tree_available.yview)
 
         # Define columns
-        self.tree['columns'] = ('S/N',"Available Range", 'Range Size','Usuability')
+        self.tree_available['columns'] = ('S/N',"Available Range", 'Range Size','Usuability')
 
         # Format columns
-        self.tree.column("#0", width=0, stretch=tk.NO)  # Hide first empty column
+        self.tree_available.column("#0", width=0, stretch=tk.NO)  # Hide first empty column
         
-        self.tree.column("S/N", anchor=tk.CENTER, width=30)
-        self.tree.column("Available Range", anchor=tk.CENTER, width=250)
-        self.tree.column('Range Size', anchor=tk.CENTER, width=250)
-        self.tree.column('Usuability', anchor=tk.CENTER, width=200)
+        self.tree_available.column("S/N", anchor=tk.CENTER, width=30)
+        self.tree_available.column("Available Range", anchor=tk.CENTER, width=250)
+        self.tree_available.column('Range Size', anchor=tk.CENTER, width=250)
+        self.tree_available.column('Usuability', anchor=tk.CENTER, width=200)
 
 
-        self.tree.heading("S/N", text="S/N")
-        self.tree.heading("Available Range", text="Available Range")
-        self.tree.heading("Range Size", text="Range Size")
-        self.tree.heading("Usuability", text="Usuability")
+        self.tree_available.heading("S/N", text="S/N")
+        self.tree_available.heading("Available Range", text="Available Range")
+        self.tree_available.heading("Range Size", text="Range Size")
+        self.tree_available.heading("Usuability", text="Usuability")
         
-        self.tree.pack()
+        self.tree_available.pack()
 
-        # self.available_addresses
-        # for item in self.available_addresses:
+
+        for index, item in enumerate(self.available_addresses, start=1):
             
-        #     self.tree.insert("", "end", text= index, values=(index, item[0], item[1], item[2], item[3]))
+            self.tree_available.insert("", "end", text= index, values=(index, item["modbusAddressRange"], item["size"], item["consumable"]))
 
-        # if isinstance(result, dict) and result.get("error") != None: 
+        if isinstance(self.available_addresses, dict) and self.available_addresses.get("error") != None: 
                     
-        #     messagebox.showerror(title="Error", message= str(result.get("error")))
-
-
+            messagebox.showerror(title="Error", message= str(self.available_addresses.get("error")))
 
     def delete_selected(self): 
 
@@ -325,6 +324,8 @@ class Modbus_GUI(tk.Tk):
             messagebox.showerror(title="Error", message="Please select an item to update.")
 
         else:
+            
+            self.update_button.config(state="disabled")
 
             self.update_window = tk.Toplevel(self)
             self.update_window.title("Update Entry")
@@ -366,6 +367,15 @@ class Modbus_GUI(tk.Tk):
             self.radio_input.insert(0, self.old_mac_address)
             self.modbus_input.insert(0, self.old_modbus_address)
 
+            self.update_window.protocol("WM_DELETE_WINDOW", self.close_window)
+
+            self.wait_window(self.update_window) # Wait for the update window to close before continuing
+
+            self.update_button.config(state="normal")   
+
+    def close_window(self):
+        self.update_window.destroy()
+
 
     def click_update(self):
 
@@ -406,18 +416,20 @@ class Modbus_GUI(tk.Tk):
                 if result.get("error") == None:
 
                     messagebox.showinfo(title="Success", message="Entry updated successfully.")
-                    self.update_window.destroy()
+                    self.close_window()
+                    self.update_button.config(state="normal")
 
 
                 else:
-                    
                     messagebox.showerror(title="Error", message= str(result.get("error")))
+                    self.close_window()
+                    self.update_button.config(state="normal")
             
 
         else:
-
             messagebox.showerror(title="Error", message="No new update detected.")
-
+            self.close_window()
+            self.update_button.config(state="normal")
           
 my_app = Modbus_GUI()
 my_app.mainloop()
