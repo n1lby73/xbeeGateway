@@ -40,15 +40,15 @@ Use Cases
 
 source code: https://github.com/n1lby73/xbeeGateway 
 
-Documentation Contents
-----------------------
+.. Documentation Contents
+.. ----------------------
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   pages/installation
-   pages/modules
+   .. pages/installation
+   .. pages/modules
 ..    usage
 ..    configuration
 ..    api
