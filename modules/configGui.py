@@ -19,12 +19,15 @@ class Modbus_GUI(tk.Tk):
         self.head_frame = tk.Frame(self)
         self.head_frame.pack(pady=10)
 
-        self.label = tk.Label(self.head_frame, text="Add New Entry")
-        self.label.pack(padx= 100, side= tk.LEFT)
-
         self.ip_address = getIpAddress()
-        self.ip_address_label = tk.Label(self.head_frame, text="Modbus Server Running At: " + self.ip_address , fg="blue")
-        self.ip_address_label.pack()
+        self.ip_address_label = tk.Label(self.head_frame, text="Modbus Server Running At: " + self.ip_address)
+        self.ip_address_label.grid(row=0, column=1, padx=10 , pady = 5)
+
+        self.config_button = tk.Button(self.head_frame, text="Configure Serial Port", bg="blue", fg="white", command = self.configure_button)
+        self.config_button.grid(row=0, column=2, padx=20 , pady = 5)
+
+        self.add_label = tk.Label(self.head_frame, text="Add New Entry")
+        self.add_label.grid(row =1, column= 0,columnspan=3)
 
         self.add_entry_frame = tk.Frame(self)
         self.add_entry_frame.pack(fill="both")
@@ -93,7 +96,7 @@ class Modbus_GUI(tk.Tk):
         self.scroll_bar = ttk.Scrollbar(self.show_entry_frame, orient="vertical")
         self.scroll_bar.pack(side='right', fill='y')
 
-        self.tree = ttk.Treeview(self.show_entry_frame, yscrollcommand=self.scroll_bar.set, selectmode="extended",)
+        self.tree = ttk.Treeview(self.show_entry_frame, yscrollcommand=self.scroll_bar.set, selectmode="extended",height = 8)
         
         self.scroll_bar.config(command=self.tree.yview)
 
@@ -432,14 +435,101 @@ class Modbus_GUI(tk.Tk):
 
                 else:
                     messagebox.showerror(title="Error", message= str(result.get("error")))
-                    self.close_window()
-                    self.update_button.config(state="normal")
+                    # self.close_window()
+                    # self.update_button.config(state="normal")
             
 
         else:
             messagebox.showerror(title="Error", message="No new update detected.")
             self.close_window()
             self.update_button.config(state="normal")
-          
+
+    def configure_button(self):
+        filename = "modules/variables.py"
+
+        with open(filename, "r") as file:
+            lines = file.readlines()
+
+        for i, line in enumerate(lines):
+            if line.startswith("prefferedRadioSerialNumber"):
+                self.serial_number = line.split("=", 1)[1].strip()
+                self.serial_number = self.serial_number.replace('"', '')
+
+            if line.startswith("modbusPort"):
+                self.modbus_port = line.split("=", 1)[1].strip()
+
+        self.configure_window = tk.Toplevel(self)
+        self.configure_window.title("Configure Serial Port")
+
+        self.configure_frame = tk.Frame(self.configure_window, padx=20, pady=20)
+        self.configure_frame.pack(fill="both")
+
+        self.serial_label = tk.Label(self.configure_frame, text="Serial Port: ", width=20)
+        self.serial_label.grid(row=1, column=0, pady=10, sticky='w')
+        self.serial_input = tk.Entry(self.configure_frame, width=50)
+        self.serial_input.grid(row=1, column=1, pady=10, sticky='w')
+        self.serial_input.insert(0, self.serial_number)
+
+        self.modbus_label = tk.Label(self.configure_frame, text="Modbus Port: ", width=20)
+        self.modbus_label.grid(row=2, column=0, pady=10, sticky='w')
+        self.modbus_input = tk.Entry(self.configure_frame, width=50)
+        self.modbus_input.grid(row=2, column=1, pady=10, sticky='w')
+        self.modbus_input.insert(0, self.modbus_port)
+
+        self.save_button = tk.Button(self.configure_frame, text="Save", padx=20, pady=10,bg="blue", fg="white", command = self.read_serial_and_modbusport)
+        self.save_button.grid(row=3, column=0, columnspan=2, pady=10)
+
+
+        
+    def read_serial_and_modbusport(self):
+        filename = "modules/variables.py"
+        update = False
+
+        with open(filename, "r") as file:
+            lines = file.readlines()
+    
+
+        new_serial_number = str(self.serial_input.get())
+        new_modbus_port = int(self.modbus_input.get())  
+
+        
+        for i, line in enumerate(lines):
+                if line.startswith("prefferedRadioSerialNumber"):
+                    self.old_serial_number = line.split("=", 1)[1].strip()
+                    self.old_serial_number = str(self.old_serial_number).replace('"', '')
+                    if new_serial_number != self.old_serial_number:
+                        lines[i] = f'prefferedRadioSerialNumber = "{new_serial_number}"\n'
+                        update = True
+
+
+                if line.startswith("modbusPort"):
+                    self.old_modbus_port = int(line.split("=")[1].strip())
+                    if new_modbus_port != self.old_modbus_port:
+                        lines[i] = f'modbusPort = {new_modbus_port}\n'
+                        update = True
+
+        
+        if update:
+            response = messagebox.askyesno(title="Are you sure?", message=f"Are you fine with this update? \n\nSerial Number: {new_serial_number} \nModbus Port: {new_modbus_port}")
+
+            if response:
+                with open(filename, "w") as file:
+                    file.writelines(lines)   
+            
+                messagebox.showinfo(title="Success", message="Configuration updated successfully.")
+        
+        else:
+            messagebox.showerror(title="Error", message="No new update detected.")
+
+        
+            
+
+
+                    
+            
+        
+        self.configure_window.destroy()
+
+
 my_app = Modbus_GUI()
 my_app.mainloop()
