@@ -48,10 +48,15 @@ def getIpAddress():
     for interfaceName, interfaceAddresses in interfaces.items():
 
         for address in interfaceAddresses:
-
+            print (address)
             if address.family == socket.AF_INET and not address.address.startswith("127."):
 
                 if any(pattern in interfaceName.lower() for pattern in ethernetPatterns):
+
+                    # Check if the IP address is from the APIPA range and skip it
+                    if address.address.startswith("169.254"):
+                        
+                        continue
 
                     if not ethernetIp:
 
