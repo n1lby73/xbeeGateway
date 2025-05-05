@@ -30,8 +30,8 @@ def modbusAddressPolice(proposedStartAddress, supposedEndAddress):
 
         for storedAddress in allConfiguredAddress:
 
-            startAddress = storedAddress.get("modbusStartAddress")
-            endAddress = storedAddress.get("modbusEndAddress")
+            startAddress = int(storedAddress.get("modbusStartAddress"))
+            endAddress = int(storedAddress.get("modbusEndAddress"))
 
             # validate that user specified address is within the available range
 
