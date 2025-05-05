@@ -79,3 +79,5 @@ def getIpAddress():
         print("No Ethernet or Wi-Fi network detected on this machine.")
         print(f"Using default address {default}")
         return default
+    
+print (getIpAddress())
