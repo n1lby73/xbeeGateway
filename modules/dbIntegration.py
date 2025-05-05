@@ -4,7 +4,7 @@ from pymongo.errors import PyMongoError
 import pymongo, datetime, random, string
 
 dbclient = pymongo.MongoClient("mongodb://"+getIpAddress()+":27017/")
-# dbclient = pymongo.MongoClient("mongodb://10.140.241.6:27017/")
+# dbclient = pymongo.MongoClient("mongodb://10.79.220.202:27017/")
 
 gatewayDb = dbclient["Gateway"]
 configuredRadioCollection = gatewayDb["configuredRadio"]
