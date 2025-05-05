@@ -602,12 +602,12 @@ Together with `startProcess`, it ensures a robust, fault-tolerant startup and sh
 .. _configGui:
 
 configGui
-`````````
+------------
 
 .. _dbIntegration:
 
 dbIntegration
-`````````````
+----------------
 
 modbusAddressPolice
 '''''''''''''''''''''''
@@ -646,7 +646,7 @@ populateDbHelper
 .. _modbus:
 
 modbus
-```````
+--------
 
 floatToRegisters
 '''''''''''''''''''''''
@@ -660,7 +660,7 @@ getIpAddress
 .. _serialSelector:
 
 serialSelector
-```````````````
+----------------
 
 selectUsbPort
 '''''''''''''''''''''''
@@ -668,12 +668,12 @@ selectUsbPort
 .. _variables:
 
 variables
-`````````
+------------
 
 .. _xbeeDAta:
 
 xbeeData
-`````````
+------------
 
 getNodeId
 '''''''''''''''''''''''
@@ -684,4 +684,4 @@ cayenneParse
 .. _xbeeDummyDataTransmitter:
 
 xbeeDummyDataTransmitter
-`````````````````````````
+----------------------------
