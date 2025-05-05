@@ -127,8 +127,13 @@ class Modbus_GUI(tk.Tk):
         self.update_button = tk.Button(self.button_frame, text = "Update Selected", padx=20, pady=10,bg="blue", fg="white", state = "normal", command=self.update_selected)
         self.update_button.pack(padx=30)
 
+<<<<<<< HEAD
         self.available_addresses = updateReusableAddress("test") # Get available addresses from the db integration, returns it as a dictionary
         print(self.available_addresses)
+=======
+        self.available_addresses = updateReusableAddress(returnData=True) # Get available addresses from the db integration, returns it as a dictionary
+        
+>>>>>>> a30d8d7c40e98dca27c2d54a1aa856a61504effe
 
         self.get_database()
 
