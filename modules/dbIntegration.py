@@ -14,9 +14,13 @@ def modbusAddressPolice(proposedStartAddress, supposedEndAddress):
 
     try:
 
-        # if len(str(proposedStartAddress)) != variables.validModbusAddressLength:
+        if proposedStartAddress > supposedEndAddress:
 
-        #     return {"error": "Invalid modbus address"}
+            return {"error": "Start address cannot be greater than end address"}
+
+        if not (len(str(proposedStartAddress)) <= variables.validModbusAddressLength):
+
+            return {"error": "Invalid modbus address"}
 
         if proposedStartAddress < variables.lowestRegister or supposedEndAddress > variables.highestRegister+1:
 
