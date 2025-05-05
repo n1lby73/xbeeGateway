@@ -23,8 +23,8 @@ class Modbus_GUI(tk.Tk):
         self.label.pack(padx= 100, side= tk.LEFT)
 
         self.ip_address = getIpAddress()
-        self.ip_address = tk.Label(self.head_frame, text="Modbus Server Running At: " + self.ip_address , fg="blue")
-        self.ip_address.pack()
+        self.ip_address_label = tk.Label(self.head_frame, text="Modbus Server Running At: " + self.ip_address , fg="blue")
+        self.ip_address_label.pack()
 
         self.add_entry_frame = tk.Frame(self)
         self.add_entry_frame.pack(fill="both")
@@ -127,13 +127,9 @@ class Modbus_GUI(tk.Tk):
         self.update_button = tk.Button(self.button_frame, text = "Update Selected", padx=20, pady=10,bg="blue", fg="white", state = "normal", command=self.update_selected)
         self.update_button.pack(padx=30)
 
-<<<<<<< HEAD
-        self.available_addresses = updateReusableAddress("test") # Get available addresses from the db integration, returns it as a dictionary
-        print(self.available_addresses)
-=======
+
         self.available_addresses = updateReusableAddress(returnData=True) # Get available addresses from the db integration, returns it as a dictionary
-        
->>>>>>> a30d8d7c40e98dca27c2d54a1aa856a61504effe
+
 
         self.get_database()
 
@@ -189,7 +185,7 @@ class Modbus_GUI(tk.Tk):
         self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
         self.get_database() 
         self.ip_address = getIpAddress()
-        self.ip_address.config(text="Modbus Server Running At: " + self.ip_address)  # Update the IP address label
+        self.ip_address_label.config(text="Modbus Server Running At: " + self.ip_address)  # Update the IP address label
         
 
     def clear_placeholder(self, event):
