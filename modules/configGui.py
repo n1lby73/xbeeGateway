@@ -128,7 +128,7 @@ class Modbus_GUI(tk.Tk):
         self.update_button.pack(padx=30)
 
         self.available_addresses = updateReusableAddress("test") # Get available addresses from the db integration, returns it as a dictionary
-        
+        print(self.available_addresses)
 
         self.get_database()
 
@@ -183,8 +183,9 @@ class Modbus_GUI(tk.Tk):
     def refresh(self):
         self.tree.delete(*self.tree.get_children())  # Clear the treeview before repopulating
         self.get_database() 
-
-    
+        self.ip_address = getIpAddress()
+        self.ip_address.config(text="Modbus Server Running At: " + self.ip_address)  # Update the IP address label
+        
 
     def clear_placeholder(self, event):
 
@@ -246,7 +247,8 @@ class Modbus_GUI(tk.Tk):
         self.available_address_window = tk.Toplevel(self)
         self.available_address_window.title("Available Addresses")
         self.available_address_window.geometry("800x300")
-
+    
+        self.available_addresses = updateReusableAddress("test")
 
         self.available_window = tk.Frame(self.available_address_window, padx=20, pady=20)
         self.available_window.pack(fill="both")
@@ -361,11 +363,13 @@ class Modbus_GUI(tk.Tk):
 
             self.old_node_identifier = self.tree.item(self.selected_item)["values"][1]
             self.old_mac_address = self.tree.item(self.selected_item)["values"][2]
-            self.old_modbus_address = int(self.tree.item(self.selected_item)["values"][3])
+            self.old_modbus_start_address = int(self.tree.item(self.selected_item)["values"][3])
+            self.old_modbus_end_address = int(self.tree.item(self.selected_item)["values"][4])
 
             self.node_input.insert(0, self.old_node_identifier)
             self.radio_input.insert(0, self.old_mac_address)
-            self.modbus_input.insert(0, self.old_modbus_address)
+            self.modbus_input.insert(0, self.old_modbus_start_address)
+            self.modbus_end_input.insert(0, self.old_modbus_end_address)
 
             self.update_window.protocol("WM_DELETE_WINDOW", self.close_window)
 
@@ -384,7 +388,8 @@ class Modbus_GUI(tk.Tk):
 
         self.new_node_identifier = self.node_input.get()
         self.new_mac_address = self.radio_input.get()
-        self.new_modbus_address = int(self.modbus_input.get())
+        self.new_modbus_start_address = int(self.modbus_input.get())
+        self.new_modbus_end_address = int(self.modbus_end_input.get())
     
 
         if self.new_node_identifier != self.old_node_identifier:
@@ -398,10 +403,15 @@ class Modbus_GUI(tk.Tk):
             self.result.append(f"New Radio MAC Address: {self.new_mac_address}")
 
 
-        if self.new_modbus_address != self.old_modbus_address:
+        if self.new_modbus_start_address != self.old_modbus_start_address:
 
-            self.json_data["modbusStartAddress"] = int(self.new_modbus_address)
-            self.result.append(f"New Modbus Start Address: {self.new_modbus_address}")
+            self.json_data["modbusStartAddress"] = int(self.new_modbus_start_address)
+            self.result.append(f"New Modbus Start Address: {self.new_modbus_start_address}")
+        
+        if self.new_modbus_end_address != self.old_modbus_end_address:
+
+            self.json_data["modbusEndAddress"] = int(self.new_modbus_end_address)
+            self.result.append(f"New Modbus End Address: {self.new_modbus_end_address}")
 
             
         if self.json_data:
