@@ -48,7 +48,7 @@ def getIpAddress():
     for interfaceName, interfaceAddresses in interfaces.items():
 
         for address in interfaceAddresses:
-            print (address)
+
             if address.family == socket.AF_INET and not address.address.startswith("127."):
 
                 if any(pattern in interfaceName.lower() for pattern in ethernetPatterns):
@@ -84,5 +84,3 @@ def getIpAddress():
         print("No Ethernet or Wi-Fi network detected on this machine.")
         print(f"Using default address {default}")
         return default
-    
-print (getIpAddress())
