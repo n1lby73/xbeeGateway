@@ -132,7 +132,7 @@ class Modbus_GUI(tk.Tk):
 
         self.get_database()
 
-        self.data = []git 
+        self.data = []
 
         for iid in self.tree.get_children():
             item = self.tree.item(iid)["values"]
