@@ -93,7 +93,7 @@ class Modbus_GUI(tk.Tk):
         self.scroll_bar = ttk.Scrollbar(self.show_entry_frame, orient="vertical")
         self.scroll_bar.pack(side='right', fill='y')
 
-        self.tree = ttk.Treeview(self.show_entry_frame, yscrollcommand=self.scroll_bar.set, selectmode="extended")
+        self.tree = ttk.Treeview(self.show_entry_frame, yscrollcommand=self.scroll_bar.set, selectmode="extended",)
         
         self.scroll_bar.config(command=self.tree.yview)
 
@@ -132,7 +132,7 @@ class Modbus_GUI(tk.Tk):
 
         self.get_database()
 
-        self.data = []git 
+        self.data = []
 
         for iid in self.tree.get_children():
             item = self.tree.item(iid)["values"]
