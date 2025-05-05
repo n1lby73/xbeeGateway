@@ -134,7 +134,7 @@ async def modbusServer(context):
     # await StartAsyncTcpServer(unpackedContext, identity=identity, address=("0.0.0.0", 5020))
 
 # Main entry
-async def main():
+async def startProcess():
     context = contextManager()
     variables.xbeePollingTask = asyncio.create_task(xbeePolling())
 
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     try:
 
-        asyncio.run(main())
+        asyncio.run(startProcess())
 
     except KeyboardInterrupt:
 
