@@ -13,7 +13,7 @@ def selectUsbPort(get=False):
 
         ports = list(serial.tools.list_ports.comports())
 
-        usbPorts = [{"port":port.device, "hwid":port.hwid} for port in ports if "USB" in port.device.upper()]
+        usbPorts = [{"port":port.device, "hwid":port.hwid} for port in ports if "USB" or "COM" in port.device.upper()]
 
         if usbPorts:
             
