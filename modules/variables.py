@@ -4,7 +4,7 @@ prefferedRadioSerialNumber = "SER=A10NX8UT"
 xbeeBaudRate = 9600
 modbusPort = 5020
 validMacAddressLength = 16
-validModbusAddressLength = 5
+validModbusAddressLength = 3
 incrementalModbusAddress = 50
 lowestRegister = 0
 highestRegister = 1000 - incrementalModbusAddress
