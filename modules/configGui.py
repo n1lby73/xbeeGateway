@@ -127,13 +127,12 @@ class Modbus_GUI(tk.Tk):
         self.update_button = tk.Button(self.button_frame, text = "Update Selected", padx=20, pady=10,bg="blue", fg="white", state = "normal", command=self.update_selected)
         self.update_button.pack(padx=30)
 
-
         self.available_addresses = updateReusableAddress(returnData=True) # Get available addresses from the db integration, returns it as a dictionary
-
+        
 
         self.get_database()
 
-        self.data = []
+        self.data = []git 
 
         for iid in self.tree.get_children():
             item = self.tree.item(iid)["values"]
