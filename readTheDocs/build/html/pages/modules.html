@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Installation" href="installation.html" /> 
+    <link rel="prev" title="Usage" href="usage.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,7 +44,49 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#main">main</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#xbeepolling">xbeePolling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modbuspolling">modbusPolling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modbusserver">modbusServer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#startprocess">startProcess</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configgui">configGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dbintegration">dbIntegration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#modbusaddresspolice">modbusAddressPolice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updatereusableaddress">updateReusableAddress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updateallendaddress">updateAllEndAddress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dbquerymodbusstartaddress">dbQueryModbusStartAddress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configurexbeeradio">configureXbeeRadio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updatexbeedetails">updateXbeeDetails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#storexbeehistorydata">storeXbeeHistoryData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#swapxbeehistoryandmacaddress">swapXbeeHistoryAndMacAddress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deletexbeedetails">deleteXbeeDetails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#retrieveallconfiguredradio">retrieveAllConfiguredRadio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#populatedbhelper">populateDbHelper</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#modbus">modbus</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#floattoregisters">floatToRegisters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contextmanager">contextManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getipaddress">getIpAddress</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#serialselector">serialSelector</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#selectusbport">selectUsbPort</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#variables">variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xbeedata">xbeeData</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getnodeid">getNodeId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cayenneparse">cayenneParse</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -73,14 +115,102 @@
              
   <section id="modules">
 <h1>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h1>
-<p>This page explains how to install XBee Gateway.</p>
+<p>There are different modules that works together to make the gateway a functional one</p>
+<section id="main">
+<span id="id1"></span><h2>main<a class="headerlink" href="#main" title="Link to this heading"></a></h2>
+<p>The main.py file is the root of the gateway as it</p>
+<section id="xbeepolling">
+<h3>xbeePolling<a class="headerlink" href="#xbeepolling" title="Link to this heading"></a></h3>
+</section>
+<section id="modbuspolling">
+<h3>modbusPolling<a class="headerlink" href="#modbuspolling" title="Link to this heading"></a></h3>
+</section>
+<section id="modbusserver">
+<h3>modbusServer<a class="headerlink" href="#modbusserver" title="Link to this heading"></a></h3>
+</section>
+<section id="startprocess">
+<h3>startProcess<a class="headerlink" href="#startprocess" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="configgui">
+<span id="id2"></span><h2>configGui<a class="headerlink" href="#configgui" title="Link to this heading"></a></h2>
+</section>
+<section id="dbintegration">
+<span id="id3"></span><h2>dbIntegration<a class="headerlink" href="#dbintegration" title="Link to this heading"></a></h2>
+<section id="modbusaddresspolice">
+<h3>modbusAddressPolice<a class="headerlink" href="#modbusaddresspolice" title="Link to this heading"></a></h3>
+</section>
+<section id="updatereusableaddress">
+<h3>updateReusableAddress<a class="headerlink" href="#updatereusableaddress" title="Link to this heading"></a></h3>
+</section>
+<section id="updateallendaddress">
+<h3>updateAllEndAddress<a class="headerlink" href="#updateallendaddress" title="Link to this heading"></a></h3>
+</section>
+<section id="dbquerymodbusstartaddress">
+<h3>dbQueryModbusStartAddress<a class="headerlink" href="#dbquerymodbusstartaddress" title="Link to this heading"></a></h3>
+</section>
+<section id="configurexbeeradio">
+<h3>configureXbeeRadio<a class="headerlink" href="#configurexbeeradio" title="Link to this heading"></a></h3>
+</section>
+<section id="updatexbeedetails">
+<h3>updateXbeeDetails<a class="headerlink" href="#updatexbeedetails" title="Link to this heading"></a></h3>
+</section>
+<section id="storexbeehistorydata">
+<h3>storeXbeeHistoryData<a class="headerlink" href="#storexbeehistorydata" title="Link to this heading"></a></h3>
+</section>
+<section id="swapxbeehistoryandmacaddress">
+<h3>swapXbeeHistoryAndMacAddress<a class="headerlink" href="#swapxbeehistoryandmacaddress" title="Link to this heading"></a></h3>
+</section>
+<section id="deletexbeedetails">
+<h3>deleteXbeeDetails<a class="headerlink" href="#deletexbeedetails" title="Link to this heading"></a></h3>
+</section>
+<section id="retrieveallconfiguredradio">
+<h3>retrieveAllConfiguredRadio<a class="headerlink" href="#retrieveallconfiguredradio" title="Link to this heading"></a></h3>
+</section>
+<section id="populatedbhelper">
+<h3>populateDbHelper<a class="headerlink" href="#populatedbhelper" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="modbus">
+<span id="id4"></span><h2>modbus<a class="headerlink" href="#modbus" title="Link to this heading"></a></h2>
+<section id="floattoregisters">
+<h3>floatToRegisters<a class="headerlink" href="#floattoregisters" title="Link to this heading"></a></h3>
+</section>
+<section id="contextmanager">
+<h3>contextManager<a class="headerlink" href="#contextmanager" title="Link to this heading"></a></h3>
+</section>
+<section id="getipaddress">
+<h3>getIpAddress<a class="headerlink" href="#getipaddress" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="serialselector">
+<span id="id5"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
+<section id="selectusbport">
+<h3>selectUsbPort<a class="headerlink" href="#selectusbport" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="variables">
+<span id="id6"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+</section>
+<section id="xbeedata">
+<span id="id7"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+<section id="getnodeid">
+<h3>getNodeId<a class="headerlink" href="#getnodeid" title="Link to this heading"></a></h3>
+</section>
+<section id="cayenneparse">
+<h3>cayenneParse<a class="headerlink" href="#cayenneparse" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="xbeedummydatatransmitter">
+<span id="id8"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

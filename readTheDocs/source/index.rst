@@ -47,8 +47,9 @@ source code: https://github.com/n1lby73/xbeeGateway
    :maxdepth: 2
    :caption: Contents:
 
-   .. pages/installation
-   .. pages/modules
+   pages/installation
+   pages/usage
+   pages/modules
 ..    usage
 ..    configuration
 ..    api
