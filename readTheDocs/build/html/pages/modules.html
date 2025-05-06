@@ -202,6 +202,59 @@
 <li class="toctree-l4"><a class="reference internal" href="#id37">Notes</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#swapxbeehistoryandmacaddress">swapXbeeHistoryAndMacAddress</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#purpose-and-use-case">Purpose and Use Case</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validation-and-normalization">Validation and Normalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mongodb-rename-mechanism">MongoDB Rename Mechanism</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mac-field-swapping-in-database">MAC Field Swapping in Database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#success-error-handling">Success &amp; Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id38">Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id39">Example Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#deletexbeedetails">deleteXbeeDetails</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id40">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validation-and-preparation">Validation and Preparation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deletion-steps">Deletion Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#success-criteria">Success Criteria</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id41">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id42">Side Effects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id43">Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id44">Example Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#retrieveallconfiguredradio">retrieveAllConfiguredRadio</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id45">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-details">Implementation Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#return-value">Return Value</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id46">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id47">Side Effects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#limitations">Limitations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id48">Example Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#populatedbhelper">populateDbHelper</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id49">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id50">Implementation Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id51">Return Value</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id52">Side Effects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id53">Limitations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#recommendations">Recommendations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-output">Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#main-block-entry">__main__ Block Entry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id54">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id55">Purpose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id56">Implementation Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id57">Return Value</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id58">Side Effects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id59">Limitations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id60">Recommendations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id61">Example Usage</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#modbus">modbus</a></li>
@@ -2597,35 +2650,591 @@ Only the following keys are allowed:</p>
 <li><p>This function assumes that the historian collections have been initialized via <cite>configureXbeeRadio()</cite>.</p></li>
 <li><p>It does <strong>not</strong> check for data schema conformity (e.g., number or type of elements in <cite>xbeeData</cite>) beyond requiring a list.</p></li>
 </ul>
+</section>
+</section>
 <section id="swapxbeehistoryandmacaddress">
-<h5>swapXbeeHistoryAndMacAddress<a class="headerlink" href="#swapxbeehistoryandmacaddress" title="Link to this heading"></a></h5>
+<h3>swapXbeeHistoryAndMacAddress<a class="headerlink" href="#swapxbeehistoryandmacaddress" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">swapXbeeHistoryAndMacAddress</span><span class="p">(</span><span class="n">firstXbeeMacAddress</span><span class="p">,</span> <span class="n">secondXbeeMacAddress</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Swaps the XBee MAC addresses and historical data collections between two configured radios. This function is useful in real-world scenarios where physical XBee devices are swapped between two locations.</p>
+<blockquote>
+<div><p>Instead of using <cite>updateXbeeDetails()</cite>, which would raise a duplication error when changing MAC addresses, this function handles the swap cleanly by also exchanging the corresponding historian collections, ensuring historical data continuity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param str firstXbeeMacAddress<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The MAC address of the first configured XBee device (before the swap).</p>
+</dd>
+<dt class="field-even">param str secondXbeeMacAddress<span class="colon">:</span></dt>
+<dd class="field-even"><p>The MAC address of the second configured XBee device (before the swap).</p>
+</dd>
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{&quot;success&quot;:</span> <span class="pre">&quot;Document</span> <span class="pre">updated</span> <span class="pre">successfully.&quot;}</span></code> if swap was successful.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{&quot;error&quot;:</span> <span class="pre">&quot;&lt;reason&gt;&quot;}</span></code> if an error occurs or inputs are invalid.</p></li>
+</ul>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="purpose-and-use-case">
+<h4>Purpose and Use Case<a class="headerlink" href="#purpose-and-use-case" title="Link to this heading"></a></h4>
+<p>This function is specifically designed for <strong>field operations</strong> where:
+- Two XBee radios (e.g., installed at well A and well B) are physically swapped.
+- The MAC addresses are now mismatched with their original Modbus start addresses and historian data.
+- Directly calling <cite>updateXbeeDetails()</cite> would violate uniqueness constraints for MACs.</p>
+<p>Instead, <cite>swapXbeeHistoryAndMacAddress()</cite>:
+1. Swaps their MAC entries in the <cite>configuredRadioCollection</cite>.
+2. Swaps their historian collections in the MongoDB database.</p>
+</section>
+<section id="validation-and-normalization">
+<h4>Validation and Normalization<a class="headerlink" href="#validation-and-normalization" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p>Both input MACs are normalized to uppercase.</p></li>
+<li><p>The function verifies that <strong>both MACs exist</strong> in the <cite>configuredRadioCollection</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">configuredRadioCollection</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s2">&quot;xbeeMac&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">mac</span><span class="o">&gt;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>If either MAC is unregistered, an error is returned.</p>
+</li>
+</ol>
+</section>
+<section id="mongodb-rename-mechanism">
+<h4>MongoDB Rename Mechanism<a class="headerlink" href="#mongodb-rename-mechanism" title="Link to this heading"></a></h4>
+<p>Historian collections (one per MAC) are renamed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gatewayDb</span><span class="p">[</span><span class="n">firstMac</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">secondMac</span><span class="p">)</span>
+<span class="n">gatewayDb</span><span class="p">[</span><span class="n">secondMac</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">firstMac</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Important</strong>:
+- MongoDB <cite>rename()</cite> swaps the collection name while keeping its contents.
+- This effectively <strong>swaps the historical data</strong> stored under each MAC.
+- No data is lost or duplicated.</p>
+</section>
+<section id="mac-field-swapping-in-database">
+<h4>MAC Field Swapping in Database<a class="headerlink" href="#mac-field-swapping-in-database" title="Link to this heading"></a></h4>
+<p>The configured MAC address values in <cite>configuredRadioCollection</cite> are updated accordingly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;$set&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;xbeeMac&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">new_value</span><span class="o">&gt;</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Two <cite>update_one()</cite> operations are run—one per MAC.</p>
+</section>
+<section id="success-error-handling">
+<h4>Success &amp; Error Handling<a class="headerlink" href="#success-error-handling" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>If both <cite>update_one()</cite> operations modify exactly one document each, a success is returned.</p></li>
+<li><p>If no changes are detected, an appropriate error is returned.</p></li>
+</ul>
+<p>Unhandled exceptions (e.g., from rename conflicts or database access issues) are caught and returned as:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;exception message&gt;&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id38">
+<h4>Notes<a class="headerlink" href="#id38" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>This function <strong>does not validate</strong> the structure of historian data itself—it assumes the format is consistent.</p></li>
+<li><p>It is designed to be used <strong>only after both MACs have been configured</strong>.</p></li>
+<li><p>This operation is <strong>atomic in intent but not transactional</strong>, so if the rename or update fails midway, manual recovery may be needed.</p></li>
+</ul>
+</section>
+<section id="id39">
+<h4>Example Usage<a class="headerlink" href="#id39" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">swapXbeeHistoryAndMacAddress</span><span class="p">(</span><span class="s2">&quot;0013A20040B2C3D4&quot;</span><span class="p">,</span> <span class="s2">&quot;0013A20040B2C3A9&quot;</span><span class="p">)</span>
+
+<span class="c1"># Outcome:</span>
+<span class="c1"># - Historical data collections of the two radios are swapped</span>
+<span class="c1"># - MACs are exchanged in the radio mapping config</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="deletexbeedetails">
-<h5>deleteXbeeDetails<a class="headerlink" href="#deletexbeedetails" title="Link to this heading"></a></h5>
+<h3>deleteXbeeDetails<a class="headerlink" href="#deletexbeedetails" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">deleteXbeeDetails</span><span class="p">(</span><span class="n">xbeeMacAddress</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Deletes a configured XBee radio device and its associated historical data from the system. This function performs a <strong>full cleanup</strong> — removing both the configuration entry and the corresponding MongoDB historian collection.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param str xbeeMacAddress<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The MAC address of the XBee radio to be deleted. It is case-insensitive and automatically converted to uppercase internally.</p>
+</dd>
+<dt class="field-even">returns<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{&quot;success&quot;:</span> <span class="pre">&quot;Deleted</span> <span class="pre">&lt;MAC&gt;</span> <span class="pre">and</span> <span class="pre">it's</span> <span class="pre">history</span> <span class="pre">data</span> <span class="pre">successfully.&quot;}</span></code> if the operation succeeds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{&quot;error&quot;:</span> <span class="pre">&quot;&lt;reason&gt;&quot;}</span></code> if the MAC address is not found or an error occurs.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="id40">
+<h4>Overview<a class="headerlink" href="#id40" title="Link to this heading"></a></h4>
+<p>This function is used to <strong>unregister a previously configured XBee radio</strong>, including:</p>
+<ul class="simple">
+<li><p>Removing its entry from the <cite>configuredRadioCollection</cite> which stores MAC address, Modbus start/end addresses, and node identifiers.</p></li>
+<li><p>Dropping its MongoDB historian collection (named using the MAC address) which stores timestamped sensor data.</p></li>
+</ul>
+<p>It is useful when:</p>
+<ul class="simple">
+<li><p>A radio is permanently removed from the field.</p></li>
+<li><p>Configuration needs to be reset before re-adding.</p></li>
+<li><p>Storage optimization is necessary (e.g., clearing unused history collections).</p></li>
+</ul>
+</section>
+<section id="validation-and-preparation">
+<h4>Validation and Preparation<a class="headerlink" href="#validation-and-preparation" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p>The input MAC is converted to uppercase:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xbeeMacAddress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xbeeMacAddress</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>The MAC is checked for existence using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">configuredRadioCollection</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s2">&quot;xbeeMac&quot;</span><span class="p">:</span> <span class="n">xbeeMacAddress</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>If not found, a descriptive error is returned.</p>
+</li>
+</ol>
+</section>
+<section id="deletion-steps">
+<h4>Deletion Steps<a class="headerlink" href="#deletion-steps" title="Link to this heading"></a></h4>
+<p>Once validated, two deletion operations are performed:</p>
+<ol class="arabic">
+<li><p><strong>Delete configuration entry</strong> from <cite>configuredRadioCollection</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">configuredRadioCollection</span><span class="o">.</span><span class="n">delete_one</span><span class="p">({</span><span class="s2">&quot;xbeeMac&quot;</span><span class="p">:</span> <span class="n">xbeeMacAddress</span><span class="p">})</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Drop historical data</strong> from the MAC-named collection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gatewayDb</span><span class="p">[</span><span class="n">xbeeMacAddress</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This removes the full collection associated with the XBee, including all sensor records.</p>
+</li>
+</ol>
+</section>
+<section id="success-criteria">
+<h4>Success Criteria<a class="headerlink" href="#success-criteria" title="Link to this heading"></a></h4>
+<p>To confirm successful deletion:</p>
+<ul>
+<li><p>The <cite>delete_one()</cite> operation must indicate <cite>deleted_count == 1</cite></p></li>
+<li><p>The dropped historian collection name must no longer appear in:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gatewayDb</span><span class="o">.</span><span class="n">list_collection_names</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p>If both are successful:</p>
+<ul class="simple">
+<li><p>The reusable Modbus address pool is refreshed via <cite>updateReusableAddress()</cite></p></li>
+<li><p>A success message is returned.</p></li>
+</ul>
+<p>If either deletion fails or does not result in a change, an error response is returned:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;delete request received, but no changes were made.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id41">
+<h4>Error Handling<a class="headerlink" href="#id41" title="Link to this heading"></a></h4>
+<p>The function uses a <cite>try-except</cite> block to capture all runtime exceptions and return a structured error message:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;exception message&gt;&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id42">
+<h4>Side Effects<a class="headerlink" href="#id42" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>State Mutation</strong>: The gateway system’s configuration and historical memory are permanently altered.</p></li>
+<li><p><strong>Cleanup</strong>: Releasing unused Modbus address ranges by updating the reusable pool.</p></li>
+</ul>
+</section>
+<section id="id43">
+<h4>Notes<a class="headerlink" href="#id43" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>This function is <strong>not reversible</strong> — once the historical collection is dropped, the data is lost.</p></li>
+<li><p>Use with caution in live systems where monitoring and audit records are critical.</p></li>
+<li><p>This function assumes MongoDB handles renames and drops atomically in a single-node setup. In multi-node environments, ensure replication lag is considered.</p></li>
+</ul>
+</section>
+<section id="id44">
+<h4>Example Usage<a class="headerlink" href="#id44" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">deleteXbeeDetails</span><span class="p">(</span><span class="s2">&quot;0013A20040B2C3D4&quot;</span><span class="p">)</span>
+
+<span class="c1"># Result:</span>
+<span class="c1"># - Radio with MAC &quot;0013A20040B2C3D4&quot; removed from configuration.</span>
+<span class="c1"># - Historical sensor readings dropped from gatewayDb.</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="retrieveallconfiguredradio">
-<h5>retrieveAllConfiguredRadio<a class="headerlink" href="#retrieveallconfiguredradio" title="Link to this heading"></a></h5>
+<h3>retrieveAllConfiguredRadio<a class="headerlink" href="#retrieveallconfiguredradio" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">retrieveAllConfiguredRadio</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Retrieves a list of all configured XBee radios from the database, returning their stored configuration values (without MongoDB internal metadata). This is useful for management interfaces, diagnostics, or administrative dashboards.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>A list of lists, where each inner list contains values for a configured XBee radio in the order retrieved from MongoDB.</p></li>
+<li><p>Or, <code class="docutils literal notranslate"><span class="pre">{&quot;error&quot;:</span> <span class="pre">&quot;&lt;exception</span> <span class="pre">message&gt;&quot;}</span></code> if an error occurs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>list or dict</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="id45">
+<h4>Overview<a class="headerlink" href="#id45" title="Link to this heading"></a></h4>
+<p>This function performs a <strong>read-only scan</strong> of the <cite>configuredRadioCollection</cite>, which stores MAC address, Modbus start/end addresses, and node identifiers for each registered radio.</p>
+<p>It <strong>excludes MongoDB’s internal `_id` field</strong> during retrieval and formats each result into a flat list of values.</p>
+<p>The structure of each returned item is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="s2">&quot;&lt;xbeeNodeIdentifier&gt;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;&lt;xbeeMac&gt;&quot;</span><span class="p">,</span>
+    <span class="o">&lt;</span><span class="n">modbusStartAddress</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="o">&lt;</span><span class="n">modbusEndAddress</span><span class="o">&gt;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>These lists are then wrapped in a parent list representing all configured radios.</p>
+</section>
+<section id="implementation-details">
+<h4>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p>The function initializes an empty list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">retrievedData</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</li>
+<li><p>It performs a MongoDB <cite>find()</cite> query to fetch all documents from the <cite>configuredRadioCollection</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">allConfiguredData</span> <span class="o">=</span> <span class="n">configuredRadioCollection</span><span class="o">.</span><span class="n">find</span><span class="p">({},</span> <span class="p">{</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The empty query <cite>{}</cite> means “select all documents”.</p></li>
+<li><p>The projection <cite>{“_id”: 0}</cite> removes the <cite>_id</cite> field from results.</p></li>
+</ul>
+</li>
+<li><p>Each document is iterated and converted to a flat list of values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">allConfiguredData</span><span class="p">:</span>
+    <span class="n">currentDataList</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">currentDataList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>All flattened lists are collected into a final output list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">retrievedData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">currentDataList</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="return-value">
+<h4>Return Value<a class="headerlink" href="#return-value" title="Link to this heading"></a></h4>
+<p>If successful, returns:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">[</span><span class="s2">&quot;NODE_A&quot;</span><span class="p">,</span> <span class="s2">&quot;0013A20040B2C3D4&quot;</span><span class="p">,</span> <span class="mi">4001</span><span class="p">,</span> <span class="mi">4020</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">&quot;NODE_B&quot;</span><span class="p">,</span> <span class="s2">&quot;0013A20040B2C3D5&quot;</span><span class="p">,</span> <span class="mi">4021</span><span class="p">,</span> <span class="mi">4040</span><span class="p">],</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>If an exception is thrown (e.g., database connection failure), returns a dictionary:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Detailed error message&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id46">
+<h4>Error Handling<a class="headerlink" href="#id46" title="Link to this heading"></a></h4>
+<p>All operations are enclosed in a <cite>try-except</cite> block. Any exception thrown (including MongoDB errors) is caught and returned as a structured error message.</p>
+</section>
+<section id="id47">
+<h4>Side Effects<a class="headerlink" href="#id47" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Read-Only</strong>: This function does not modify the database.</p></li>
+<li><p><strong>Stateless</strong>: It can be safely called multiple times without impacting system state.</p></li>
+</ul>
+</section>
+<section id="limitations">
+<h4>Limitations<a class="headerlink" href="#limitations" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>The returned data does not preserve original dictionary keys, only the values. This could make parsing harder in some frontend systems.</p></li>
+<li><p>Order of keys in MongoDB documents is not guaranteed, so value order in each list may vary unless explicitly ordered.</p></li>
+</ul>
+</section>
+<section id="id48">
+<h4>Example Usage<a class="headerlink" href="#id48" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">configuredRadios</span> <span class="o">=</span> <span class="n">retrieveAllConfiguredRadio</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">radio</span> <span class="ow">in</span> <span class="n">configuredRadios</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MAC: </span><span class="si">{</span><span class="n">radio</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, Node: </span><span class="si">{</span><span class="n">radio</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, Start: </span><span class="si">{</span><span class="n">radio</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">, End: </span><span class="si">{</span><span class="n">radio</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="populatedbhelper">
-<h5>populateDbHelper<a class="headerlink" href="#populatedbhelper" title="Link to this heading"></a></h5>
+<h3>populateDbHelper<a class="headerlink" href="#populatedbhelper" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">populateDbHelper</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Populates the system database with <strong>10,000 randomly generated dummy XBee radio entries</strong> for testing, debugging, or benchmarking purposes. This helper is meant for development and should <strong>not be used in production environments</strong> due to its data-spamming nature.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None (Output is printed to console during execution)</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="id49">
+<h4>Overview<a class="headerlink" href="#id49" title="Link to this heading"></a></h4>
+<p>This function generates a large number of fake XBee radios, each with:
+- A random 16-character MAC address,
+- A random Modbus start address between 39000 and 39999,
+- A predictable node identifier in the format <code class="docutils literal notranslate"><span class="pre">&quot;Radio</span> <span class="pre">&lt;i&gt;&quot;</span></code>,</p>
+<p>It uses the existing <cite>configureXbeeRadio()</cite> function to register each dummy radio into the persistent <cite>configuredRadioCollection</cite>.</p>
+<p>After each addition, it prints the current list of all configured radios using <cite>retrieveAllConfiguredRadio()</cite>.</p>
 </section>
+<section id="purpose">
+<h4>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Stress-testing MongoDB-based radio configuration storage</p></li>
+<li><p>Evaluating retrieval performance (<cite>retrieveAllConfiguredRadio</cite>)</p></li>
+<li><p>Simulating system behavior under large-scale configurations</p></li>
+<li><p>Validating UI elements like radio configuration tables or pagination</p></li>
+</ul>
+</section>
+<section id="id50">
+<h4>Implementation Details<a class="headerlink" href="#id50" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p><strong>Loop 10,000 Times</strong>:</p>
+<p>The function generates 10,000 fake radios with the following code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Random XBee MAC Generation</strong>:</p>
+<p>Each MAC is 16 characters long and consists of uppercase letters and digits:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xbeeMac</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">16</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>Note</strong>: This MAC format is synthetic and does not comply with real-world XBee IEEE 64-bit address formats (e.g., “0013A200…”).</p>
+</li>
+<li><p><strong>Random Modbus Start Address</strong>:</p>
+<p>Start address is chosen from the range 39000–39999:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">39000</span><span class="p">,</span> <span class="mi">39999</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This ensures:
+- No conflict with typical operational address ranges (e.g., 4001–5000)
+- Isolation from manually added real radios</p>
+</li>
+<li><p><strong>Node Identifier Naming</strong>:</p>
+<p>The node identifier is a fixed label <cite>“Radio “</cite> concatenated with the iteration index:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nodeidentifier</span> <span class="o">=</span> <span class="s2">&quot;Radio &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This ensures each identifier is unique: <cite>“Radio 0”</cite> to <cite>“Radio 9999”</cite>.</p>
+</li>
+<li><p><strong>Configure Radio</strong>:</p>
+<p>This line attempts to insert the generated radio into the system database:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">configureXbeeRadio</span><span class="p">(</span><span class="n">xbeeMac</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">nodeidentifier</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>configureXbeeRadio</cite> function performs input validation, duplicate checks, and MongoDB persistence.</p>
+</li>
+<li><p><strong>Display Configuration</strong>:</p>
+<p>After each insert, the updated list of configured radios is printed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">retrieveAllConfiguredRadio</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>This can significantly slow down execution and flood the console due to the large volume of data.</p>
+</li>
+</ol>
+</section>
+<section id="id51">
+<h4>Return Value<a class="headerlink" href="#id51" title="Link to this heading"></a></h4>
+<p>This function has no return value.</p>
+<p>All feedback is shown through console output (<cite>print()</cite>), which is helpful during manual testing but inefficient for automation.</p>
+</section>
+<section id="id52">
+<h4>Side Effects<a class="headerlink" href="#id52" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Adds <strong>10,000 documents</strong> to the <cite>configuredRadioCollection</cite>.</p></li>
+<li><p>Generates <strong>10,000 MongoDB collections</strong> in <cite>gatewayDb</cite>, assuming <cite>configureXbeeRadio</cite> follows your documented logic.</p></li>
+<li><p><strong>Consumes Modbus address space</strong> in the range 39000–39999.</p></li>
+<li><p>Can cause <strong>significant slowdown</strong> due to excessive console output and database writes.</p></li>
+</ul>
+</section>
+<section id="id53">
+<h4>Limitations<a class="headerlink" href="#id53" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Console output becomes unreadable beyond a few hundred entries.</p></li>
+<li><p>May result in performance bottlenecks, especially on limited hardware like Raspberry Pi.</p></li>
+<li><p>Can exhaust MongoDB resources (memory, disk, indexing) over time.</p></li>
+<li><p>Inserts are not de-duplicated; rare chance of MAC address collision despite randomness.</p></li>
+</ul>
+</section>
+<section id="recommendations">
+<h4>Recommendations<a class="headerlink" href="#recommendations" title="Link to this heading"></a></h4>
+<ul>
+<li><p>Wrap the <cite>print()</cite> call in a debug flag or limit it (e.g., print every 1000 inserts).</p></li>
+<li><p>Use a shorter range during local testing (e.g., 100 radios) to avoid unintentional overload.</p></li>
+<li><p>Consider deleting all entries after the test using a cleanup helper.</p></li>
+<li><p>Replace raw <cite>print(retrieveAllConfiguredRadio())</cite> with summary statistics like:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inserted </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> radios&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="example-output">
+<h4>Example Output<a class="headerlink" href="#example-output" title="Link to this heading"></a></h4>
+<p>A single output from one iteration might look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">[</span><span class="s1">&#39;Radio 0&#39;</span><span class="p">,</span> <span class="s1">&#39;AB12CD34EF56GH78&#39;</span><span class="p">,</span> <span class="mi">39021</span><span class="p">,</span> <span class="mi">39040</span><span class="p">],</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="main-block-entry">
+<h3>__main__ Block Entry<a class="headerlink" href="#main-block-entry" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Acts as the <strong>script execution entry point</strong> in Python. Ensures that code within this block is <strong>only executed when the file is run directly</strong>, and not when it is imported as a module in another script.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None (currently no runtime behavior)</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="id54">
+<h4>Overview<a class="headerlink" href="#id54" title="Link to this heading"></a></h4>
+<p>This conditional block is standard Python practice and serves as a safeguard to isolate code execution logic. It prevents automatic execution of logic when this script is imported elsewhere in your system (e.g., from another module or during testing).</p>
+<p>In its current form, the block is empty (<cite>pass</cite>), which implies it’s a <strong>placeholder</strong> for future startup logic, such as launching a process, running tests, or triggering a simulation loop.</p>
+</section>
+<section id="id55">
+<h4>Purpose<a class="headerlink" href="#id55" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Prevents unintentional side-effects when the module is imported.</p></li>
+<li><p>Offers a safe place to define the program’s default startup behavior.</p></li>
+<li><p>Commonly used for orchestrators like <cite>startProcess()</cite> or batch utilities like <cite>populateDbHelper()</cite>.</p></li>
+</ul>
+</section>
+<section id="id56">
+<h4>Implementation Details<a class="headerlink" href="#id56" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p><strong>Condition Evaluation</strong>:</p>
+<p>The block checks whether the file is being run as the main program:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Empty Execution Block</strong>:</p>
+<p>Uses Python’s <cite>pass</cite> keyword to indicate intentional non-operation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">pass</span>
+</pre></div>
+</div>
+<p>This means:
+- The script won’t perform any action unless populated.
+- It can safely be imported into test harnesses or integration tools.</p>
+</li>
+</ol>
+</section>
+<section id="id57">
+<h4>Return Value<a class="headerlink" href="#id57" title="Link to this heading"></a></h4>
+<p>None. This block contains no logic or returnable function.</p>
+</section>
+<section id="id58">
+<h4>Side Effects<a class="headerlink" href="#id58" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Currently, there are no side effects.</p></li>
+<li><p>In future, logic placed here can:
+- Alter global variables
+- Launch services or daemons
+- Populate or modify the database
+- Run standalone validation scripts</p></li>
+</ul>
+</section>
+<section id="id59">
+<h4>Limitations<a class="headerlink" href="#id59" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>The block is inert (<cite>pass</cite>) and performs no actions in its current state.</p></li>
+<li><p>Omitting <cite>__main__</cite> logic can lead to confusion when trying to run the file directly and expecting visible behavior.</p></li>
+</ul>
+</section>
+<section id="id60">
+<h4>Recommendations<a class="headerlink" href="#id60" title="Link to this heading"></a></h4>
+<ul>
+<li><p>Replace <cite>pass</cite> with a functional call like:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">startProcess</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Use it for debug helpers during development:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">populateDbHelper</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Add comments indicating its purpose and which function(s) should be run for testing or production.</p></li>
+</ul>
+</section>
+<section id="id61">
+<h4>Example Usage<a class="headerlink" href="#id61" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This module was run directly&quot;</span><span class="p">)</span>
+    <span class="n">startProcess</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This would run the gateway process only when the script is launched explicitly, not when imported into another script or service.</p>
 </section>
 </section>
 </section>
 <section id="modbus">
-<span id="id38"></span><h2>modbus<a class="headerlink" href="#modbus" title="Link to this heading"></a></h2>
+<span id="id62"></span><h2>modbus<a class="headerlink" href="#modbus" title="Link to this heading"></a></h2>
 </section>
 <section id="serialselector">
-<span id="id39"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
+<span id="id63"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
 </section>
 <section id="variables">
-<span id="id40"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+<span id="id64"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
 </section>
 <section id="xbeedata">
-<span id="id41"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+<span id="id65"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
 </section>
 <section id="xbeedummydatatransmitter">
-<span id="id42"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+<span id="id66"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
 </section>
 </section>
 

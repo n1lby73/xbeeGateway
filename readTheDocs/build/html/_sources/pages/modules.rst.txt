@@ -2084,16 +2084,593 @@ Notes
 
 
 swapXbeeHistoryAndMacAddress
-'''''''''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   swapXbeeHistoryAndMacAddress(firstXbeeMacAddress, secondXbeeMacAddress)
+
+Swaps the XBee MAC addresses and historical data collections between two configured radios. This function is useful in real-world scenarios where physical XBee devices are swapped between two locations.
+
+   Instead of using `updateXbeeDetails()`, which would raise a duplication error when changing MAC addresses, this function handles the swap cleanly by also exchanging the corresponding historian collections, ensuring historical data continuity.
+
+   :param str firstXbeeMacAddress:
+       The MAC address of the first configured XBee device (before the swap).
+
+   :param str secondXbeeMacAddress:
+       The MAC address of the second configured XBee device (before the swap).
+
+   :returns:
+       - ``{"success": "Document updated successfully."}`` if swap was successful.
+       - ``{"error": "<reason>"}`` if an error occurs or inputs are invalid.
+
+   :rtype: dict
+
+Purpose and Use Case
+""""""""""""""""""""""
+
+This function is specifically designed for **field operations** where:
+- Two XBee radios (e.g., installed at well A and well B) are physically swapped.
+- The MAC addresses are now mismatched with their original Modbus start addresses and historian data.
+- Directly calling `updateXbeeDetails()` would violate uniqueness constraints for MACs.
+
+Instead, `swapXbeeHistoryAndMacAddress()`:
+1. Swaps their MAC entries in the `configuredRadioCollection`.
+2. Swaps their historian collections in the MongoDB database.
+
+Validation and Normalization
+""""""""""""""""""""""""""""""
+
+1. Both input MACs are normalized to uppercase.
+2. The function verifies that **both MACs exist** in the `configuredRadioCollection`:
+
+   .. code-block:: python
+
+      configuredRadioCollection.find_one({"xbeeMac": <mac>})
+
+   If either MAC is unregistered, an error is returned.
+
+MongoDB Rename Mechanism
+""""""""""""""""""""""""""
+
+Historian collections (one per MAC) are renamed:
+
+.. code-block:: python
+
+   gatewayDb[firstMac].rename(secondMac)
+   gatewayDb[secondMac].rename(firstMac)
+
+**Important**:
+- MongoDB `rename()` swaps the collection name while keeping its contents.
+- This effectively **swaps the historical data** stored under each MAC.
+- No data is lost or duplicated.
+
+MAC Field Swapping in Database
+"""""""""""""""""""""""""""""""
+
+The configured MAC address values in `configuredRadioCollection` are updated accordingly:
+
+.. code-block:: python
+
+   {"$set": {"xbeeMac": <new_value>}}
+
+Two `update_one()` operations are run—one per MAC.
+
+Success & Error Handling
+"""""""""""""""""""""""""
+
+- If both `update_one()` operations modify exactly one document each, a success is returned.
+- If no changes are detected, an appropriate error is returned.
+
+Unhandled exceptions (e.g., from rename conflicts or database access issues) are caught and returned as:
+
+.. code-block:: json
+
+   {"error": "<exception message>"}
+
+Notes
+"""""""
+
+- This function **does not validate** the structure of historian data itself—it assumes the format is consistent.
+- It is designed to be used **only after both MACs have been configured**.
+- This operation is **atomic in intent but not transactional**, so if the rename or update fails midway, manual recovery may be needed.
+
+Example Usage
+""""""""""""""
+
+.. code-block:: python
+
+   swapXbeeHistoryAndMacAddress("0013A20040B2C3D4", "0013A20040B2C3A9")
+
+   # Outcome: 
+   # - Historical data collections of the two radios are swapped
+   # - MACs are exchanged in the radio mapping config
+
 
 deleteXbeeDetails
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   deleteXbeeDetails(xbeeMacAddress)
+
+Deletes a configured XBee radio device and its associated historical data from the system. This function performs a **full cleanup** — removing both the configuration entry and the corresponding MongoDB historian collection.
+
+   :param str xbeeMacAddress:
+       The MAC address of the XBee radio to be deleted. It is case-insensitive and automatically converted to uppercase internally.
+
+   :returns:
+       - ``{"success": "Deleted <MAC> and it's history data successfully."}`` if the operation succeeds.
+       - ``{"error": "<reason>"}`` if the MAC address is not found or an error occurs.
+
+   :rtype: dict
+
+Overview
+""""""""""
+
+This function is used to **unregister a previously configured XBee radio**, including:
+
+- Removing its entry from the `configuredRadioCollection` which stores MAC address, Modbus start/end addresses, and node identifiers.
+- Dropping its MongoDB historian collection (named using the MAC address) which stores timestamped sensor data.
+
+It is useful when:
+
+- A radio is permanently removed from the field.
+- Configuration needs to be reset before re-adding.
+- Storage optimization is necessary (e.g., clearing unused history collections).
+
+Validation and Preparation
+""""""""""""""""""""""""""""
+
+1. The input MAC is converted to uppercase:
+
+   .. code-block:: python
+
+      xbeeMacAddress = str(xbeeMacAddress).upper()
+
+2. The MAC is checked for existence using:
+
+   .. code-block:: python
+
+      configuredRadioCollection.find_one({"xbeeMac": xbeeMacAddress})
+
+   If not found, a descriptive error is returned.
+
+Deletion Steps
+""""""""""""""""
+
+Once validated, two deletion operations are performed:
+
+1. **Delete configuration entry** from `configuredRadioCollection`:
+
+   .. code-block:: python
+
+      configuredRadioCollection.delete_one({"xbeeMac": xbeeMacAddress})
+
+2. **Drop historical data** from the MAC-named collection:
+
+   .. code-block:: python
+
+      gatewayDb[xbeeMacAddress].drop()
+
+   This removes the full collection associated with the XBee, including all sensor records.
+
+Success Criteria
+""""""""""""""""""
+
+To confirm successful deletion:
+
+- The `delete_one()` operation must indicate `deleted_count == 1`
+- The dropped historian collection name must no longer appear in:
+
+   .. code-block:: python
+
+      gatewayDb.list_collection_names()
+
+If both are successful:
+
+- The reusable Modbus address pool is refreshed via `updateReusableAddress()`
+- A success message is returned.
+
+If either deletion fails or does not result in a change, an error response is returned:
+
+.. code-block:: json
+
+   {"error": "delete request received, but no changes were made."}
+
+Error Handling
+""""""""""""""""
+
+The function uses a `try-except` block to capture all runtime exceptions and return a structured error message:
+
+.. code-block:: json
+
+   {"error": "<exception message>"}
+
+Side Effects
+""""""""""""""
+
+- **State Mutation**: The gateway system's configuration and historical memory are permanently altered.
+- **Cleanup**: Releasing unused Modbus address ranges by updating the reusable pool.
+
+Notes
+"""""""
+
+- This function is **not reversible** — once the historical collection is dropped, the data is lost.
+- Use with caution in live systems where monitoring and audit records are critical.
+- This function assumes MongoDB handles renames and drops atomically in a single-node setup. In multi-node environments, ensure replication lag is considered.
+
+Example Usage
+"""""""""""""""
+
+.. code-block:: python
+
+   deleteXbeeDetails("0013A20040B2C3D4")
+
+   # Result:
+   # - Radio with MAC "0013A20040B2C3D4" removed from configuration.
+   # - Historical sensor readings dropped from gatewayDb.
+
 
 retrieveAllConfiguredRadio
-'''''''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   retrieveAllConfiguredRadio()
+
+Retrieves a list of all configured XBee radios from the database, returning their stored configuration values (without MongoDB internal metadata). This is useful for management interfaces, diagnostics, or administrative dashboards.
+
+   :returns:
+
+       - A list of lists, where each inner list contains values for a configured XBee radio in the order retrieved from MongoDB.
+       - Or, ``{"error": "<exception message>"}`` if an error occurs.
+
+   :rtype: list or dict
+
+Overview
+""""""""""
+
+This function performs a **read-only scan** of the `configuredRadioCollection`, which stores MAC address, Modbus start/end addresses, and node identifiers for each registered radio.
+
+It **excludes MongoDB’s internal `_id` field** during retrieval and formats each result into a flat list of values.
+
+The structure of each returned item is:
+
+.. code-block:: python
+
+   [
+       "<xbeeNodeIdentifier>",
+       "<xbeeMac>",
+       <modbusStartAddress>,
+       <modbusEndAddress>
+   ]
+
+These lists are then wrapped in a parent list representing all configured radios.
+
+Implementation Details
+""""""""""""""""""""""""
+
+1. The function initializes an empty list:
+
+   .. code-block:: python
+
+      retrievedData = []
+
+2. It performs a MongoDB `find()` query to fetch all documents from the `configuredRadioCollection`:
+
+   .. code-block:: python
+
+      allConfiguredData = configuredRadioCollection.find({}, {"_id": 0})
+
+   - The empty query `{}` means “select all documents”.
+   - The projection `{"_id": 0}` removes the `_id` field from results.
+
+3. Each document is iterated and converted to a flat list of values:
+
+   .. code-block:: python
+
+      for data in allConfiguredData:
+          currentDataList = []
+          for key, value in data.items():
+              currentDataList.append(value)
+
+4. All flattened lists are collected into a final output list:
+
+   .. code-block:: python
+
+      retrievedData.append(currentDataList)
+
+Return Value
+""""""""""""""
+
+If successful, returns:
+
+.. code-block:: python
+
+   [
+       ["NODE_A", "0013A20040B2C3D4", 4001, 4020],
+       ["NODE_B", "0013A20040B2C3D5", 4021, 4040],
+       ...
+   ]
+
+If an exception is thrown (e.g., database connection failure), returns a dictionary:
+
+.. code-block:: json
+
+   {"error": "Detailed error message"}
+
+Error Handling
+""""""""""""""""
+
+All operations are enclosed in a `try-except` block. Any exception thrown (including MongoDB errors) is caught and returned as a structured error message.
+
+Side Effects
+""""""""""""""
+
+- **Read-Only**: This function does not modify the database.
+- **Stateless**: It can be safely called multiple times without impacting system state.
+
+Limitations
+""""""""""""""
+
+- The returned data does not preserve original dictionary keys, only the values. This could make parsing harder in some frontend systems.
+- Order of keys in MongoDB documents is not guaranteed, so value order in each list may vary unless explicitly ordered.
+
+Example Usage
+"""""""""""""""
+
+.. code-block:: python
+
+   configuredRadios = retrieveAllConfiguredRadio()
+
+   for radio in configuredRadios:
+       print(f"MAC: {radio[1]}, Node: {radio[0]}, Start: {radio[2]}, End: {radio[3]}")
+
 
 populateDbHelper
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   populateDbHelper()
+
+Populates the system database with **10,000 randomly generated dummy XBee radio entries** for testing, debugging, or benchmarking purposes. This helper is meant for development and should **not be used in production environments** due to its data-spamming nature.
+
+   :returns: None (Output is printed to console during execution)
+   :rtype: None
+
+Overview
+""""""""""
+
+This function generates a large number of fake XBee radios, each with:
+- A random 16-character MAC address,
+- A random Modbus start address between 39000 and 39999,
+- A predictable node identifier in the format ``"Radio <i>"``,
+
+It uses the existing `configureXbeeRadio()` function to register each dummy radio into the persistent `configuredRadioCollection`.
+
+After each addition, it prints the current list of all configured radios using `retrieveAllConfiguredRadio()`.
+
+Purpose
+""""""""""
+
+- Stress-testing MongoDB-based radio configuration storage
+- Evaluating retrieval performance (`retrieveAllConfiguredRadio`)
+- Simulating system behavior under large-scale configurations
+- Validating UI elements like radio configuration tables or pagination
+
+Implementation Details
+""""""""""""""""""""""""
+
+1. **Loop 10,000 Times**:
+
+   The function generates 10,000 fake radios with the following code:
+
+   .. code-block:: python
+
+      for i in range(10000):
+
+2. **Random XBee MAC Generation**:
+
+   Each MAC is 16 characters long and consists of uppercase letters and digits:
+
+   .. code-block:: python
+
+      xbeeMac = "".join(random.choices(string.ascii_uppercase + string.digits, k=16))
+
+   **Note**: This MAC format is synthetic and does not comply with real-world XBee IEEE 64-bit address formats (e.g., "0013A200...").
+
+3. **Random Modbus Start Address**:
+
+   Start address is chosen from the range 39000–39999:
+
+   .. code-block:: python
+
+      start = random.randint(39000, 39999)
+
+   This ensures:
+   - No conflict with typical operational address ranges (e.g., 4001–5000)
+   - Isolation from manually added real radios
+
+4. **Node Identifier Naming**:
+
+   The node identifier is a fixed label `"Radio "` concatenated with the iteration index:
+
+   .. code-block:: python
+
+      nodeidentifier = "Radio " + str(i)
+
+   This ensures each identifier is unique: `"Radio 0"` to `"Radio 9999"`.
+
+5. **Configure Radio**:
+
+   This line attempts to insert the generated radio into the system database:
+
+   .. code-block:: python
+
+      configureXbeeRadio(xbeeMac, start, nodeidentifier)
+
+   The `configureXbeeRadio` function performs input validation, duplicate checks, and MongoDB persistence.
+
+6. **Display Configuration**:
+
+   After each insert, the updated list of configured radios is printed:
+
+   .. code-block:: python
+
+      print(retrieveAllConfiguredRadio())
+
+   This can significantly slow down execution and flood the console due to the large volume of data.
+
+Return Value
+""""""""""""""
+
+This function has no return value.
+
+All feedback is shown through console output (`print()`), which is helpful during manual testing but inefficient for automation.
+
+Side Effects
+""""""""""""""
+
+- Adds **10,000 documents** to the `configuredRadioCollection`.
+- Generates **10,000 MongoDB collections** in `gatewayDb`, assuming `configureXbeeRadio` follows your documented logic.
+- **Consumes Modbus address space** in the range 39000–39999.
+- Can cause **significant slowdown** due to excessive console output and database writes.
+
+Limitations
+""""""""""""""
+
+- Console output becomes unreadable beyond a few hundred entries.
+- May result in performance bottlenecks, especially on limited hardware like Raspberry Pi.
+- Can exhaust MongoDB resources (memory, disk, indexing) over time.
+- Inserts are not de-duplicated; rare chance of MAC address collision despite randomness.
+
+Recommendations
+""""""""""""""""""
+
+- Wrap the `print()` call in a debug flag or limit it (e.g., print every 1000 inserts).
+- Use a shorter range during local testing (e.g., 100 radios) to avoid unintentional overload.
+- Consider deleting all entries after the test using a cleanup helper.
+- Replace raw `print(retrieveAllConfiguredRadio())` with summary statistics like:
+
+   .. code-block:: python
+
+      if i % 1000 == 0:
+          print(f"Inserted {i+1} radios")
+
+Example Output
+""""""""""""""""
+
+A single output from one iteration might look like this:
+
+.. code-block:: python
+
+   [
+       ['Radio 0', 'AB12CD34EF56GH78', 39021, 39040],
+       ...
+   ]
+
+__main__ Block Entry
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   if __name__ == "__main__":
+       pass
+
+Acts as the **script execution entry point** in Python. Ensures that code within this block is **only executed when the file is run directly**, and not when it is imported as a module in another script.
+
+   :returns: None (currently no runtime behavior)
+   :rtype: None
+
+Overview
+""""""""""
+
+This conditional block is standard Python practice and serves as a safeguard to isolate code execution logic. It prevents automatic execution of logic when this script is imported elsewhere in your system (e.g., from another module or during testing).
+
+In its current form, the block is empty (`pass`), which implies it's a **placeholder** for future startup logic, such as launching a process, running tests, or triggering a simulation loop.
+
+Purpose
+""""""""""
+
+- Prevents unintentional side-effects when the module is imported.
+- Offers a safe place to define the program’s default startup behavior.
+- Commonly used for orchestrators like `startProcess()` or batch utilities like `populateDbHelper()`.
+
+Implementation Details
+""""""""""""""""""""""""
+
+1. **Condition Evaluation**:
+
+   The block checks whether the file is being run as the main program:
+
+   .. code-block:: python
+
+      if __name__ == "__main__":
+
+2. **Empty Execution Block**:
+
+   Uses Python’s `pass` keyword to indicate intentional non-operation:
+
+   .. code-block:: python
+
+      pass
+
+   This means:
+   - The script won’t perform any action unless populated.
+   - It can safely be imported into test harnesses or integration tools.
+
+Return Value
+""""""""""""""
+
+None. This block contains no logic or returnable function.
+
+Side Effects
+""""""""""""""
+
+- Currently, there are no side effects.
+- In future, logic placed here can:
+  - Alter global variables
+  - Launch services or daemons
+  - Populate or modify the database
+  - Run standalone validation scripts
+
+Limitations
+""""""""""""""
+
+- The block is inert (`pass`) and performs no actions in its current state.
+- Omitting `__main__` logic can lead to confusion when trying to run the file directly and expecting visible behavior.
+
+Recommendations
+""""""""""""""""""
+
+- Replace `pass` with a functional call like:
+
+   .. code-block:: python
+
+      if __name__ == "__main__":
+          startProcess()
+
+- Use it for debug helpers during development:
+
+   .. code-block:: python
+
+      if __name__ == "__main__":
+          populateDbHelper()
+
+- Add comments indicating its purpose and which function(s) should be run for testing or production.
+
+Example Usage
+""""""""""""""""
+
+.. code-block:: python
+
+   if __name__ == "__main__":
+       print("This module was run directly")
+       startProcess()
+
+This would run the gateway process only when the script is launched explicitly, not when imported into another script or service.
 
 
 .. _modbus:
