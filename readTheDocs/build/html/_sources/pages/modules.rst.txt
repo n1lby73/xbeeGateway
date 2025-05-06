@@ -736,13 +736,19 @@ Functions:
 
    .. code-block:: python
 
-      my_object.get_database()
+      self.get_database()
+    
+
+   **Function Details:**
+
+    - :param self: The instance of the class calling the method. (Implicit)
+    - :return: This function does not return any value. 
 
    **Error Handling:**
 
     - If the function retrieves an error message (when the result is a dictionary and contains the "error" key), the function will show an error dialog using `messagebox.showerror` with the message provided in the error field.
 
-   **Important Notes:**
+   **Notes:**
     - The `retrieveAllConfiguredRadio()` function should return a list or iterable with radio configurations, where each item is a tuple containing at least four elements. If the result is a dictionary with an "error" key, the function displays an error.
 
 
@@ -766,8 +772,13 @@ Functions:
 
    .. code-block:: python
 
-      my_object.add_database()
+      self.add_database()
 
+
+   **Function Details:**
+
+   - :param self: The instance of the class calling the method. (Implicit)
+   - :return: This function does not return any value.
 
    **Error Handling:**
 
@@ -775,7 +786,7 @@ Functions:
     - **XBee Configuration Error**: If the `configureXbeeRadio()` function returns an error message, an error dialog is shown using `messagebox.showerror`.
     - **Invalid Modbus Address**: If a `ValueError` occurs due to an invalid Modbus address (non-integer value), an error dialog is shown with a specific message.
 
-   **Important Notes:**
+   **Notes:**
     - The function expects the Modbus address input to be a valid integer. If the input is not a valid integer, the function raises a `ValueError` and prompts the user to enter a valid value.
     - The `configureXbeeRadio()` function must return a dictionary, where the absence of an "error" key indicates a successful configuration, and the presence of an "error" key indicates failure.
     - After a successful entry, the tree view is cleared and repopulated using the `get_database()` function.
@@ -798,7 +809,7 @@ Functions:
 
    .. code-block:: python
 
-      my_object.refresh()
+      self.refresh()
 
    **Function Details:**
 
@@ -977,6 +988,292 @@ Functions:
     - The tree view must use the `ttk.Treeview` widget.
 
 
+.. function:: update_selected(self)
+
+   Opens a form to update the selected entry in the tree view. Pre-fills the form with existing data, and waits for user input to complete the update.
+
+   This function performs the following steps:
+    - Checks whether a tree item is selected. If not, displays an error message.
+    - Disables the update button to prevent multiple update windows.
+    - Opens a new `Toplevel` window titled "Update Entry".
+    - Builds an entry form with fields for:
+        - Node Identifier
+        - Radio MAC Address
+        - Modbus Start Address
+        - Modbus End Address
+    - Pre-fills these input fields with the current values from the selected item.
+    - Binds the window close protocol to `self.close_window` and waits until the window is closed before re-enabling the update button.
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.update_button.config(command=self.update_selected)
+
+   **Function Details:**
+
+    - :param self: The instance of the class calling the method.
+    - :return: This method does not return a value.
+
+   **UI Elements Created:**
+    - A modal `Toplevel` window named `self.update_window`.
+    - Four labeled input fields for updating node, MAC address, and Modbus addresses.
+    - A button labeled "Update Entry" that calls `self.click_update`.
+
+   **Data Handling:**
+    - Uses `self.tree.item(self.selected_item)["values"]` to extract:
+        - `values[1]`: Node Identifier
+        - `values[2]`: Radio MAC Address
+        - `values[3]`: Modbus Start Address
+        - `values[4]`: Modbus End Address
+    - These values are inserted into their corresponding entry fields for user editing.
+
+   **Window Behavior:**
+    - The main window waits for the update window to close before continuing.
+    - Update button (`self.update_button`) is disabled while the update window is open and re-enabled afterward.
+    - The close action is bound to a custom cleanup method (`self.close_window`).
+
+   **Error Handling:**
+    - If no item is selected in the tree, an error message is shown: "Please select an item to update."
+
+   **Assumptions:**
+    - `self.tree` is a `ttk.Treeview` with at least 5 columns in each row.
+    - `self.click_update()` and `self.close_window()` are defined elsewhere in the class.
+
+
+.. function:: click_update(self)
+
+   Applies the updates specified in the update entry form and updates the backend database accordingly.
+
+   This function performs the following actions:
+    - Retrieves new values entered by the user in the update form.
+    - Compares the new values to the previously stored values.
+    - Builds a dictionary (`self.json_data`) with only the fields that have changed.
+    - If changes are detected:
+        - Prompts the user for confirmation showing a summary of the updates.
+        - Sends the update data to the backend using `updateXbeeDetails`.
+        - If successful, refreshes the main table view, displays a success message, and closes the update window.
+        - If an error occurs, displays the error message.
+    - If no changes are detected, shows an error and closes the update window.
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.click_update()
+
+   **Function Details:**
+
+    - :param self: The instance of the class calling the method.
+    - :return: This method does not return a value.
+
+   **Key Variables:**
+    - `self.json_data`: A dictionary containing only updated fields.
+    - `self.result`: A list of human-readable change summaries.
+
+
+   **Update Workflow:**
+    - Compares new inputs against old values:
+        - `xbeeNodeIdentifier`
+        - `xbeeMac`
+        - `modbusStartAddress`
+        - `modbusEndAddress`
+    - Only modified fields are sent in the update request.
+    - A confirmation dialog shows the user what will change before proceeding.
+
+   **Backend Interaction:**
+    - Uses `updateXbeeDetails(mac_address, json_data)` to update the device configuration.
+    - A successful response is expected to have no `"error"` key.
+
+   **User Prompts:**
+    - If updates are found: prompts with "Are you fine with this update?" and shows details.
+    - If no changes are found: shows "No new update detected."
+    - On success: shows "Entry updated successfully."
+    - On error: shows the error message from the backend.
+
+   **Assumptions:**
+    - All entry widgets (`self.node_input`, etc.) are valid and exist.
+    - `self.old_*` attributes are set beforehand (typically from `update_selected()`).
+    - `self.refresh()` refreshes the tree view, and `self.close_window()` cleans up the modal.
+
+   **Error Handling:**
+    - Backend errors are shown via `messagebox.showerror`.
+    - If no changes are detected, user is informed and the update window is closed.
+
+
+.. function:: configure_button(self)
+
+   Opens the configuration window and preloads settings from a local Python module file called `variables.py`.
+
+   This function performs the following actions:
+    - Opens and reads the contents of `modules/variables.py`.
+    - Extracts values for:
+        - `prefferedRadioSerialNumber`
+        - `modbusPort`
+        - `incrementalModbusAddress`
+    - Displays a new configuration window with input fields for these values.
+    - Pre-fills the fields with the values read from the file.
+    - Adds a **Save** button that triggers `self.read_serial_and_modbusport` when clicked.
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.configure_button()
+
+
+   **Function Workflow:**
+
+    - Opens the `modules/variables.py` file and searches for:
+        - `prefferedRadioSerialNumber`
+        - `modbusPort`
+        - `incrementalModbusAddress`
+    - Extracts the values, strips quotation marks and whitespace as needed.
+    - Creates a `tk.Toplevel` window titled *Configuration Window*.
+    - Adds `tk.Entry` widgets for each extracted setting, pre-filled with current values.
+    - Places a **Save** button that calls `read_serial_and_modbusport`.
+
+
+
+   **Dependencies:**
+
+    - Assumes the file `modules/variables.py` exists and contains the target variables.
+    - Relies on the method `read_serial_and_modbusport` to handle saving updated settings.
+
+    **Potential Exceptions:**
+
+    - If the `modules/variables.py` file is missing or unreadable, a `FileNotFoundError` or `IOError` may be raised.
+    - If any of the expected variables are missing from the file, corresponding inputs will be empty.
+
+   **Notes:**
+
+    - This function does **not** save changes itself—it only reads and displays current settings.
+    - The actual save logic is delegated to `read_serial_and_modbusport`.
+
+
+.. function:: read_serial_and_modbusport(self)
+
+   Updates configuration variables in the `modules/variables.py` file based on user input from the configuration GUI.
+
+   This method performs the following tasks:
+    - Reads current values from `modules/variables.py`.
+    - Compares them to user-provided inputs in the GUI.
+    - If any changes are detected:
+        - Updates the file with new values.
+        - Optionally updates all Modbus end addresses if the incremental value changed.
+    - Displays appropriate message dialogs to confirm and report results.
+
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.read_serial_and_modbusport()
+
+   **Process Overview:**
+
+    - Reads the file `modules/variables.py` line-by-line.
+    - Compares the following variables:
+        - `prefferedRadioSerialNumber`
+        - `modbusPort`
+        - `incrementalModbusAddress`
+    - For each variable that differs from the old value:
+        - Constructs a new line.
+        - Updates the corresponding line in memory.
+        - Appends the change to a result list for display.
+    - If `incrementalModbusAddress` changed, prompts the user to update all Modbus end addresses via `updateAllEndAddress()`.
+
+   **GUI Interaction:**
+    - Prompts user to confirm changes via `messagebox.askyesno`.
+    - On update success, shows `messagebox.showinfo`.
+    - If no change detected, shows `messagebox.showerror`.
+
+   **Dependencies:**
+    - Requires file `modules/variables.py` to exist and be writable.
+    - Calls external method `updateAllEndAddress(new_incremental_address)` if `incrementalModbusAddress` is updated.
+    - Calls `self.refresh()` after a successful update and optional end address update.
+
+   **Raises:**
+    - `ValueError` if GUI input cannot be cast to integers.
+    - `FileNotFoundError` or `IOError` if file access fails.
+
+   **Notes:**
+    - Closes the configuration window (`self.configure_window`) after execution.
+    - Does not rollback changes if an error occurs after writing the file.
+
+
+.. function:: clear_placeholder(self, event)
+
+   Clears the placeholder text from the search bar input field when it gains focus.
+
+   This method is typically bound to the `<FocusIn>` event of the search bar widget. When the field is focused and the default placeholder text ("Search here") is present, it removes the placeholder and sets the text color to black.
+
+    :param event: The event object triggered by the GUI (usually `<FocusIn>`).
+    :type event: tkinter.Event
+
+
+   **Example Binding:**
+
+   .. code-block:: python
+
+      self.search_bar.bind("<FocusIn>", self.clear_placeholder)
+
+   **Behavior:**
+
+    - Checks if the current text in the `search_bar` is `"Search here"`.
+    - If so:
+        - Clears the input field.
+        - Changes the text color to black (default typing color).
+
+   **Used For:**
+    - Enhancing user experience by managing placeholder behavior in entry fields.
+
+   **Dependencies:**
+    - Assumes `self.search_bar` is a `tk.Entry` widget.
+
+
+
+.. function:: add_placeholder(self, event)
+
+   Adds a placeholder text to the search bar if the field is empty.
+
+   This method is usually bound to the `<FocusOut>` event of the search bar widget. When the entry field loses focus and is empty, it inserts a default placeholder text ("Search here") and changes the text color to grey to indicate it's a placeholder.
+
+    :param event: The event object triggered by the GUI (usually `<FocusOut>`).
+    :type event: tkinter.Event
+
+
+   **Example Binding:**
+
+   .. code-block:: python
+
+      self.search_bar.bind("<FocusOut>", self.add_placeholder)
+
+   **Behavior:**
+
+    - Checks if the `search_bar` field is currently empty.
+    - If so:
+        - Inserts the text `"Search here"`.
+        - Sets the text color to grey.
+
+   **Used For:**
+    - Providing user-friendly guidance in input fields with placeholder text.
+
+   **Dependencies:**
+    - Assumes `self.search_bar` is a `tk.Entry` widget.
+
+
+
+
+
+
+
+
+
 Notes
 ^^^^^^
 
@@ -984,6 +1281,7 @@ Notes
 - All database operations are reflected immediately in the UI
 - Input validation is performed for Modbus addresses
 - Confirmation dialogs are shown for destructive operations
+- All functions return `None` unless otherwise specified
 
 
 

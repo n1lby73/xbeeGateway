@@ -172,7 +172,7 @@ def updateAllEndAddress(newRange):
 
             updateReusableAddress()
 
-            return {"sucess":f"updated {result.modified_count}"}
+            return {"success":f"updated {result.modified_count}"}
         
     except Exception as e:
 

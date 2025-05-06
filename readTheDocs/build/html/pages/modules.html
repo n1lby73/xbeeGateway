@@ -120,6 +120,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#sort_table"><code class="docutils literal notranslate"><span class="pre">sort_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#get_available_address"><code class="docutils literal notranslate"><span class="pre">get_available_address()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#delete_selected"><code class="docutils literal notranslate"><span class="pre">delete_selected()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#update_selected"><code class="docutils literal notranslate"><span class="pre">update_selected()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#click_update"><code class="docutils literal notranslate"><span class="pre">click_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configure_button"><code class="docutils literal notranslate"><span class="pre">configure_button()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#read_serial_and_modbusport"><code class="docutils literal notranslate"><span class="pre">read_serial_and_modbusport()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#clear_placeholder"><code class="docutils literal notranslate"><span class="pre">clear_placeholder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#add_placeholder"><code class="docutils literal notranslate"><span class="pre">add_placeholder()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#id17">Notes</a></li>
@@ -1051,9 +1057,26 @@ If an error occurs during retrieval, an error message is shown to the user.</p>
 </dd>
 </dl>
 <p><strong>Example Usage:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_object</span><span class="o">.</span><span class="n">get_database</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">get_database</span><span class="p">()</span>
 </pre></div>
 </div>
+<p><strong>Function Details:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method. (Implicit)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This function does not return any value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
 <p><strong>Error Handling:</strong></p>
 <blockquote>
 <div><ul class="simple">
@@ -1061,7 +1084,7 @@ If an error occurs during retrieval, an error message is shown to the user.</p>
 </ul>
 </div></blockquote>
 <dl class="simple">
-<dt><strong>Important Notes:</strong></dt><dd><ul class="simple">
+<dt><strong>Notes:</strong></dt><dd><ul class="simple">
 <li><p>The <cite>retrieveAllConfiguredRadio()</cite> function should return a list or iterable with radio configurations, where each item is a tuple containing at least four elements. If the result is a dictionary with an “error” key, the function displays an error.</p></li>
 </ul>
 </dd>
@@ -1085,9 +1108,24 @@ If successful, the tree view is updated and the input fields are cleared. If an 
 </dl>
 <p><strong>Example Usage:</strong></p>
 <p>If this function is part of a class, the method can be invoked as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_object</span><span class="o">.</span><span class="n">add_database</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_database</span><span class="p">()</span>
 </pre></div>
 </div>
+<p><strong>Function Details:</strong></p>
+<ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method. (Implicit)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This function does not return any value.</p>
+</dd>
+</dl>
+</li>
+</ul>
 <p><strong>Error Handling:</strong></p>
 <dl class="simple">
 <dt>The function handles errors in the following ways:</dt><dd><ul class="simple">
@@ -1095,7 +1133,7 @@ If successful, the tree view is updated and the input fields are cleared. If an 
 <li><p><strong>Invalid Modbus Address</strong>: If a <cite>ValueError</cite> occurs due to an invalid Modbus address (non-integer value), an error dialog is shown with a specific message.</p></li>
 </ul>
 </dd>
-<dt><strong>Important Notes:</strong></dt><dd><ul class="simple">
+<dt><strong>Notes:</strong></dt><dd><ul class="simple">
 <li><p>The function expects the Modbus address input to be a valid integer. If the input is not a valid integer, the function raises a <cite>ValueError</cite> and prompts the user to enter a valid value.</p></li>
 <li><p>The <cite>configureXbeeRadio()</cite> function must return a dictionary, where the absence of an “error” key indicates a successful configuration, and the presence of an “error” key indicates failure.</p></li>
 <li><p>After a successful entry, the tree view is cleared and repopulated using the <cite>get_database()</cite> function.</p></li>
@@ -1119,7 +1157,7 @@ If successful, the tree view is updated and the input fields are cleared. If an 
 </dd>
 </dl>
 <p><strong>Example Usage:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_object</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
 </pre></div>
 </div>
 <p><strong>Function Details:</strong></p>
@@ -1419,6 +1457,411 @@ If successful, the tree view is updated and the input fields are cleared. If an 
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="update_selected">
+<span class="sig-name descname"><span class="pre">update_selected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#update_selected" title="Link to this definition"></a></dt>
+<dd><p>Opens a form to update the selected entry in the tree view. Pre-fills the form with existing data, and waits for user input to complete the update.</p>
+<dl class="simple">
+<dt>This function performs the following steps:</dt><dd><ul class="simple">
+<li><p>Checks whether a tree item is selected. If not, displays an error message.</p></li>
+<li><p>Disables the update button to prevent multiple update windows.</p></li>
+<li><p>Opens a new <cite>Toplevel</cite> window titled “Update Entry”.</p></li>
+<li><dl class="simple">
+<dt>Builds an entry form with fields for:</dt><dd><ul>
+<li><p>Node Identifier</p></li>
+<li><p>Radio MAC Address</p></li>
+<li><p>Modbus Start Address</p></li>
+<li><p>Modbus End Address</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Pre-fills these input fields with the current values from the selected item.</p></li>
+<li><p>Binds the window close protocol to <cite>self.close_window</cite> and waits until the window is closed before re-enabling the update button.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">update_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">update_selected</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Function Details:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This method does not return a value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>UI Elements Created:</strong></dt><dd><ul class="simple">
+<li><p>A modal <cite>Toplevel</cite> window named <cite>self.update_window</cite>.</p></li>
+<li><p>Four labeled input fields for updating node, MAC address, and Modbus addresses.</p></li>
+<li><p>A button labeled “Update Entry” that calls <cite>self.click_update</cite>.</p></li>
+</ul>
+</dd>
+<dt><strong>Data Handling:</strong></dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>Uses <cite>self.tree.item(self.selected_item)[“values”]</cite> to extract:</dt><dd><ul>
+<li><p><cite>values[1]</cite>: Node Identifier</p></li>
+<li><p><cite>values[2]</cite>: Radio MAC Address</p></li>
+<li><p><cite>values[3]</cite>: Modbus Start Address</p></li>
+<li><p><cite>values[4]</cite>: Modbus End Address</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>These values are inserted into their corresponding entry fields for user editing.</p></li>
+</ul>
+</dd>
+<dt><strong>Window Behavior:</strong></dt><dd><ul class="simple">
+<li><p>The main window waits for the update window to close before continuing.</p></li>
+<li><p>Update button (<cite>self.update_button</cite>) is disabled while the update window is open and re-enabled afterward.</p></li>
+<li><p>The close action is bound to a custom cleanup method (<cite>self.close_window</cite>).</p></li>
+</ul>
+</dd>
+<dt><strong>Error Handling:</strong></dt><dd><ul class="simple">
+<li><p>If no item is selected in the tree, an error message is shown: “Please select an item to update.”</p></li>
+</ul>
+</dd>
+<dt><strong>Assumptions:</strong></dt><dd><ul class="simple">
+<li><p><cite>self.tree</cite> is a <cite>ttk.Treeview</cite> with at least 5 columns in each row.</p></li>
+<li><p><cite>self.click_update()</cite> and <cite>self.close_window()</cite> are defined elsewhere in the class.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="click_update">
+<span class="sig-name descname"><span class="pre">click_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#click_update" title="Link to this definition"></a></dt>
+<dd><p>Applies the updates specified in the update entry form and updates the backend database accordingly.</p>
+<dl class="simple">
+<dt>This function performs the following actions:</dt><dd><ul class="simple">
+<li><p>Retrieves new values entered by the user in the update form.</p></li>
+<li><p>Compares the new values to the previously stored values.</p></li>
+<li><p>Builds a dictionary (<cite>self.json_data</cite>) with only the fields that have changed.</p></li>
+<li><dl class="simple">
+<dt>If changes are detected:</dt><dd><ul>
+<li><p>Prompts the user for confirmation showing a summary of the updates.</p></li>
+<li><p>Sends the update data to the backend using <cite>updateXbeeDetails</cite>.</p></li>
+<li><p>If successful, refreshes the main table view, displays a success message, and closes the update window.</p></li>
+<li><p>If an error occurs, displays the error message.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>If no changes are detected, shows an error and closes the update window.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">click_update</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Function Details:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This method does not return a value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>Key Variables:</strong></dt><dd><ul class="simple">
+<li><p><cite>self.json_data</cite>: A dictionary containing only updated fields.</p></li>
+<li><p><cite>self.result</cite>: A list of human-readable change summaries.</p></li>
+</ul>
+</dd>
+<dt><strong>Update Workflow:</strong></dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>Compares new inputs against old values:</dt><dd><ul>
+<li><p><cite>xbeeNodeIdentifier</cite></p></li>
+<li><p><cite>xbeeMac</cite></p></li>
+<li><p><cite>modbusStartAddress</cite></p></li>
+<li><p><cite>modbusEndAddress</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Only modified fields are sent in the update request.</p></li>
+<li><p>A confirmation dialog shows the user what will change before proceeding.</p></li>
+</ul>
+</dd>
+<dt><strong>Backend Interaction:</strong></dt><dd><ul class="simple">
+<li><p>Uses <cite>updateXbeeDetails(mac_address, json_data)</cite> to update the device configuration.</p></li>
+<li><p>A successful response is expected to have no <cite>“error”</cite> key.</p></li>
+</ul>
+</dd>
+<dt><strong>User Prompts:</strong></dt><dd><ul class="simple">
+<li><p>If updates are found: prompts with “Are you fine with this update?” and shows details.</p></li>
+<li><p>If no changes are found: shows “No new update detected.”</p></li>
+<li><p>On success: shows “Entry updated successfully.”</p></li>
+<li><p>On error: shows the error message from the backend.</p></li>
+</ul>
+</dd>
+<dt><strong>Assumptions:</strong></dt><dd><ul class="simple">
+<li><p>All entry widgets (<cite>self.node_input</cite>, etc.) are valid and exist.</p></li>
+<li><p><cite>self.old_*</cite> attributes are set beforehand (typically from <cite>update_selected()</cite>).</p></li>
+<li><p><cite>self.refresh()</cite> refreshes the tree view, and <cite>self.close_window()</cite> cleans up the modal.</p></li>
+</ul>
+</dd>
+<dt><strong>Error Handling:</strong></dt><dd><ul class="simple">
+<li><p>Backend errors are shown via <cite>messagebox.showerror</cite>.</p></li>
+<li><p>If no changes are detected, user is informed and the update window is closed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="configure_button">
+<span class="sig-name descname"><span class="pre">configure_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#configure_button" title="Link to this definition"></a></dt>
+<dd><p>Opens the configuration window and preloads settings from a local Python module file called <cite>variables.py</cite>.</p>
+<dl class="simple">
+<dt>This function performs the following actions:</dt><dd><ul class="simple">
+<li><p>Opens and reads the contents of <cite>modules/variables.py</cite>.</p></li>
+<li><dl class="simple">
+<dt>Extracts values for:</dt><dd><ul>
+<li><p><cite>prefferedRadioSerialNumber</cite></p></li>
+<li><p><cite>modbusPort</cite></p></li>
+<li><p><cite>incrementalModbusAddress</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Displays a new configuration window with input fields for these values.</p></li>
+<li><p>Pre-fills the fields with the values read from the file.</p></li>
+<li><p>Adds a <strong>Save</strong> button that triggers <cite>self.read_serial_and_modbusport</cite> when clicked.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">configure_button</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Function Workflow:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Opens the <cite>modules/variables.py</cite> file and searches for:</dt><dd><ul>
+<li><p><cite>prefferedRadioSerialNumber</cite></p></li>
+<li><p><cite>modbusPort</cite></p></li>
+<li><p><cite>incrementalModbusAddress</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Extracts the values, strips quotation marks and whitespace as needed.</p></li>
+<li><p>Creates a <cite>tk.Toplevel</cite> window titled <em>Configuration Window</em>.</p></li>
+<li><p>Adds <cite>tk.Entry</cite> widgets for each extracted setting, pre-filled with current values.</p></li>
+<li><p>Places a <strong>Save</strong> button that calls <cite>read_serial_and_modbusport</cite>.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Dependencies:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Assumes the file <cite>modules/variables.py</cite> exists and contains the target variables.</p></li>
+<li><p>Relies on the method <cite>read_serial_and_modbusport</cite> to handle saving updated settings.</p></li>
+</ul>
+<p><strong>Potential Exceptions:</strong></p>
+<ul class="simple">
+<li><p>If the <cite>modules/variables.py</cite> file is missing or unreadable, a <cite>FileNotFoundError</cite> or <cite>IOError</cite> may be raised.</p></li>
+<li><p>If any of the expected variables are missing from the file, corresponding inputs will be empty.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Notes:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>This function does <strong>not</strong> save changes itself—it only reads and displays current settings.</p></li>
+<li><p>The actual save logic is delegated to <cite>read_serial_and_modbusport</cite>.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="read_serial_and_modbusport">
+<span class="sig-name descname"><span class="pre">read_serial_and_modbusport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_serial_and_modbusport" title="Link to this definition"></a></dt>
+<dd><p>Updates configuration variables in the <cite>modules/variables.py</cite> file based on user input from the configuration GUI.</p>
+<dl class="simple">
+<dt>This method performs the following tasks:</dt><dd><ul class="simple">
+<li><p>Reads current values from <cite>modules/variables.py</cite>.</p></li>
+<li><p>Compares them to user-provided inputs in the GUI.</p></li>
+<li><dl class="simple">
+<dt>If any changes are detected:</dt><dd><ul>
+<li><p>Updates the file with new values.</p></li>
+<li><p>Optionally updates all Modbus end addresses if the incremental value changed.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Displays appropriate message dialogs to confirm and report results.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">read_serial_and_modbusport</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Process Overview:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Reads the file <cite>modules/variables.py</cite> line-by-line.</p></li>
+<li><dl class="simple">
+<dt>Compares the following variables:</dt><dd><ul>
+<li><p><cite>prefferedRadioSerialNumber</cite></p></li>
+<li><p><cite>modbusPort</cite></p></li>
+<li><p><cite>incrementalModbusAddress</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For each variable that differs from the old value:</dt><dd><ul>
+<li><p>Constructs a new line.</p></li>
+<li><p>Updates the corresponding line in memory.</p></li>
+<li><p>Appends the change to a result list for display.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>If <cite>incrementalModbusAddress</cite> changed, prompts the user to update all Modbus end addresses via <cite>updateAllEndAddress()</cite>.</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>GUI Interaction:</strong></dt><dd><ul class="simple">
+<li><p>Prompts user to confirm changes via <cite>messagebox.askyesno</cite>.</p></li>
+<li><p>On update success, shows <cite>messagebox.showinfo</cite>.</p></li>
+<li><p>If no change detected, shows <cite>messagebox.showerror</cite>.</p></li>
+</ul>
+</dd>
+<dt><strong>Dependencies:</strong></dt><dd><ul class="simple">
+<li><p>Requires file <cite>modules/variables.py</cite> to exist and be writable.</p></li>
+<li><p>Calls external method <cite>updateAllEndAddress(new_incremental_address)</cite> if <cite>incrementalModbusAddress</cite> is updated.</p></li>
+<li><p>Calls <cite>self.refresh()</cite> after a successful update and optional end address update.</p></li>
+</ul>
+</dd>
+<dt><strong>Raises:</strong></dt><dd><ul class="simple">
+<li><p><cite>ValueError</cite> if GUI input cannot be cast to integers.</p></li>
+<li><p><cite>FileNotFoundError</cite> or <cite>IOError</cite> if file access fails.</p></li>
+</ul>
+</dd>
+<dt><strong>Notes:</strong></dt><dd><ul class="simple">
+<li><p>Closes the configuration window (<cite>self.configure_window</cite>) after execution.</p></li>
+<li><p>Does not rollback changes if an error occurs after writing the file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="clear_placeholder">
+<span class="sig-name descname"><span class="pre">clear_placeholder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clear_placeholder" title="Link to this definition"></a></dt>
+<dd><p>Clears the placeholder text from the search bar input field when it gains focus.</p>
+<p>This method is typically bound to the <cite>&lt;FocusIn&gt;</cite> event of the search bar widget. When the field is focused and the default placeholder text (“Search here”) is present, it removes the placeholder and sets the text color to black.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param event<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The event object triggered by the GUI (usually <cite>&lt;FocusIn&gt;</cite>).</p>
+</dd>
+<dt class="field-even">type event<span class="colon">:</span></dt>
+<dd class="field-even"><p>tkinter.Event</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>Example Binding:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">search_bar</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;FocusIn&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clear_placeholder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Behavior:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Checks if the current text in the <cite>search_bar</cite> is <cite>“Search here”</cite>.</p></li>
+<li><dl class="simple">
+<dt>If so:</dt><dd><ul>
+<li><p>Clears the input field.</p></li>
+<li><p>Changes the text color to black (default typing color).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>Used For:</strong></dt><dd><ul class="simple">
+<li><p>Enhancing user experience by managing placeholder behavior in entry fields.</p></li>
+</ul>
+</dd>
+<dt><strong>Dependencies:</strong></dt><dd><ul class="simple">
+<li><p>Assumes <cite>self.search_bar</cite> is a <cite>tk.Entry</cite> widget.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="add_placeholder">
+<span class="sig-name descname"><span class="pre">add_placeholder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#add_placeholder" title="Link to this definition"></a></dt>
+<dd><p>Adds a placeholder text to the search bar if the field is empty.</p>
+<p>This method is usually bound to the <cite>&lt;FocusOut&gt;</cite> event of the search bar widget. When the entry field loses focus and is empty, it inserts a default placeholder text (“Search here”) and changes the text color to grey to indicate it’s a placeholder.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param event<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The event object triggered by the GUI (usually <cite>&lt;FocusOut&gt;</cite>).</p>
+</dd>
+<dt class="field-even">type event<span class="colon">:</span></dt>
+<dd class="field-even"><p>tkinter.Event</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>Example Binding:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">search_bar</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;FocusOut&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_placeholder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Behavior:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Checks if the <cite>search_bar</cite> field is currently empty.</p></li>
+<li><dl class="simple">
+<dt>If so:</dt><dd><ul>
+<li><p>Inserts the text <cite>“Search here”</cite>.</p></li>
+<li><p>Sets the text color to grey.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>Used For:</strong></dt><dd><ul class="simple">
+<li><p>Providing user-friendly guidance in input fields with placeholder text.</p></li>
+</ul>
+</dd>
+<dt><strong>Dependencies:</strong></dt><dd><ul class="simple">
+<li><p>Assumes <cite>self.search_bar</cite> is a <cite>tk.Entry</cite> widget.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="id17">
 <h3>Notes<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
@@ -1427,6 +1870,7 @@ If successful, the tree view is updated and the input fields are cleared. If an 
 <li><p>All database operations are reflected immediately in the UI</p></li>
 <li><p>Input validation is performed for Modbus addresses</p></li>
 <li><p>Confirmation dialogs are shown for destructive operations</p></li>
+<li><p>All functions return <cite>None</cite> unless otherwise specified</p></li>
 </ul>
 </section>
 </section>
