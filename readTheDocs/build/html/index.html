@@ -1,0 +1,149 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XBee Gateway’s documentation! &mdash; Xbee-Gateway 2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=60dbed4a"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="pages/installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Xbee-Gateway
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pages/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Xbee-Gateway</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">XBee Gateway’s documentation!</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="xbee-gateway-s-documentation">
+<h1>XBee Gateway’s documentation!<a class="headerlink" href="#xbee-gateway-s-documentation" title="Link to this heading"></a></h1>
+<p>The <strong>XBee Gateway</strong> is an industrial-grade Python-based communication bridge designed to collect, process, and expose field data from distributed wireless RTUs (Remote Terminal Units) over Modbus TCP. It is particularly suited for oilfields, power plants, and other SCADA-style environments where reliability, scalability, and real-time data integration are critical.</p>
+<section id="project-features">
+<h2>Project Features<a class="headerlink" href="#project-features" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>📡 <strong>XBee Radio Integration</strong>: Collects sensor and control data from remote RTUs via Digi XBee radios using serial communication.</p></li>
+<li><p>🧠 <strong>Data Parsing &amp; Mapping</strong>: Converts binary payloads into human-readable or Modbus-compatible values using custom logic.</p></li>
+<li><p>🗃️ <strong>Modbus TCP Server</strong>: Maps incoming data to Modbus holding registers, enabling integration with HMIs, PLCs, and SCADA systems.</p></li>
+<li><p>🧩 <strong>MongoDB Support</strong>: Optionally stores historical or configuration data in a local or remote MongoDB database.</p></li>
+<li><p>🧪 <strong>Modular Architecture</strong>: Built using a clean separation of concerns (polling, parsing, database, Modbus context), making it easy to extend or debug.</p></li>
+<li><p>🐍 <strong>Python 3.9+ Compatible</strong>: Works reliably on embedded systems like Raspberry Pi 4 (ARM64) with low resource usage.</p></li>
+</ul>
+</section>
+<section id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Oil &amp; gas well monitoring</p></li>
+<li><p>Power plant instrumentation</p></li>
+<li><p>Remote industrial sensor aggregation</p></li>
+<li><p>SCADA gateway development</p></li>
+</ul>
+<p>source code: <a class="reference external" href="https://github.com/n1lby73/xbeeGateway">https://github.com/n1lby73/xbeeGateway</a></p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pages/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/modules.html">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#main">main</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#configgui">configGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#dbintegration">dbIntegration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#modbus">modbus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#serialselector">serialSelector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#variables">variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#xbeedata">xbeeData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/modules.html#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pages/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, n1lby73.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

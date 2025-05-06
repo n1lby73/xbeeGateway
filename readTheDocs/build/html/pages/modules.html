@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modules &mdash; Xbee-Gateway 2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=60dbed4a"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Xbee-Gateway
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#main">main</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-setup">Module Setup</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#imports">Imports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#xbee-device-initialization">XBee Device Initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#xbee-serial-port-selection">XBee Serial Port Selection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#creating-the-xbeedevice">Creating the XBeeDevice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fallback-if-device-not-found">Fallback if Device Not Found</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#queue-initialization">Queue Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#xbeepolling">xbeePolling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#data-reception-callback">Data Reception Callback</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-address-detection">New Address Detection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#queueing-the-packet">Queueing the Packet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#commented-out-disconnection-handler">Commented-Out Disconnection Handler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#modbuspolling">modbusPolling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#queue-consumption">Queue Consumption</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#register-lookup">Register Lookup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#payload-parsing">Payload Parsing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#float-to-register-conversion">Float to Register Conversion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#writing-to-modbus-context">Writing to Modbus Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#modbusserver">modbusServer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modbus-identity-configuration">Modbus Identity Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dynamic-ip-address-resolution">Dynamic IP Address Resolution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#server-startup">Server Startup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#port-configuration">Port Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#startprocess">startProcess</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id9">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#steps-breakdown">Steps Breakdown</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#concurrency-considerations">Concurrency Considerations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">__main__</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id13">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id14">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#explanation">Explanation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configgui">configGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dbintegration">dbIntegration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modbus">modbus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#serialselector">serialSelector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variables">variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xbeedata">xbeeData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Xbee-Gateway</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Modules</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pages/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h1>
+<section id="main">
+<span id="id1"></span><h2>main<a class="headerlink" href="#main" title="Link to this heading"></a></h2>
+<p>The <cite>main</cite> module is the entry point of the XBee Gateway application. It orchestrates the XBee serial communication, Modbus TCP server, and processing of sensor data from XBee radios. It uses <cite>asyncio</cite> to handle concurrent tasks efficiently.</p>
+<section id="module-setup">
+<h3>Module Setup<a class="headerlink" href="#module-setup" title="Link to this heading"></a></h3>
+<section id="imports">
+<h4>Imports<a class="headerlink" href="#imports" title="Link to this heading"></a></h4>
+<p>The following standard and third-party modules are imported:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sys</span></code>, <code class="docutils literal notranslate"><span class="pre">asyncio</span></code>, <code class="docutils literal notranslate"><span class="pre">datetime</span></code>: Core Python modules for system interaction, concurrency, and time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">digi.xbee.devices.XBeeDevice</span></code> and <code class="docutils literal notranslate"><span class="pre">digi.xbee.exception.XBeeException</span></code>: For managing XBee communication and handling related exceptions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pymodbus.server.StartAsyncTcpServer</span></code> and <code class="docutils literal notranslate"><span class="pre">pymodbus.device.ModbusDeviceIdentification</span></code>: Used to run and identify the Modbus TCP server.</p></li>
+<li><p>Application-specific modules:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">modules.variables</span></code>: Stores shared runtime variables such as XBee instance, known MACs, Modbus port, etc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modules.xbeeData.cayenneParse</span></code>: Parses incoming XBee payloads into float values using Cayenne LPP protocol.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modules.dbIntegration.dbQueryModbusStartAddress</span></code>: Maps MAC addresses to Modbus register start addresses.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modules.serialSelector</span></code>: Contains:
+- <code class="docutils literal notranslate"><span class="pre">selectUsbPort</span></code>: Chooses an available USB port.
+- <code class="docutils literal notranslate"><span class="pre">handleUsbDisconnection</span></code>: (commented out) handles disconnection events.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modules.modbus</span></code>: Provides:
+- <code class="docutils literal notranslate"><span class="pre">floatToRegisters</span></code>: Converts float values to 2 x 16-bit Modbus register pairs.
+- <code class="docutils literal notranslate"><span class="pre">contextManager</span></code>: Returns a Modbus context for register mapping.
+- <code class="docutils literal notranslate"><span class="pre">getIpAddress</span></code>: Determines local IP address for Modbus server binding.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="xbee-device-initialization">
+<h4>XBee Device Initialization<a class="headerlink" href="#xbee-device-initialization" title="Link to this heading"></a></h4>
+</section>
+</section>
+<section id="xbee-serial-port-selection">
+<h3>XBee Serial Port Selection<a class="headerlink" href="#xbee-serial-port-selection" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">serialPort</span> <span class="o">=</span> <span class="n">selectUsbPort</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Attempts to detect which USB port the XBee radio is connected to.</p></li>
+<li><p>If successful, the returned serial port is used to instantiate an <cite>XBeeDevice</cite>.</p></li>
+</ul>
+<section id="creating-the-xbeedevice">
+<h4>Creating the XBeeDevice<a class="headerlink" href="#creating-the-xbeedevice" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span> <span class="o">=</span> <span class="n">XBeeDevice</span><span class="p">(</span><span class="n">serialPort</span><span class="p">,</span> <span class="n">variables</span><span class="o">.</span><span class="n">xbeeBaudRate</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>A global reference to the <cite>XBeeDevice</cite> is stored in <cite>variables.xbeeInstance</cite>.</p></li>
+<li><p>The baud rate is fetched from shared config <cite>variables.xbeeBaudRate</cite>.</p></li>
+</ul>
+</section>
+<section id="fallback-if-device-not-found">
+<h4>Fallback if Device Not Found<a class="headerlink" href="#fallback-if-device-not-found" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">serialPort</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gateway radio not connected&quot;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>If no serial port is returned (e.g., no USB radio plugged in), the system exits early with an error message.</p></li>
+</ul>
+</section>
+<section id="queue-initialization">
+<h4>Queue Initialization<a class="headerlink" href="#queue-initialization" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xbeeQueue</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Initializes an asynchronous queue.</p></li>
+<li><p>Each entry in the queue is a tuple: <code class="docutils literal notranslate"><span class="pre">(mac_address,</span> <span class="pre">raw_data_bytes)</span></code>.</p></li>
+<li><p>This queue decouples the reception of XBee packets from the Modbus writing process.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">xbeeQueue</span></code> is consumed by <cite>modbusPolling()</cite> and populated by <cite>xbeePolling()</cite>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">variables.xbeeInstance</span></code> is a global variable, required across the entire script to maintain a reference to the XBee radio device for receiving messages and handling connections.</p>
+</section>
+<section id="summary">
+<h4>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h4>
+<p>This initialization block ensures that:</p>
+<ul class="simple">
+<li><p>All required modules and helpers are available.</p></li>
+<li><p>The XBee radio is located and configured for communication.</p></li>
+<li><p>A global queue is prepared for non-blocking data processing.</p></li>
+<li><p>The application halts gracefully if the XBee device is not connected.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">main</span></code> is not just an entry point — it’s the coordination layer that glues asynchronous XBee communication, database-driven register mapping, and Modbus server exposure into a coherent, reactive gateway service.</p>
+</section>
+</section>
+<section id="xbeepolling">
+<h3>xbeePolling<a class="headerlink" href="#xbeepolling" title="Link to this heading"></a></h3>
+<p>The <cite>xbeePolling</cite> coroutine handles continuous communication with the connected XBee radio. It listens for incoming RF messages and queues them for further processing by the Modbus layer.</p>
+<section id="overview">
+<h4>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h4>
+<p>This function:</p>
+<ul class="simple">
+<li><p>Opens the serial port and establishes a connection with the XBee device.</p></li>
+<li><p>Registers a callback to process incoming data asynchronously.</p></li>
+<li><p>Extracts metadata like the MAC address, timestamp, and payload.</p></li>
+<li><p>Adds any newly discovered MAC addresses to a global known list.</p></li>
+<li><p>Pushes each received packet into the global <cite>xbeeQueue</cite>.</p></li>
+</ul>
+</section>
+<section id="implementation">
+<h4>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">xbeePolling</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">dataReceiveCallback</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="p">):</span>
+            <span class="o">...</span>
+
+        <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">add_data_received_callback</span><span class="p">(</span><span class="n">dataReceiveCallback</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">is_open</span><span class="p">():</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="data-reception-callback">
+<h4>Data Reception Callback<a class="headerlink" href="#data-reception-callback" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dataReceiveCallback</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="p">):</span>
+    <span class="n">xbeeMacAddress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="o">.</span><span class="n">remote_device</span><span class="o">.</span><span class="n">get_64bit_addr</span><span class="p">())</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+    <span class="n">xbeeDataAsByte</span> <span class="o">=</span> <span class="n">xbeeMessage</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+<p>This callback extracts:</p>
+<ul class="simple">
+<li><p><strong>xbeeMacAddress</strong>: The 64-bit MAC address of the sending node.</p></li>
+<li><p><strong>timestamp</strong>: Human-readable time of reception.</p></li>
+<li><p><strong>xbeeDataAsByte</strong>: Raw binary payload sent by the remote device.</p></li>
+</ul>
+</section>
+<section id="new-address-detection">
+<h4>New Address Detection<a class="headerlink" href="#new-address-detection" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">xbeeMacAddress</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">knownXbeeAddress</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">New XBee Address Discovered: </span><span class="si">{</span><span class="n">xbeeMacAddress</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">variables</span><span class="o">.</span><span class="n">knownXbeeAddress</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">xbeeMacAddress</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;List of addresses discovered so far are: </span><span class="si">{</span><span class="n">variables</span><span class="o">.</span><span class="n">knownXbeeAddress</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This section dynamically maintains a list of all MAC addresses seen during runtime. Newly discovered radios are appended to <cite>variables.knownXbeeAddress</cite>.</p>
+</section>
+<section id="queueing-the-packet">
+<h4>Queueing the Packet<a class="headerlink" href="#queueing-the-packet" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xbeeQueue</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">((</span><span class="n">xbeeMacAddress</span><span class="p">,</span> <span class="n">xbeeDataAsByte</span><span class="p">))</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The <cite>(mac, data)</cite> tuple is inserted into the asynchronous <cite>xbeeQueue</cite>.</p></li>
+<li><p>This decouples reception from processing, allowing later stages to consume data without blocking.</p></li>
+</ul>
+</section>
+<section id="notes">
+<h4>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>The inner <cite>while True</cite> loop is necessary to keep the <cite>xbeePolling</cite> coroutine alive.</p></li>
+<li><p><cite>asyncio.sleep(1)</cite> is a lightweight way to yield control while keeping the task running.</p></li>
+<li><p>If any exceptions occur, the serial port is closed in the <cite>finally</cite> block to avoid lockups.</p></li>
+</ul>
+</section>
+<section id="commented-out-disconnection-handler">
+<h4>Commented-Out Disconnection Handler<a class="headerlink" href="#commented-out-disconnection-handler" title="Link to this heading"></a></h4>
+<p>There is a placeholder for future support of USB disconnection events:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># variables.xbeeInstance.add_error_callback(partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance))</span>
+</pre></div>
+</div>
+<p>This uses a <cite>functools.partial</cite> to prebind the device instance and register a disconnection handler, but it is currently disabled (commented out).</p>
+</section>
+<section id="id2">
+<h4>Summary<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<p>The <cite>xbeePolling</cite> function acts as the real-time listener for incoming XBee packets. It enables:</p>
+<ul class="simple">
+<li><p>Automatic discovery of new radios.</p></li>
+<li><p>Timestamped payload extraction.</p></li>
+<li><p>Non-blocking handoff to downstream Modbus and database processes via a shared queue.</p></li>
+</ul>
+</section>
+</section>
+<section id="modbuspolling">
+<h3>modbusPolling<a class="headerlink" href="#modbuspolling" title="Link to this heading"></a></h3>
+<p>The <cite>modbusPolling</cite> coroutine processes packets received from XBee radios and updates the Modbus server with the parsed sensor data.</p>
+<section id="id3">
+<h4>Overview<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<p>This function:</p>
+<ul class="simple">
+<li><p>Waits for new entries from the shared <cite>xbeeQueue</cite>.</p></li>
+<li><p>Uses the MAC address to query a database and retrieve the Modbus register start address.</p></li>
+<li><p>Parses raw binary payloads into floating-point sensor values using the Cayenne LPP format.</p></li>
+<li><p>Converts floats into Modbus register values (16-bit integers).</p></li>
+<li><p>Writes up to 20 registers to both the Holding (FC3) and Input (FC4) register blocks.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h4>Implementation<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">modbusPolling</span><span class="p">(</span><span class="n">contextValue</span><span class="p">):</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">mac</span><span class="p">,</span> <span class="n">raw_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">xbeeQueue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">startAddress</span> <span class="o">=</span> <span class="n">dbQueryModbusStartAddress</span><span class="p">(</span><span class="n">mac</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">startAddress</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">sensorValues</span> <span class="o">=</span> <span class="k">await</span> <span class="n">cayenneParse</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">)</span>
+                <span class="n">registerValues</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">sensorValues</span><span class="p">:</span>
+                    <span class="n">registerValues</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">floatToRegisters</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="n">registers</span> <span class="o">=</span> <span class="n">registerValues</span><span class="p">[:</span><span class="mi">20</span><span class="p">]</span>
+                <span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+                <span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Xbee radio with mac address </span><span class="si">{</span><span class="n">mac</span><span class="si">}</span><span class="s2">, has not been configured</span><span class="se">\n</span><span class="s2">Other possible error are </span><span class="si">{</span><span class="n">startAddress</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Modbus polling error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">xbeeQueue</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="queue-consumption">
+<h4>Queue Consumption<a class="headerlink" href="#queue-consumption" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mac</span><span class="p">,</span> <span class="n">raw_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">xbeeQueue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The coroutine waits (asynchronously) for new packets inserted by <cite>xbeePolling()</cite>. Each packet contains:</p>
+<ul class="simple">
+<li><p><cite>mac</cite>: 64-bit MAC address as a string.</p></li>
+<li><p><cite>raw_data</cite>: binary payload received from the XBee node.</p></li>
+</ul>
+</section>
+<section id="register-lookup">
+<h4>Register Lookup<a class="headerlink" href="#register-lookup" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">startAddress</span> <span class="o">=</span> <span class="n">dbQueryModbusStartAddress</span><span class="p">(</span><span class="n">mac</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This line queries the local database to determine where in the Modbus address space the data from this MAC should be written. The database should return a valid starting address (e.g., 4020), or an error object if the address is unregistered.</p>
+</section>
+<section id="payload-parsing">
+<h4>Payload Parsing<a class="headerlink" href="#payload-parsing" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sensorValues</span> <span class="o">=</span> <span class="k">await</span> <span class="n">cayenneParse</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This function decodes the Cayenne Low Power Payload (LPP) format into a list of float values representing sensor readings. It is assumed to be robust to errors in payload structure.</p>
+</section>
+<section id="float-to-register-conversion">
+<h4>Float to Register Conversion<a class="headerlink" href="#float-to-register-conversion" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">registerValues</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">sensorValues</span><span class="p">:</span>
+    <span class="n">registerValues</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">floatToRegisters</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Each float is converted into two 16-bit integers (Modbus registers) using IEEE 754 binary representation. Only the first 10 floats (20 registers) are used to ensure compatibility and prevent overflow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">registers</span> <span class="o">=</span> <span class="n">registerValues</span><span class="p">[:</span><span class="mi">20</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="writing-to-modbus-context">
+<h4>Writing to Modbus Context<a class="headerlink" href="#writing-to-modbus-context" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+<span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This writes the register block to both:</p>
+<ul class="simple">
+<li><p>Function Code 3 (Holding Registers)</p></li>
+<li><p>Function Code 4 (Input Registers)</p></li>
+</ul>
+<p>Both address spaces mirror the same sensor values, allowing flexibility for downstream SCADA or HMI systems.</p>
+</section>
+<section id="error-handling">
+<h4>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>If the MAC is not found in the database, a message is printed.</p></li>
+<li><p>Any exception during parsing or writing is caught and printed.</p></li>
+<li><p>After processing (even in error cases), <cite>xbeeQueue.task_done()</cite> is called to mark the queue task as complete.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h4>Summary<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p>The <cite>modbusPolling</cite> function acts as the transformation and mapping layer of the gateway. It:</p>
+<ul class="simple">
+<li><p>Decouples data reception from register updates.</p></li>
+<li><p>Leverages asynchronous concurrency to handle large volumes of packets.</p></li>
+<li><p>Ensures safe and consistent updates to the Modbus context.</p></li>
+</ul>
+</section>
+</section>
+<section id="modbusserver">
+<h3>modbusServer<a class="headerlink" href="#modbusserver" title="Link to this heading"></a></h3>
+<p>The <cite>modbusServer</cite> coroutine starts the asynchronous Modbus TCP server that exposes sensor data to external SCADA or HMI systems.</p>
+<section id="id6">
+<h4>Overview<a class="headerlink" href="#id6" title="Link to this heading"></a></h4>
+<p>This function:</p>
+<ul class="simple">
+<li><p>Initializes the Modbus device identification parameters.</p></li>
+<li><p>Retrieves the local IP address dynamically.</p></li>
+<li><p>Launches the <cite>StartAsyncTcpServer()</cite> from <cite>pymodbus</cite> to serve the register context.</p></li>
+<li><p>Runs as an asyncio task concurrently with XBee polling and Modbus data processing.</p></li>
+</ul>
+</section>
+<section id="id7">
+<h4>Implementation<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">modbusServer</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="n">ModbusDeviceIdentification</span><span class="p">()</span>
+    <span class="n">identity</span><span class="o">.</span><span class="n">VendorName</span> <span class="o">=</span> <span class="s1">&#39;Cors System&#39;</span>
+    <span class="n">identity</span><span class="o">.</span><span class="n">ProductCode</span> <span class="o">=</span> <span class="s1">&#39;CSG&#39;</span>
+    <span class="n">identity</span><span class="o">.</span><span class="n">VendorUrl</span> <span class="o">=</span> <span class="s1">&#39;https://corssystem.com&#39;</span>
+    <span class="n">identity</span><span class="o">.</span><span class="n">ProductName</span> <span class="o">=</span> <span class="s1">&#39;Core Terminal Unit Gateway&#39;</span>
+    <span class="n">identity</span><span class="o">.</span><span class="n">ModelName</span> <span class="o">=</span> <span class="s1">&#39;Genesis&#39;</span>
+    <span class="n">identity</span><span class="o">.</span><span class="n">MajorMinorRevision</span> <span class="o">=</span> <span class="s1">&#39;2.0&#39;</span>
+
+    <span class="n">ipAddress</span> <span class="o">=</span> <span class="n">getIpAddress</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting Modbus TCP server on port </span><span class="si">{</span><span class="n">variables</span><span class="o">.</span><span class="n">modbusPort</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">StartAsyncTcpServer</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">identity</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="p">(</span><span class="n">ipAddress</span><span class="p">,</span> <span class="n">variables</span><span class="o">.</span><span class="n">modbusPort</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="modbus-identity-configuration">
+<h4>Modbus Identity Configuration<a class="headerlink" href="#modbus-identity-configuration" title="Link to this heading"></a></h4>
+<p>The identity block provides descriptive information about the gateway device when queried by Modbus clients:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>VendorName           = Cors System
+ProductCode          = CSG
+ProductName          = Core Terminal Unit Gateway
+ModelName            = Genesis
+Version              = 2.0
+</pre></div>
+</div>
+<p>These values are helpful for device discovery, diagnostics, or validation in a SCADA environment.</p>
+</section>
+<section id="dynamic-ip-address-resolution">
+<h4>Dynamic IP Address Resolution<a class="headerlink" href="#dynamic-ip-address-resolution" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ipAddress</span> <span class="o">=</span> <span class="n">getIpAddress</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This utility function fetches the device’s local IP address automatically, ensuring the gateway binds to the correct network interface. This is especially useful on devices like Raspberry Pi that may change IPs between boots.</p>
+</section>
+<section id="server-startup">
+<h4>Server Startup<a class="headerlink" href="#server-startup" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="n">StartAsyncTcpServer</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">identity</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="p">(</span><span class="n">ipAddress</span><span class="p">,</span> <span class="n">variables</span><span class="o">.</span><span class="n">modbusPort</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This launches the non-blocking Modbus TCP server:</p>
+<ul class="simple">
+<li><p><cite>context</cite>: the Modbus server context which holds all register values.</p></li>
+<li><p><cite>identity</cite>: the device info structure.</p></li>
+<li><p><cite>address</cite>: a tuple of <cite>(IP, port)</cite>.</p></li>
+</ul>
+<p>Once started, the server runs indefinitely within the asyncio event loop, allowing simultaneous handling of:</p>
+<ul class="simple">
+<li><p>Client read requests (e.g., FC3 and FC4)</p></li>
+<li><p>Context updates from <cite>modbusPolling</cite></p></li>
+</ul>
+</section>
+<section id="port-configuration">
+<h4>Port Configuration<a class="headerlink" href="#port-configuration" title="Link to this heading"></a></h4>
+<p>The port is sourced from the <cite>variables</cite> module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">variables</span><span class="o">.</span><span class="n">modbusPort</span>
+</pre></div>
+</div>
+<p>Ensure this value matches the port expected by your SCADA or Modbus master systems. Typical ports include <cite>502</cite> (default Modbus TCP) or a custom value like <cite>5020</cite>.</p>
+</section>
+<section id="id8">
+<h4>Summary<a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
+<p>The <cite>modbusServer</cite> coroutine is the final output layer of the XBee gateway:</p>
+<ul class="simple">
+<li><p>It makes the internal data accessible to the outside world.</p></li>
+<li><p>Leverages asynchronous IO for non-blocking performance.</p></li>
+<li><p>Integrates seamlessly with the shared Modbus context used by other tasks.</p></li>
+</ul>
+</section>
+</section>
+<section id="startprocess">
+<h3>startProcess<a class="headerlink" href="#startprocess" title="Link to this heading"></a></h3>
+<p>The <cite>startProcess</cite> coroutine serves as the centralized task coordinator for the XBee Gateway application.</p>
+<section id="id9">
+<h4>Overview<a class="headerlink" href="#id9" title="Link to this heading"></a></h4>
+<p>This function:</p>
+<ul class="simple">
+<li><p>Initializes the Modbus register context using <cite>contextManager</cite> from the <cite>modbus</cite> module.</p></li>
+<li><p>Creates the background polling task for XBee data.</p></li>
+<li><p>Starts the main event loop that concurrently runs:</p>
+<ul>
+<li><p>XBee serial data polling</p></li>
+<li><p>Modbus context updates</p></li>
+<li><p>Modbus TCP server</p></li>
+</ul>
+</li>
+</ul>
+<p>It is the main orchestrator that wires together the entire gateway workflow using <cite>asyncio.gather</cite>.</p>
+</section>
+<section id="id10">
+<h4>Implementation<a class="headerlink" href="#id10" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">startProcess</span><span class="p">():</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">contextManager</span><span class="p">()</span>
+    <span class="n">variables</span><span class="o">.</span><span class="n">xbeePollingTask</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">xbeePolling</span><span class="p">())</span>
+
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+        <span class="n">variables</span><span class="o">.</span><span class="n">xbeePollingTask</span><span class="p">,</span>
+        <span class="n">modbusPolling</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
+        <span class="n">modbusServer</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="steps-breakdown">
+<h4>Steps Breakdown<a class="headerlink" href="#steps-breakdown" title="Link to this heading"></a></h4>
+<p><strong>1. Context Initialization</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">context</span> <span class="o">=</span> <span class="n">contextManager</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><cite>contextManager()</cite> is a helper function defined in the <cite>modules.modbus</cite> module.
+It returns a <cite>ModbusServerContext</cite> object that holds all register blocks used in the server, including:</p>
+<ul class="simple">
+<li><p>Discrete Inputs (DI)</p></li>
+<li><p>Coils (CO)</p></li>
+<li><p>Holding Registers (HR)</p></li>
+<li><p>Input Registers (IR)</p></li>
+</ul>
+<p>This centralized context is passed to both the <cite>modbusPolling</cite> task and the <cite>modbusServer</cite>, ensuring they operate on the same memory structure.</p>
+<p><strong>2. Background Task Creation</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">variables</span><span class="o">.</span><span class="n">xbeePollingTask</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">xbeePolling</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>This launches the XBee radio polling loop in the background. The returned task object is stored in <cite>variables</cite> to allow external cancellation or monitoring.</p>
+<p><strong>3. Launch Concurrent Tasks</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+    <span class="n">variables</span><span class="o">.</span><span class="n">xbeePollingTask</span><span class="p">,</span>
+    <span class="n">modbusPolling</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
+    <span class="n">modbusServer</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This schedules and runs all gateway components concurrently:</p>
+<ul class="simple">
+<li><p><cite>xbeePolling</cite> collects packets into a shared queue.</p></li>
+<li><p><cite>modbusPolling</cite> consumes packets and updates Modbus registers.</p></li>
+<li><p><cite>modbusServer</cite> exposes those registers over TCP.</p></li>
+</ul>
+<p>By leveraging <cite>asyncio.gather</cite>, all three coroutines operate within the same event loop, eliminating the need for threading.</p>
+</section>
+<section id="concurrency-considerations">
+<h4>Concurrency Considerations<a class="headerlink" href="#concurrency-considerations" title="Link to this heading"></a></h4>
+<p>Because all tasks share data structures like <cite>xbeeQueue</cite> and <cite>context</cite>, care is taken to:</p>
+<ul class="simple">
+<li><p>Use non-blocking I/O</p></li>
+<li><p>Avoid race conditions via <cite>await</cite></p></li>
+<li><p>Share state predictably using asyncio primitives</p></li>
+</ul>
+</section>
+<section id="id11">
+<h4>Summary<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
+<p>The <cite>startProcess()</cite> function glues the system together, ensuring the XBee Gateway:</p>
+<ul class="simple">
+<li><p>Initializes correctly</p></li>
+<li><p>Runs all components in harmony</p></li>
+<li><p>Operates in a responsive, non-blocking manner</p></li>
+</ul>
+<p>It is invoked by the <cite>__main__</cite> block when the program starts.</p>
+</section>
+</section>
+<section id="id12">
+<h3>__main__<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>The <cite>__main__</cite> block is the program’s entry point when the script is executed directly. It sets up the event loop, runs the gateway, and handles graceful shutdown on termination or error.</p>
+<section id="id13">
+<h4>Overview<a class="headerlink" href="#id13" title="Link to this heading"></a></h4>
+<p>This block ensures that:</p>
+<ul class="simple">
+<li><p>The gateway is only executed when the file is not imported as a module.</p></li>
+<li><p>The <cite>startProcess()</cite> coroutine is run using <cite>asyncio.run</cite>.</p></li>
+<li><p>Any runtime errors are logged to the console.</p></li>
+<li><p>The XBee serial port is closed safely upon exit, preventing resource leaks.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h4>Implementation<a class="headerlink" href="#id14" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">startProcess</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">User cancelled operation</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown error with info as: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">is_open</span><span class="p">():</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="explanation">
+<h4>Explanation<a class="headerlink" href="#explanation" title="Link to this heading"></a></h4>
+<p><strong>1. Main Execution Guard</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>Ensures this code block only runs when the script is executed directly (e.g., <cite>python main.py</cite>). Prevents unintended execution if imported as a library or module.</p>
+<p><strong>2. Async Runtime Launcher</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">startProcess</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Starts the asyncio event loop and calls <cite>startProcess()</cite> to initialize and run all gateway tasks. This is the official way to start asynchronous programs in modern Python (<cite>&gt;=3.7</cite>).</p>
+<p><strong>3. Graceful Shutdown</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">User cancelled operation</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Handles user interruption (Ctrl+C) gracefully by printing a friendly message instead of a traceback.</p>
+<p><strong>4. Catch-All Error Logging</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown error with info as: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Any unexpected errors during startup or runtime are caught and logged. This helps in debugging deployment or field issues.</p>
+<p><strong>5. Resource Cleanup</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">finally</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">is_open</span><span class="p">():</span>
+        <span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This block ensures that the XBee serial port is closed if it was previously opened. Prevents port locking and ensures the device can reconnect cleanly next time.</p>
+</section>
+<section id="id15">
+<h4>Summary<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
+<p>The <cite>__main__</cite> block is crucial for managing the lifecycle of the gateway. It:</p>
+<ul class="simple">
+<li><p>Starts the asyncio-based workflow</p></li>
+<li><p>Handles interruptions and crashes</p></li>
+<li><p>Ensures hardware resources (like serial ports) are released properly</p></li>
+</ul>
+<p>Together with <cite>startProcess</cite>, it ensures a robust, fault-tolerant startup and shutdown process.</p>
+</section>
+</section>
+</section>
+<section id="configgui">
+<span id="id16"></span><h2>configGui<a class="headerlink" href="#configgui" title="Link to this heading"></a></h2>
+</section>
+<section id="dbintegration">
+<span id="id17"></span><h2>dbIntegration<a class="headerlink" href="#dbintegration" title="Link to this heading"></a></h2>
+</section>
+<section id="modbus">
+<span id="id18"></span><h2>modbus<a class="headerlink" href="#modbus" title="Link to this heading"></a></h2>
+</section>
+<section id="serialselector">
+<span id="id19"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
+</section>
+<section id="variables">
+<span id="id20"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+</section>
+<section id="xbeedata">
+<span id="id21"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+</section>
+<section id="xbeedummydatatransmitter">
+<span id="id22"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, n1lby73.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
