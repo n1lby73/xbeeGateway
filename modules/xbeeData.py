@@ -4,22 +4,22 @@ from .dbIntegration import storeXbeeHistoryData
 import datetime
 
 
-def getNodeId(macAddress, initializedXbee):
-    try:
-        # Create a RemoteXBeeDevice instance
-        remote_device = RemoteXBeeDevice(initializedXbee, macAddress)
+# def getNodeId(macAddress, initializedXbee):
+#     try:
+#         # Create a RemoteXBeeDevice instance
+#         remote_device = RemoteXBeeDevice(initializedXbee, macAddress)
 
-        # Send remote AT command to get the NI (Node Identifier)
-        response = initializedXbee.send_remote_at_command(remote_device, "NI")
+#         # Send remote AT command to get the NI (Node Identifier)
+#         response = initializedXbee.send_remote_at_command(remote_device, "NI")
 
-        # Wait for the response
-        if response:
-            return response.parameter.decode("utf-8") if response.parameter else "UNKNOWN"
+#         # Wait for the response
+#         if response:
+#             return response.parameter.decode("utf-8") if response.parameter else "UNKNOWN"
 
-    except Exception as e:
-        print(f"Error retrieving Node ID: {e}")
+#     except Exception as e:
+#         print(f"Error retrieving Node ID: {e}")
 
-    return "UNKNOWN"
+#     return "UNKNOWN"
 
 async def cayenneParse(xbeeMacAddress,xbeeByteData):
 
