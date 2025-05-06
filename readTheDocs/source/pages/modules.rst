@@ -133,6 +133,67 @@ Implementation
 
 Data Reception Callback
 """""""""""""""""""""""
+def getIpAddress():
+
+    interfaces = psutil.net_if_addrs()
+    ethernetIp = None
+    wifiIp = None
+    default = "0.0.0.0"
+
+    # Common interface name patterns for different platforms
+    ethernetPatterns = [
+
+        'eth', 'en', 'ethernet', 
+        'local area connection', '有线'
+
+    ]
+    
+    wifiPatterns = [
+
+        'wifi', 'wi-fi', 'wireless', 
+        'wl', 'wlan', '无线', 'wi_fi'
+
+    ]
+
+    for interfaceName, interfaceAddresses in interfaces.items():
+
+        for address in interfaceAddresses:
+
+            if address.family == socket.AF_INET and not address.address.startswith("127."):
+
+                if any(pattern in interfaceName.lower() for pattern in ethernetPatterns):
+
+                    # Check if the IP address is from the APIPA range and skip it
+                    if address.address.startswith("169.254"):
+                        
+                        continue
+
+                    if not ethernetIp:
+
+                        ethernetIp = address.address
+
+                elif any(pattern in interfaceName.lower() for pattern in wifiPatterns):
+
+                    if not wifiIp:
+
+                        wifiIp = address.address
+
+    if ethernetIp:
+
+        print(f"Ethernet IP Address: {ethernetIp}")
+        return ethernetIp
+    
+    elif wifiIp:
+
+        print("No Ethernet interface detected. Falling back to Wi-Fi.")
+        print(f"Wi-Fi IP Address: {wifiIp}")
+        return wifiIp
+    
+    else:
+
+        print("No Ethernet or Wi-Fi network detected on this machine.")
+        print(f"Using default address {default}")
+        return default
 
 .. code-block:: python
 
@@ -2380,27 +2441,520 @@ This would run the gateway process only when the script is launched explicitly, 
 modbus
 --------
 
+Overview
+^^^^^^^^^
+
+The `modbus` module provides essential utilities for managing Modbus communication within the gateway system. It includes functions for converting data between formats suitable for Modbus registers, managing Modbus server contexts, and retrieving the local machine's network IP address. The module is integral for managing data exchange between Modbus slaves and handling networking concerns for Modbus servers.
+
+Key Functionalities
+"""""""""""""""""""""
+
+1. **Float to Modbus Registers Conversion**:
+   - Converts floating-point values to two 16-bit Modbus registers for use in Modbus communication.
+
+2. **Modbus Server Context Management**:
+   - Creates and manages a Modbus server context, including defining storage for multiple Modbus data types (Discrete Inputs, Coils, Holding Registers, and Input Registers).
+   
+3. **IP Address Retrieval**:
+   - Retrieves the machine's network IP address, either from Ethernet or Wi-Fi interfaces, to facilitate network-based communication.
+
+Imports
+"""""""""
+
+The following libraries are imported in the module:
+
+- **psutil**: For accessing system and network interface information.
+- **socket**: For network-related operations, particularly to retrieve network interface IP addresses.
+- **struct**: Used for packing and unpacking binary data, especially for converting floating-point values to Modbus register format.
+- **pymodbus.datastore**: Provides the necessary classes for Modbus data storage and server context management.
+
+Purpose
+"""""""""
+
+This module supports Modbus communication by providing tools to:
+- Convert real-world data (e.g., sensor readings) into Modbus-compatible formats.
+- Set up a Modbus server context for managing Modbus data for multiple devices.
+- Determine the local machine's IP address for network configuration.
+
+
 floatToRegisters
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   floatToRegisters(floatValue)
+
+Converts a **32-bit floating-point number** (Python `float`) into **two 16-bit Modbus register values** for compatibility with the Modbus protocol.
+
+   :param float floatValue: A single precision floating-point number to convert.
+   :returns: A list containing two 16-bit unsigned integers representing the input float in Modbus register format.
+   :rtype: list[int]
+
+Overview
+""""""""""
+
+The Modbus protocol operates on 16-bit registers, but modern sensor data (e.g., temperature, pressure, flow rate) is often represented as 32-bit IEEE 754 floating-point values. To store such values within a Modbus context, the float must be split into two 16-bit registers. 
+
+This helper function provides that conversion using Python's built-in `struct` module.
+
+Implementation Details
+""""""""""""""""""""""""
+
+1. **Pack the Float to Binary**:
+
+   The input float is packed into a 4-byte binary format using little-endian (`<f`) encoding:
+
+   .. code-block:: python
+
+      binaryData = pack('<f', floatValue)
+
+   - `<`: Little-endian byte order (least significant byte first).
+   - `f`: 32-bit float.
+
+2. **Unpack as Two Unsigned Shorts**:
+
+   The binary data is unpacked into **two 16-bit unsigned integers**:
+
+   .. code-block:: python
+
+      return list(unpack('<HH', binaryData))
+
+   This yields a list like `[low_word, high_word]` representing the float in Modbus register format.
+
+Usage
+""""""""
+
+This function is used throughout the gateway system to convert real-valued sensor readings for Modbus compatibility. It is especially critical in `modbusPolling`, where incoming data from XBee radios is prepared for storage in Modbus registers.
+
+Reference
+"""""""""""
+
+This function is used in the main gateway polling loop:
+
+.. code-block:: python
+
+   registerValues = []
+   for val in sensorValues:
+       registerValues.extend(floatToRegisters(val))
+
+   registers = registerValues[:20]
+   contextValue[0].setValues(3, startAddress, registers)
+   contextValue[0].setValues(4, startAddress, registers)
+
+The above logic shows that each sensor value is first passed to `floatToRegisters`, then the resulting register pairs are written to **Holding (FC3)** and **Input (FC4)** Modbus registers.
+
+Limitations
+""""""""""""""
+
+- Only supports 32-bit `float` types. It does **not** handle double-precision floats or alternative encoding schemes.
+- Assumes **little-endian** byte order, which may need adjustment for systems using big-endian Modbus encoding.
+- No error handling for invalid input (e.g., non-numeric types).
+
+Recommendations
+""""""""""""""""""
+
+- Consider adding a `registersToFloat()` reverse function for systems that require reading floats from Modbus registers.
+- Use with Modbus register sets that are guaranteed to store **two consecutive 16-bit slots** per float.
+
 
 contextManager
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   contextManager()
+
+Initializes and returns a **Modbus data context** that defines memory areas for **Discrete Inputs**, **Coils**, **Holding Registers**, and **Input Registers** using the `pymodbus` library.
+
+   :returns: The initialized `ModbusSlaveContext` for slave ID 0.
+   :rtype: pymodbus.datastore.ModbusSlaveContext
+
+Overview
+""""""""""
+
+This function sets up the in-memory data model for a Modbus TCP server using `pymodbus`. It pre-allocates **1000 registers or bits** for each of the four primary Modbus data blocks:
+- Discrete Inputs (read-only binary values)
+- Coils (read/write binary values)
+- Holding Registers (read/write 16-bit registers)
+- Input Registers (read-only 16-bit registers)
+
+The resulting context is structured in a way compatible with multi-slave Modbus networks, even though only slave ID `0` is actively used.
+
+Implementation Details
+""""""""""""""""""""""""
+
+1. **Create the ModbusSlaveContext**:
+
+   Initializes memory areas for all four standard Modbus types, each with 1000 default entries (set to zero):
+
+   .. code-block:: python
+
+      store = ModbusSlaveContext(
+          di=ModbusSequentialDataBlock(0, [0]*1000),
+          co=ModbusSequentialDataBlock(0, [0]*1000),
+          hr=ModbusSequentialDataBlock(0, [0]*1000),
+          ir=ModbusSequentialDataBlock(0, [0]*1000),
+      )
+
+2. **Create a ModbusServerContext**:
+
+   Wraps the slave context into a server context to support multiple slaves (although only one is used here):
+
+   .. code-block:: python
+
+      contextAsNextedDic = ModbusServerContext(slaves={0: store, 1: store}, single=True)
+
+   The `single=True` flag makes all operations target slave ID `0` unless explicitly overridden.
+
+   Though despite the flag, the slave ID is still very relevant and requesting for data using wrong slave ID, won't return anything
+
+3. **Extract the Slave Context**:
+
+   The server context is accessed like a dictionary. Slave ID `0` is used by default:
+
+   .. code-block:: python
+
+      context = contextAsNextedDic[0]
+
+   This context is what will be used to read/write Modbus data in functions like `modbusPolling`.
+
+Usage
+""""""""
+
+The context returned by this function is passed to the Modbus TCP server and used throughout the gateway system. It allows real-time updates of Modbus registers using data received from XBee radios.
+
+For example, in `modbusPolling`, register values are written like this:
+
+.. code-block:: python
+
+   contextValue[0].setValues(3, startAddress, registers)
+   contextValue[0].setValues(4, startAddress, registers)
+
+This means:
+- Function code 3 (Holding Registers)
+- Function code 4 (Input Registers)
+
 
 getIpAddress
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   getIpAddress()
+
+Determines and returns the current machine's **local IPv4 address**, preferring Ethernet interfaces over Wi-Fi, and falling back to a default if no valid network connection is detected.
+
+   :returns: The selected IP address as a string.
+   :rtype: str
+
+Overview
+""""""""""
+
+This utility function inspects all active network interfaces on the machine using the `psutil` library and selects a valid IPv4 address. It does so with the following priorities:
+
+1. **Ethernet IP address** (if available and valid).
+2. **Wi-Fi IP address** (if Ethernet is unavailable).
+3. **Default value** `"0.0.0.0"` if no valid IP is found.
+
+It performs platform-independent pattern matching on interface names (supporting both English and Chinese characters) to differentiate between Ethernet and Wi-Fi adapters.
+
+Implementation Details
+""""""""""""""""""""""""
+
+1. **Get all network interfaces**:
+
+   Uses `psutil.net_if_addrs()` to enumerate all available network interfaces and their assigned addresses:
+
+   .. code-block:: python
+
+      interfaces = psutil.net_if_addrs()
+
+2. **Define interface name patterns**:
+
+   Maintains two lists of keywords to identify Ethernet and Wi-Fi adapters. These include common naming schemes across Windows, Linux, and macOS — even including **localized Chinese names**:
+
+   .. code-block:: python
+
+      ethernetPatterns = ['eth', 'en', 'ethernet', 'local area connection', '有线']
+      wifiPatterns = ['wifi', 'wi-fi', 'wireless', 'wl', 'wlan', '无线', 'wi_fi']
+
+3. **Iterate through interfaces**:
+
+   Loops through all interfaces and their address entries, filtering only for **IPv4 addresses** (`AF_INET`) that are not **loopback** (`127.*`):
+
+   .. code-block:: python
+
+      if address.family == socket.AF_INET and not address.address.startswith("127."):
+
+4. **Classify and select IP addresses**:
+
+   - For **Ethernet** interfaces: 
+
+     - Match name using `ethernetPatterns`
+     - Skip **APIPA addresses** (i.e. `169.254.*.*` range, which indicate failed DHCP assignment)
+     - Assign the first matching, valid IP to `ethernetIp`
+
+   - For **Wi-Fi** interfaces: 
+
+     - Match name using `wifiPatterns`
+     - Assign first valid IP to `wifiIp`
+
+   This ensures that **Ethernet is prioritized**, but Wi-Fi is used as a fallback.
+
+5. **Return logic**:
+
+   - If a valid Ethernet IP was found: return it and print the selection.
+   - Else if a valid Wi-Fi IP was found: return it and print a fallback message.
+   - Else: return a default `"0.0.0.0"` and print a warning.
+
+   .. code-block:: python
+
+      if ethernetIp:
+         return ethernetIp
+      elif wifiIp:
+         return wifiIp
+      else:
+         return default
+
+Console Output
+""""""""""""""""
+
+Depending on the selected result, the function prints a contextual message to the console:
+
+- `"Ethernet IP Address: <ip>"`
+- `"No Ethernet interface detected. Falling back to Wi-Fi."`
+- `"Wi-Fi IP Address: <ip>"`
+- `"No Ethernet or Wi-Fi network detected on this machine."`
+- `"Using default address 0.0.0.0"`
+
+These messages aid debugging during startup or troubleshooting in environments where networking may be unreliable.
+
+Usage Scenario
+""""""""""""""""
+
+This function is commonly used at system or server initialization time to:
+
+- Report which interface will be used for **network binding** (e.g., Modbus TCP).
+- Show diagnostics or status in a GUI or terminal.
+- Avoid binding services to the wrong interface.
+
+Limitations
+""""""""""""""
+
+- Interface name pattern matching is **heuristic-based** and not foolproof — it may miss obscure naming schemes.
+- Assumes **English or Chinese interface labels**. Will not work as expected if system is localized to another language without matching keywords.
+- Does not support **IPv6** or multiple NIC prioritization strategies (e.g., metric-based routing).
+- Only selects **one IP**, even if multiple Ethernet/Wi-Fi adapters are active.
+
+Recommendations
+""""""""""""""""""
+
+- Extend the `ethernetPatterns` and `wifiPatterns` lists for non-standard naming in industrial or embedded platforms.
+- Add support for selecting interfaces based on **gateway reachability** or **routing table priority** for more robust detection.
+- Consider allowing **manual IP override** through a configuration file or environment variable in production systems.
+
+
 
 .. _serialSelector:
 
 serialSelector
 ----------------
 
+Overview
+^^^^^^^^^
+
+The `serialSelector` module provides utility logic for detecting and selecting the appropriate USB serial port to which the XBee radio is connected. It simplifies setup by automating the process of identifying the correct USB interface based on its hardware serial number (HWID).
+
+This module can also be run as a standalone CLI utility using a `--get` flag to print all connected serial devices and help users configure their system correctly by copying the HWID into the `variables.py` file.
+
+Key Functionalities
+"""""""""""""""""""
+
+1. **Auto-select USB Serial Port**:
+   - Detects all connected USB or COM serial devices.
+   - Matches the correct port using a preconfigured serial number from the `variables` module.
+
+2. **User Prompt Utility (CLI Mode)**:
+   - When run as a standalone script with the `--get` flag, it lists all connected serial devices with their `port` and `hwid`.
+   - Assists users in identifying and copying the correct hardware serial number for XBee connection setup.
+
+3. **Error Handling**:
+   - Gracefully handles user interruption (e.g., `Ctrl+C`), serial access issues, and other exceptions.
+
+Imports
+"""""""""
+
+The module makes use of the following Python libraries and packages:
+
+- **serial**: From `pyserial`, for enumerating and interacting with serial ports.
+- **serial.tools.list_ports**: For retrieving a list of all serial ports on the system.
+- **argparse**: For parsing command-line arguments in standalone mode.
+- **sys**: To exit gracefully after displaying results.
+- **asyncio**: Imported for potential future use, although unused in this module directly.
+- **digi.xbee.devices.XBeeDevice**: Imported to support XBee device interaction (future integration).
+- **functools.partial**: Imported but unused in the current module implementation.
+- **variables** (local import): Contains user-defined configuration, specifically the `prefferedRadioSerialNumber`.
+
+Usage
+"""""
+
+The module is typically used in two ways:
+
+1. **Programmatic Access** (from other modules):
+
+   .. code-block:: python
+
+      from modules.serialSelector import selectUsbPort
+      port = selectUsbPort()
+
+2. **Command-Line Utility** (standalone):
+
+   .. code-block:: shell
+
+      python -m modules.serialSelector --get
+
+   This prints a list of all detected USB/COM ports with their HWIDs, helping the user determine which value to set in `variables.prefferedRadioSerialNumber`.
+
+Dependencies
+"""""""""""""
+
+- This module depends on `pyserial` and `digi-xbee`.
+- It also requires a correctly defined `prefferedRadioSerialNumber` in the `variables.py` module to perform auto-selection.
+- The XBee device itself is not opened or initialized here, but the port returned can be passed to `XBeeDevice` elsewhere in the application.
+
 selectUsbPort
-'''''''''''''''''''''''
+^^^^^^^^^^^^^
+
+Definition
+""""""""""
+
+.. code-block:: python
+
+    def selectUsbPort(get=False):
+
+Description
+""""""""""""""
+
+Detects and returns the USB serial port corresponding to the preferred XBee radio device.  
+It does this by scanning all available serial ports and matching them against a known hardware serial substring defined in the `variables.prefferedRadioSerialNumber`.
+
+If the `get` argument is set to `True`, the function prints all available USB/COM ports along with their hardware IDs, helping the user identify the correct device to configure in the `variables` module. In this mode, the program exits after displaying information.
+
+Parameters
+""""""""""
+
+- ``g`` (`bool`): Optional flag (default `False`).  
+  If `True`, displays connected serial devices and exits.
+
+Returns
+""""""""
+
+- (`str` or `None`) The matched USB port device name (e.g., `'COM3'`, `'/dev/ttyUSB0'`) if found.  
+  Returns `None` if no matching port is found or if an error occurs.
+
+Behavior
+""""""""
+
+- Uses `serial.tools.list_ports.comports()` to fetch a list of connected serial devices.
+- Filters ports that include `"USB"` or `"COM"` in their names.
+- If `get` is `True`, prints out all discovered serial devices and exits the program.
+- Otherwise, searches for the port whose hardware ID contains the configured serial substring from `variables.prefferedRadioSerialNumber`.
+- If found, returns the matching port name.
+- If not found, prints guidance to the user to run the script with `--g` and update the `variables.py` file accordingly.
+
+Exceptions Handled
+""""""""""""""""""
+
+- `KeyboardInterrupt`: Gracefully exits if the user aborts the operation.
+- `serial.SerialException`: Handles issues with accessing serial ports.
+- `Exception`: Catches any other unexpected error and logs it.
+
+Example Usage
+""""""""""""""
+
+.. code-block:: python
+
+    # Called during startup to automatically bind to the correct port
+    port = selectUsbPort()
+    if port:
+        print(f"Using port: {port}")
+    else:
+        print("No valid USB port found. Check your connections and configuration.")
+
+CLI Mode
+""""""""
+
+This function can also be triggered directly via command line:
+
+.. code-block:: shell
+
+    python -m modules.serialSelector --g
+
+This prints all connected serial devices with hardware info, and helps configure the correct serial number in `variables.py`.
+
+__main__ Execution Block
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Definition
+"""""""""""
+
+.. code-block:: python
+
+    if __name__ == "__main__":
+
+        parser = argparse.ArgumentParser(description="USB Port Selector Script")
+        
+        # Define flags
+        parser.add_argument("-g", "--get", action="store_true", help="Retrieve and display the USB port with the preferred serial number.")
+        
+        # Parse the arguments
+        args = parser.parse_args()
+
+        selectUsbPort(get=args.get)
+
+Description
+""""""""""""
+
+This block enables the `serialSelector` module to be run directly as a standalone script.  
+It provides a command-line interface (CLI) for interacting with the USB port selection logic, especially useful for discovering connected XBee radios and retrieving their serial number information.
+
+Behavior
+""""""""
+
+- Uses Python’s built-in `argparse` module to define a CLI interface.
+- Adds a `--get` (or `-g`) flag to allow users to retrieve and display all connected USB/COM serial devices.
+- After parsing command-line arguments, calls the `selectUsbPort(get=args.get)` function:
+
+  - If `--get` is supplied, it prints detailed serial port info and exits.
+  - If not, it proceeds with normal serial port selection.
+
+Command-Line Usage
+""""""""""""""""""
+
+To retrieve connected USB serial devices and their hardware IDs:
+
+.. code-block:: shell
+
+    python -m modules.serialSelector --get
+
+This is especially helpful during initial setup to determine the correct value for `variables.prefferedRadioSerialNumber`.
+
+Typical Use Case
+""""""""""""""""
+
+This block is mainly for developer or deployment-time use when verifying or configuring the USB connection between the XBee radio and the system.
+
+Note
+""""""
+
+In actual runtime, port selection is typically done automatically by calling `selectUsbPort()` from another module, using the configured serial number in `variables.py`.
 
 .. _variables:
 
 variables
 ------------
+
+
 
 .. _xbeeDAta:
 

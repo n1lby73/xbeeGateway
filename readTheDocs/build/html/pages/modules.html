@@ -251,8 +251,69 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#modbus">modbus</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#serialselector">serialSelector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modbus">modbus</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id63">Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#key-functionalities">Key Functionalities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id64">Imports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id65">Purpose</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#floattoregisters">floatToRegisters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id66">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id67">Implementation Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reference">Reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id68">Limitations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id69">Recommendations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#contextmanager">contextManager</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id70">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id71">Implementation Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id72">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#getipaddress">getIpAddress</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id73">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id74">Implementation Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#console-output">Console Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage-scenario">Usage Scenario</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id75">Limitations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id76">Recommendations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#serialselector">serialSelector</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id78">Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id79">Key Functionalities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id80">Imports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id81">Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id82">Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#selectusbport">selectUsbPort</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#definition">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#returns">Returns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#behavior">Behavior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#exceptions-handled">Exceptions Handled</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id83">Example Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli-mode">CLI Mode</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#main-execution-block">__main__ Execution Block</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id84">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id85">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id86">Behavior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#command-line-usage">Command-Line Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#typical-use-case">Typical Use Case</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#note">Note</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#variables">variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xbeedata">xbeeData</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a></li>
@@ -410,6 +471,71 @@
 </section>
 <section id="data-reception-callback">
 <h4>Data Reception Callback<a class="headerlink" href="#data-reception-callback" title="Link to this heading"></a></h4>
+<p>def getIpAddress():</p>
+<blockquote>
+<div><p>interfaces = psutil.net_if_addrs()
+ethernetIp = None
+wifiIp = None
+default = “0.0.0.0”</p>
+<p># Common interface name patterns for different platforms
+ethernetPatterns = [</p>
+<blockquote>
+<div><p>‘eth’, ‘en’, ‘ethernet’,
+‘local area connection’, ‘有线’</p>
+</div></blockquote>
+<p>]</p>
+<p>wifiPatterns = [</p>
+<blockquote>
+<div><p>‘wifi’, ‘wi-fi’, ‘wireless’,
+‘wl’, ‘wlan’, ‘无线’, ‘wi_fi’</p>
+</div></blockquote>
+<p>]</p>
+<p>for interfaceName, interfaceAddresses in interfaces.items():</p>
+<blockquote>
+<div><p>for address in interfaceAddresses:</p>
+<blockquote>
+<div><p>if address.family == socket.AF_INET and not address.address.startswith(“127.”):</p>
+<blockquote>
+<div><p>if any(pattern in interfaceName.lower() for pattern in ethernetPatterns):</p>
+<blockquote>
+<div><p># Check if the IP address is from the APIPA range and skip it
+if address.address.startswith(“169.254”):</p>
+<blockquote>
+<div><p>continue</p>
+</div></blockquote>
+<p>if not ethernetIp:</p>
+<blockquote>
+<div><p>ethernetIp = address.address</p>
+</div></blockquote>
+</div></blockquote>
+<p>elif any(pattern in interfaceName.lower() for pattern in wifiPatterns):</p>
+<blockquote>
+<div><p>if not wifiIp:</p>
+<blockquote>
+<div><p>wifiIp = address.address</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<p>if ethernetIp:</p>
+<blockquote>
+<div><p>print(f”Ethernet IP Address: {ethernetIp}”)
+return ethernetIp</p>
+</div></blockquote>
+<p>elif wifiIp:</p>
+<blockquote>
+<div><p>print(“No Ethernet interface detected. Falling back to Wi-Fi.”)
+print(f”Wi-Fi IP Address: {wifiIp}”)
+return wifiIp</p>
+</div></blockquote>
+<p>else:</p>
+<blockquote>
+<div><p>print(“No Ethernet or Wi-Fi network detected on this machine.”)
+print(f”Using default address {default}”)
+return default</p>
+</div></blockquote>
+</div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dataReceiveCallback</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="p">):</span>
     <span class="n">xbeeMacAddress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="o">.</span><span class="n">remote_device</span><span class="o">.</span><span class="n">get_64bit_addr</span><span class="p">())</span>
     <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
@@ -2779,18 +2905,499 @@ Only the following keys are allowed:</p>
 </section>
 <section id="modbus">
 <span id="id62"></span><h2>modbus<a class="headerlink" href="#modbus" title="Link to this heading"></a></h2>
+<section id="id63">
+<h3>Overview<a class="headerlink" href="#id63" title="Link to this heading"></a></h3>
+<p>The <cite>modbus</cite> module provides essential utilities for managing Modbus communication within the gateway system. It includes functions for converting data between formats suitable for Modbus registers, managing Modbus server contexts, and retrieving the local machine’s network IP address. The module is integral for managing data exchange between Modbus slaves and handling networking concerns for Modbus servers.</p>
+<section id="key-functionalities">
+<h4>Key Functionalities<a class="headerlink" href="#key-functionalities" title="Link to this heading"></a></h4>
+<ol class="arabic simple">
+<li><p><strong>Float to Modbus Registers Conversion</strong>:
+- Converts floating-point values to two 16-bit Modbus registers for use in Modbus communication.</p></li>
+<li><p><strong>Modbus Server Context Management</strong>:
+- Creates and manages a Modbus server context, including defining storage for multiple Modbus data types (Discrete Inputs, Coils, Holding Registers, and Input Registers).</p></li>
+<li><p><strong>IP Address Retrieval</strong>:
+- Retrieves the machine’s network IP address, either from Ethernet or Wi-Fi interfaces, to facilitate network-based communication.</p></li>
+</ol>
+</section>
+<section id="id64">
+<h4>Imports<a class="headerlink" href="#id64" title="Link to this heading"></a></h4>
+<p>The following libraries are imported in the module:</p>
+<ul class="simple">
+<li><p><strong>psutil</strong>: For accessing system and network interface information.</p></li>
+<li><p><strong>socket</strong>: For network-related operations, particularly to retrieve network interface IP addresses.</p></li>
+<li><p><strong>struct</strong>: Used for packing and unpacking binary data, especially for converting floating-point values to Modbus register format.</p></li>
+<li><p><strong>pymodbus.datastore</strong>: Provides the necessary classes for Modbus data storage and server context management.</p></li>
+</ul>
+</section>
+<section id="id65">
+<h4>Purpose<a class="headerlink" href="#id65" title="Link to this heading"></a></h4>
+<p>This module supports Modbus communication by providing tools to:
+- Convert real-world data (e.g., sensor readings) into Modbus-compatible formats.
+- Set up a Modbus server context for managing Modbus data for multiple devices.
+- Determine the local machine’s IP address for network configuration.</p>
+</section>
+</section>
+<section id="floattoregisters">
+<h3>floatToRegisters<a class="headerlink" href="#floattoregisters" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">floatToRegisters</span><span class="p">(</span><span class="n">floatValue</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Converts a <strong>32-bit floating-point number</strong> (Python <cite>float</cite>) into <strong>two 16-bit Modbus register values</strong> for compatibility with the Modbus protocol.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param float floatValue<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A single precision floating-point number to convert.</p>
+</dd>
+<dt class="field-even">returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list containing two 16-bit unsigned integers representing the input float in Modbus register format.</p>
+</dd>
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[int]</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="id66">
+<h4>Overview<a class="headerlink" href="#id66" title="Link to this heading"></a></h4>
+<p>The Modbus protocol operates on 16-bit registers, but modern sensor data (e.g., temperature, pressure, flow rate) is often represented as 32-bit IEEE 754 floating-point values. To store such values within a Modbus context, the float must be split into two 16-bit registers.</p>
+<p>This helper function provides that conversion using Python’s built-in <cite>struct</cite> module.</p>
+</section>
+<section id="id67">
+<h4>Implementation Details<a class="headerlink" href="#id67" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p><strong>Pack the Float to Binary</strong>:</p>
+<p>The input float is packed into a 4-byte binary format using little-endian (<cite>&lt;f</cite>) encoding:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">binaryData</span> <span class="o">=</span> <span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&lt;f&#39;</span><span class="p">,</span> <span class="n">floatValue</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><cite>&lt;</cite>: Little-endian byte order (least significant byte first).</p></li>
+<li><p><cite>f</cite>: 32-bit float.</p></li>
+</ul>
+</li>
+<li><p><strong>Unpack as Two Unsigned Shorts</strong>:</p>
+<p>The binary data is unpacked into <strong>two 16-bit unsigned integers</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;HH&#39;</span><span class="p">,</span> <span class="n">binaryData</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This yields a list like <cite>[low_word, high_word]</cite> representing the float in Modbus register format.</p>
+</li>
+</ol>
+</section>
+<section id="usage">
+<h4>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h4>
+<p>This function is used throughout the gateway system to convert real-valued sensor readings for Modbus compatibility. It is especially critical in <cite>modbusPolling</cite>, where incoming data from XBee radios is prepared for storage in Modbus registers.</p>
+</section>
+<section id="reference">
+<h4>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h4>
+<p>This function is used in the main gateway polling loop:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">registerValues</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">sensorValues</span><span class="p">:</span>
+    <span class="n">registerValues</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">floatToRegisters</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+
+<span class="n">registers</span> <span class="o">=</span> <span class="n">registerValues</span><span class="p">[:</span><span class="mi">20</span><span class="p">]</span>
+<span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+<span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above logic shows that each sensor value is first passed to <cite>floatToRegisters</cite>, then the resulting register pairs are written to <strong>Holding (FC3)</strong> and <strong>Input (FC4)</strong> Modbus registers.</p>
+</section>
+<section id="id68">
+<h4>Limitations<a class="headerlink" href="#id68" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Only supports 32-bit <cite>float</cite> types. It does <strong>not</strong> handle double-precision floats or alternative encoding schemes.</p></li>
+<li><p>Assumes <strong>little-endian</strong> byte order, which may need adjustment for systems using big-endian Modbus encoding.</p></li>
+<li><p>No error handling for invalid input (e.g., non-numeric types).</p></li>
+</ul>
+</section>
+<section id="id69">
+<h4>Recommendations<a class="headerlink" href="#id69" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Consider adding a <cite>registersToFloat()</cite> reverse function for systems that require reading floats from Modbus registers.</p></li>
+<li><p>Use with Modbus register sets that are guaranteed to store <strong>two consecutive 16-bit slots</strong> per float.</p></li>
+</ul>
+</section>
+</section>
+<section id="contextmanager">
+<h3>contextManager<a class="headerlink" href="#contextmanager" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">contextManager</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Initializes and returns a <strong>Modbus data context</strong> that defines memory areas for <strong>Discrete Inputs</strong>, <strong>Coils</strong>, <strong>Holding Registers</strong>, and <strong>Input Registers</strong> using the <cite>pymodbus</cite> library.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The initialized <cite>ModbusSlaveContext</cite> for slave ID 0.</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>pymodbus.datastore.ModbusSlaveContext</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="id70">
+<h4>Overview<a class="headerlink" href="#id70" title="Link to this heading"></a></h4>
+<p>This function sets up the in-memory data model for a Modbus TCP server using <cite>pymodbus</cite>. It pre-allocates <strong>1000 registers or bits</strong> for each of the four primary Modbus data blocks:
+- Discrete Inputs (read-only binary values)
+- Coils (read/write binary values)
+- Holding Registers (read/write 16-bit registers)
+- Input Registers (read-only 16-bit registers)</p>
+<p>The resulting context is structured in a way compatible with multi-slave Modbus networks, even though only slave ID <cite>0</cite> is actively used.</p>
+</section>
+<section id="id71">
+<h4>Implementation Details<a class="headerlink" href="#id71" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p><strong>Create the ModbusSlaveContext</strong>:</p>
+<p>Initializes memory areas for all four standard Modbus types, each with 1000 default entries (set to zero):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">store</span> <span class="o">=</span> <span class="n">ModbusSlaveContext</span><span class="p">(</span>
+    <span class="n">di</span><span class="o">=</span><span class="n">ModbusSequentialDataBlock</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="p">),</span>
+    <span class="n">co</span><span class="o">=</span><span class="n">ModbusSequentialDataBlock</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="p">),</span>
+    <span class="n">hr</span><span class="o">=</span><span class="n">ModbusSequentialDataBlock</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="p">),</span>
+    <span class="n">ir</span><span class="o">=</span><span class="n">ModbusSequentialDataBlock</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Create a ModbusServerContext</strong>:</p>
+<p>Wraps the slave context into a server context to support multiple slaves (although only one is used here):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">contextAsNextedDic</span> <span class="o">=</span> <span class="n">ModbusServerContext</span><span class="p">(</span><span class="n">slaves</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">store</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">store</span><span class="p">},</span> <span class="n">single</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>single=True</cite> flag makes all operations target slave ID <cite>0</cite> unless explicitly overridden.</p>
+<p>Though despite the flag, the slave ID is still very relevant and requesting for data using wrong slave ID, won’t return anything</p>
+</li>
+<li><p><strong>Extract the Slave Context</strong>:</p>
+<p>The server context is accessed like a dictionary. Slave ID <cite>0</cite> is used by default:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">context</span> <span class="o">=</span> <span class="n">contextAsNextedDic</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This context is what will be used to read/write Modbus data in functions like <cite>modbusPolling</cite>.</p>
+</li>
+</ol>
+</section>
+<section id="id72">
+<h4>Usage<a class="headerlink" href="#id72" title="Link to this heading"></a></h4>
+<p>The context returned by this function is passed to the Modbus TCP server and used throughout the gateway system. It allows real-time updates of Modbus registers using data received from XBee radios.</p>
+<p>For example, in <cite>modbusPolling</cite>, register values are written like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+<span class="n">contextValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">setValues</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">startAddress</span><span class="p">,</span> <span class="n">registers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This means:
+- Function code 3 (Holding Registers)
+- Function code 4 (Input Registers)</p>
+</section>
+</section>
+<section id="getipaddress">
+<h3>getIpAddress<a class="headerlink" href="#getipaddress" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">getIpAddress</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Determines and returns the current machine’s <strong>local IPv4 address</strong>, preferring Ethernet interfaces over Wi-Fi, and falling back to a default if no valid network connection is detected.</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The selected IP address as a string.</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="id73">
+<h4>Overview<a class="headerlink" href="#id73" title="Link to this heading"></a></h4>
+<p>This utility function inspects all active network interfaces on the machine using the <cite>psutil</cite> library and selects a valid IPv4 address. It does so with the following priorities:</p>
+<ol class="arabic simple">
+<li><p><strong>Ethernet IP address</strong> (if available and valid).</p></li>
+<li><p><strong>Wi-Fi IP address</strong> (if Ethernet is unavailable).</p></li>
+<li><p><strong>Default value</strong> <cite>“0.0.0.0”</cite> if no valid IP is found.</p></li>
+</ol>
+<p>It performs platform-independent pattern matching on interface names (supporting both English and Chinese characters) to differentiate between Ethernet and Wi-Fi adapters.</p>
+</section>
+<section id="id74">
+<h4>Implementation Details<a class="headerlink" href="#id74" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p><strong>Get all network interfaces</strong>:</p>
+<p>Uses <cite>psutil.net_if_addrs()</cite> to enumerate all available network interfaces and their assigned addresses:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interfaces</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">net_if_addrs</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Define interface name patterns</strong>:</p>
+<p>Maintains two lists of keywords to identify Ethernet and Wi-Fi adapters. These include common naming schemes across Windows, Linux, and macOS — even including <strong>localized Chinese names</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ethernetPatterns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eth&#39;</span><span class="p">,</span> <span class="s1">&#39;en&#39;</span><span class="p">,</span> <span class="s1">&#39;ethernet&#39;</span><span class="p">,</span> <span class="s1">&#39;local area connection&#39;</span><span class="p">,</span> <span class="s1">&#39;有线&#39;</span><span class="p">]</span>
+<span class="n">wifiPatterns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wifi&#39;</span><span class="p">,</span> <span class="s1">&#39;wi-fi&#39;</span><span class="p">,</span> <span class="s1">&#39;wireless&#39;</span><span class="p">,</span> <span class="s1">&#39;wl&#39;</span><span class="p">,</span> <span class="s1">&#39;wlan&#39;</span><span class="p">,</span> <span class="s1">&#39;无线&#39;</span><span class="p">,</span> <span class="s1">&#39;wi_fi&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Iterate through interfaces</strong>:</p>
+<p>Loops through all interfaces and their address entries, filtering only for <strong>IPv4 addresses</strong> (<cite>AF_INET</cite>) that are not <strong>loopback</strong> (<cite>127.*</cite>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">family</span> <span class="o">==</span> <span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">address</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;127.&quot;</span><span class="p">):</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Classify and select IP addresses</strong>:</p>
+<ul class="simple">
+<li><p>For <strong>Ethernet</strong> interfaces:</p>
+<ul>
+<li><p>Match name using <cite>ethernetPatterns</cite></p></li>
+<li><p>Skip <strong>APIPA addresses</strong> (i.e. <cite>169.254.*.*</cite> range, which indicate failed DHCP assignment)</p></li>
+<li><p>Assign the first matching, valid IP to <cite>ethernetIp</cite></p></li>
+</ul>
+</li>
+<li><p>For <strong>Wi-Fi</strong> interfaces:</p>
+<ul>
+<li><p>Match name using <cite>wifiPatterns</cite></p></li>
+<li><p>Assign first valid IP to <cite>wifiIp</cite></p></li>
+</ul>
+</li>
+</ul>
+<p>This ensures that <strong>Ethernet is prioritized</strong>, but Wi-Fi is used as a fallback.</p>
+</li>
+<li><p><strong>Return logic</strong>:</p>
+<ul class="simple">
+<li><p>If a valid Ethernet IP was found: return it and print the selection.</p></li>
+<li><p>Else if a valid Wi-Fi IP was found: return it and print a fallback message.</p></li>
+<li><p>Else: return a default <cite>“0.0.0.0”</cite> and print a warning.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">ethernetIp</span><span class="p">:</span>
+   <span class="k">return</span> <span class="n">ethernetIp</span>
+<span class="k">elif</span> <span class="n">wifiIp</span><span class="p">:</span>
+   <span class="k">return</span> <span class="n">wifiIp</span>
+<span class="k">else</span><span class="p">:</span>
+   <span class="k">return</span> <span class="n">default</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="console-output">
+<h4>Console Output<a class="headerlink" href="#console-output" title="Link to this heading"></a></h4>
+<p>Depending on the selected result, the function prints a contextual message to the console:</p>
+<ul class="simple">
+<li><p><cite>“Ethernet IP Address: &lt;ip&gt;”</cite></p></li>
+<li><p><cite>“No Ethernet interface detected. Falling back to Wi-Fi.”</cite></p></li>
+<li><p><cite>“Wi-Fi IP Address: &lt;ip&gt;”</cite></p></li>
+<li><p><cite>“No Ethernet or Wi-Fi network detected on this machine.”</cite></p></li>
+<li><p><cite>“Using default address 0.0.0.0”</cite></p></li>
+</ul>
+<p>These messages aid debugging during startup or troubleshooting in environments where networking may be unreliable.</p>
+</section>
+<section id="usage-scenario">
+<h4>Usage Scenario<a class="headerlink" href="#usage-scenario" title="Link to this heading"></a></h4>
+<p>This function is commonly used at system or server initialization time to:</p>
+<ul class="simple">
+<li><p>Report which interface will be used for <strong>network binding</strong> (e.g., Modbus TCP).</p></li>
+<li><p>Show diagnostics or status in a GUI or terminal.</p></li>
+<li><p>Avoid binding services to the wrong interface.</p></li>
+</ul>
+</section>
+<section id="id75">
+<h4>Limitations<a class="headerlink" href="#id75" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Interface name pattern matching is <strong>heuristic-based</strong> and not foolproof — it may miss obscure naming schemes.</p></li>
+<li><p>Assumes <strong>English or Chinese interface labels</strong>. Will not work as expected if system is localized to another language without matching keywords.</p></li>
+<li><p>Does not support <strong>IPv6</strong> or multiple NIC prioritization strategies (e.g., metric-based routing).</p></li>
+<li><p>Only selects <strong>one IP</strong>, even if multiple Ethernet/Wi-Fi adapters are active.</p></li>
+</ul>
+</section>
+<section id="id76">
+<h4>Recommendations<a class="headerlink" href="#id76" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Extend the <cite>ethernetPatterns</cite> and <cite>wifiPatterns</cite> lists for non-standard naming in industrial or embedded platforms.</p></li>
+<li><p>Add support for selecting interfaces based on <strong>gateway reachability</strong> or <strong>routing table priority</strong> for more robust detection.</p></li>
+<li><p>Consider allowing <strong>manual IP override</strong> through a configuration file or environment variable in production systems.</p></li>
+</ul>
+</section>
+</section>
 </section>
 <section id="serialselector">
-<span id="id63"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
+<span id="id77"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
+<section id="id78">
+<h3>Overview<a class="headerlink" href="#id78" title="Link to this heading"></a></h3>
+<p>The <cite>serialSelector</cite> module provides utility logic for detecting and selecting the appropriate USB serial port to which the XBee radio is connected. It simplifies setup by automating the process of identifying the correct USB interface based on its hardware serial number (HWID).</p>
+<p>This module can also be run as a standalone CLI utility using a <cite>–get</cite> flag to print all connected serial devices and help users configure their system correctly by copying the HWID into the <cite>variables.py</cite> file.</p>
+<section id="id79">
+<h4>Key Functionalities<a class="headerlink" href="#id79" title="Link to this heading"></a></h4>
+<ol class="arabic simple">
+<li><p><strong>Auto-select USB Serial Port</strong>:
+- Detects all connected USB or COM serial devices.
+- Matches the correct port using a preconfigured serial number from the <cite>variables</cite> module.</p></li>
+<li><p><strong>User Prompt Utility (CLI Mode)</strong>:
+- When run as a standalone script with the <cite>–get</cite> flag, it lists all connected serial devices with their <cite>port</cite> and <cite>hwid</cite>.
+- Assists users in identifying and copying the correct hardware serial number for XBee connection setup.</p></li>
+<li><p><strong>Error Handling</strong>:
+- Gracefully handles user interruption (e.g., <cite>Ctrl+C</cite>), serial access issues, and other exceptions.</p></li>
+</ol>
+</section>
+<section id="id80">
+<h4>Imports<a class="headerlink" href="#id80" title="Link to this heading"></a></h4>
+<p>The module makes use of the following Python libraries and packages:</p>
+<ul class="simple">
+<li><p><strong>serial</strong>: From <cite>pyserial</cite>, for enumerating and interacting with serial ports.</p></li>
+<li><p><strong>serial.tools.list_ports</strong>: For retrieving a list of all serial ports on the system.</p></li>
+<li><p><strong>argparse</strong>: For parsing command-line arguments in standalone mode.</p></li>
+<li><p><strong>sys</strong>: To exit gracefully after displaying results.</p></li>
+<li><p><strong>asyncio</strong>: Imported for potential future use, although unused in this module directly.</p></li>
+<li><p><strong>digi.xbee.devices.XBeeDevice</strong>: Imported to support XBee device interaction (future integration).</p></li>
+<li><p><strong>functools.partial</strong>: Imported but unused in the current module implementation.</p></li>
+<li><p><strong>variables</strong> (local import): Contains user-defined configuration, specifically the <cite>prefferedRadioSerialNumber</cite>.</p></li>
+</ul>
+</section>
+<section id="id81">
+<h4>Usage<a class="headerlink" href="#id81" title="Link to this heading"></a></h4>
+<p>The module is typically used in two ways:</p>
+<ol class="arabic">
+<li><p><strong>Programmatic Access</strong> (from other modules):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">modules.serialSelector</span><span class="w"> </span><span class="kn">import</span> <span class="n">selectUsbPort</span>
+<span class="n">port</span> <span class="o">=</span> <span class="n">selectUsbPort</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Command-Line Utility</strong> (standalone):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>modules.serialSelector<span class="w"> </span>--get
+</pre></div>
+</div>
+<p>This prints a list of all detected USB/COM ports with their HWIDs, helping the user determine which value to set in <cite>variables.prefferedRadioSerialNumber</cite>.</p>
+</li>
+</ol>
+</section>
+<section id="id82">
+<h4>Dependencies<a class="headerlink" href="#id82" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>This module depends on <cite>pyserial</cite> and <cite>digi-xbee</cite>.</p></li>
+<li><p>It also requires a correctly defined <cite>prefferedRadioSerialNumber</cite> in the <cite>variables.py</cite> module to perform auto-selection.</p></li>
+<li><p>The XBee device itself is not opened or initialized here, but the port returned can be passed to <cite>XBeeDevice</cite> elsewhere in the application.</p></li>
+</ul>
+</section>
+</section>
+<section id="selectusbport">
+<h3>selectUsbPort<a class="headerlink" href="#selectusbport" title="Link to this heading"></a></h3>
+<section id="definition">
+<h4>Definition<a class="headerlink" href="#definition" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">selectUsbPort</span><span class="p">(</span><span class="n">get</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h4>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h4>
+<p>Detects and returns the USB serial port corresponding to the preferred XBee radio device.
+It does this by scanning all available serial ports and matching them against a known hardware serial substring defined in the <cite>variables.prefferedRadioSerialNumber</cite>.</p>
+<p>If the <cite>get</cite> argument is set to <cite>True</cite>, the function prints all available USB/COM ports along with their hardware IDs, helping the user identify the correct device to configure in the <cite>variables</cite> module. In this mode, the program exits after displaying information.</p>
+</section>
+<section id="parameters">
+<h4>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">g</span></code> (<cite>bool</cite>): Optional flag (default <cite>False</cite>).
+If <cite>True</cite>, displays connected serial devices and exits.</p></li>
+</ul>
+</section>
+<section id="returns">
+<h4>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>(<cite>str</cite> or <cite>None</cite>) The matched USB port device name (e.g., <cite>‘COM3’</cite>, <cite>‘/dev/ttyUSB0’</cite>) if found.
+Returns <cite>None</cite> if no matching port is found or if an error occurs.</p></li>
+</ul>
+</section>
+<section id="behavior">
+<h4>Behavior<a class="headerlink" href="#behavior" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Uses <cite>serial.tools.list_ports.comports()</cite> to fetch a list of connected serial devices.</p></li>
+<li><p>Filters ports that include <cite>“USB”</cite> or <cite>“COM”</cite> in their names.</p></li>
+<li><p>If <cite>get</cite> is <cite>True</cite>, prints out all discovered serial devices and exits the program.</p></li>
+<li><p>Otherwise, searches for the port whose hardware ID contains the configured serial substring from <cite>variables.prefferedRadioSerialNumber</cite>.</p></li>
+<li><p>If found, returns the matching port name.</p></li>
+<li><p>If not found, prints guidance to the user to run the script with <cite>–g</cite> and update the <cite>variables.py</cite> file accordingly.</p></li>
+</ul>
+</section>
+<section id="exceptions-handled">
+<h4>Exceptions Handled<a class="headerlink" href="#exceptions-handled" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><cite>KeyboardInterrupt</cite>: Gracefully exits if the user aborts the operation.</p></li>
+<li><p><cite>serial.SerialException</cite>: Handles issues with accessing serial ports.</p></li>
+<li><p><cite>Exception</cite>: Catches any other unexpected error and logs it.</p></li>
+</ul>
+</section>
+<section id="id83">
+<h4>Example Usage<a class="headerlink" href="#id83" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Called during startup to automatically bind to the correct port</span>
+<span class="n">port</span> <span class="o">=</span> <span class="n">selectUsbPort</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">port</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using port: </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No valid USB port found. Check your connections and configuration.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="cli-mode">
+<h4>CLI Mode<a class="headerlink" href="#cli-mode" title="Link to this heading"></a></h4>
+<p>This function can also be triggered directly via command line:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>modules.serialSelector<span class="w"> </span>--g
+</pre></div>
+</div>
+<p>This prints all connected serial devices with hardware info, and helps configure the correct serial number in <cite>variables.py</cite>.</p>
+</section>
+</section>
+<section id="main-execution-block">
+<h3>__main__ Execution Block<a class="headerlink" href="#main-execution-block" title="Link to this heading"></a></h3>
+<section id="id84">
+<h4>Definition<a class="headerlink" href="#id84" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;USB Port Selector Script&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Define flags</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-g&quot;</span><span class="p">,</span> <span class="s2">&quot;--get&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Retrieve and display the USB port with the preferred serial number.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Parse the arguments</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">selectUsbPort</span><span class="p">(</span><span class="n">get</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id85">
+<h4>Description<a class="headerlink" href="#id85" title="Link to this heading"></a></h4>
+<p>This block enables the <cite>serialSelector</cite> module to be run directly as a standalone script.
+It provides a command-line interface (CLI) for interacting with the USB port selection logic, especially useful for discovering connected XBee radios and retrieving their serial number information.</p>
+</section>
+<section id="id86">
+<h4>Behavior<a class="headerlink" href="#id86" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Uses Python’s built-in <cite>argparse</cite> module to define a CLI interface.</p></li>
+<li><p>Adds a <cite>–get</cite> (or <cite>-g</cite>) flag to allow users to retrieve and display all connected USB/COM serial devices.</p></li>
+<li><p>After parsing command-line arguments, calls the <cite>selectUsbPort(get=args.get)</cite> function:</p>
+<ul>
+<li><p>If <cite>–get</cite> is supplied, it prints detailed serial port info and exits.</p></li>
+<li><p>If not, it proceeds with normal serial port selection.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="command-line-usage">
+<h4>Command-Line Usage<a class="headerlink" href="#command-line-usage" title="Link to this heading"></a></h4>
+<p>To retrieve connected USB serial devices and their hardware IDs:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>modules.serialSelector<span class="w"> </span>--get
+</pre></div>
+</div>
+<p>This is especially helpful during initial setup to determine the correct value for <cite>variables.prefferedRadioSerialNumber</cite>.</p>
+</section>
+<section id="typical-use-case">
+<h4>Typical Use Case<a class="headerlink" href="#typical-use-case" title="Link to this heading"></a></h4>
+<p>This block is mainly for developer or deployment-time use when verifying or configuring the USB connection between the XBee radio and the system.</p>
+</section>
+<section id="note">
+<h4>Note<a class="headerlink" href="#note" title="Link to this heading"></a></h4>
+<p>In actual runtime, port selection is typically done automatically by calling <cite>selectUsbPort()</cite> from another module, using the configured serial number in <cite>variables.py</cite>.</p>
+</section>
+</section>
 </section>
 <section id="variables">
-<span id="id64"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+<span id="id87"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
 </section>
 <section id="xbeedata">
-<span id="id65"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+<span id="id88"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
 </section>
 <section id="xbeedummydatatransmitter">
-<span id="id66"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+<span id="id89"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
 </section>
 </section>
 
