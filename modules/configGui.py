@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from .modbus import getIpAddress
-from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails, updateReusableAddress
+from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails, updateReusableAddress, updateAllEndAddress
 
 class Modbus_GUI(tk.Tk):
 
@@ -26,11 +26,18 @@ class Modbus_GUI(tk.Tk):
         self.config_button = tk.Button(self.head_frame, text="Configure Serial Port", bg="blue", fg="white", command = self.configure_button)
         self.config_button.grid(row=0, column=2, padx=20 , pady = 5)
 
-        self.add_label = tk.Label(self.head_frame, text="Add New Entry")
-        self.add_label.grid(row =1, column= 0,columnspan=3)
+        self.canvas = tk.Canvas(self, width=800, height=8)
+        self.canvas.pack()
+
+
+        self.canvas.create_line(0, 3, 800, 3, fill="#D3D3D3")
+        
 
         self.add_entry_frame = tk.Frame(self)
         self.add_entry_frame.pack(fill="both")
+
+        self.add_label = tk.Label(self.add_entry_frame, text="Add New Entry")
+        self.add_label.grid(row =0, column= 0,columnspan=3)
 
         self.node_identifier_label = tk.Label(self.add_entry_frame, text="Node Identifier: ", width=40)
         self.node_identifier_label.grid(row=1, column=0, padx=10, pady=10, sticky='w')
@@ -458,39 +465,52 @@ class Modbus_GUI(tk.Tk):
             if line.startswith("modbusPort"):
                 self.modbus_port = line.split("=", 1)[1].strip()
 
+            if line.startswith("incrementalModbusAddress"):
+                self.incremental_address = line.split("=")[1].strip()
+            
+
         self.configure_window = tk.Toplevel(self)
-        self.configure_window.title("Configure Serial Port")
+        self.configure_window.title("Configuration Window")
 
         self.configure_frame = tk.Frame(self.configure_window, padx=20, pady=20)
         self.configure_frame.pack(fill="both")
 
-        self.serial_label = tk.Label(self.configure_frame, text="Serial Port: ", width=20)
+        self.serial_label = tk.Label(self.configure_frame, text="Serial Number: ", width=30)
         self.serial_label.grid(row=1, column=0, pady=10, sticky='w')
         self.serial_input = tk.Entry(self.configure_frame, width=50)
         self.serial_input.grid(row=1, column=1, pady=10, sticky='w')
         self.serial_input.insert(0, self.serial_number)
 
-        self.modbus_label = tk.Label(self.configure_frame, text="Modbus Port: ", width=20)
+        self.modbus_label = tk.Label(self.configure_frame, text="Modbus Port: ", width=30)
         self.modbus_label.grid(row=2, column=0, pady=10, sticky='w')
         self.modbus_input = tk.Entry(self.configure_frame, width=50)
         self.modbus_input.grid(row=2, column=1, pady=10, sticky='w')
         self.modbus_input.insert(0, self.modbus_port)
 
+        self.incremental_address_label = tk.Label(self.configure_frame, text="Incremental Modbus Address: ", width=30)
+        self.incremental_address_label .grid(row=3, column=0, pady=10, sticky='w')
+        self.incremental_address_input= tk.Entry(self.configure_frame, width=50)
+        self.incremental_address_input.grid(row=3, column=1, pady=10, sticky='w')
+        self.incremental_address_input.insert(0, self.incremental_address)
+
         self.save_button = tk.Button(self.configure_frame, text="Save", padx=20, pady=10,bg="blue", fg="white", command = self.read_serial_and_modbusport)
-        self.save_button.grid(row=3, column=0, columnspan=2, pady=10)
+        self.save_button.grid(row=4, column=0, columnspan=2, pady=10)
 
 
         
     def read_serial_and_modbusport(self):
         filename = "modules/variables.py"
         update = False
+        flag = False
+        result = []
 
         with open(filename, "r") as file:
             lines = file.readlines()
     
 
         new_serial_number = str(self.serial_input.get())
-        new_modbus_port = int(self.modbus_input.get())  
+        new_modbus_port = int(self.modbus_input.get()) 
+        new_incremental_address = int(self.incremental_address_input.get()) 
 
         
         for i, line in enumerate(lines):
@@ -498,34 +518,59 @@ class Modbus_GUI(tk.Tk):
                     self.old_serial_number = line.split("=", 1)[1].strip()
                     self.old_serial_number = str(self.old_serial_number).replace('"', '')
                     if new_serial_number != self.old_serial_number:
-                        lines[i] = f'prefferedRadioSerialNumber = "{new_serial_number}"\n'
+                        new_line =  f'prefferedRadioSerialNumber = "{new_serial_number}"\n'
+                        lines[i] = new_line
+                        result.append(new_line)
                         update = True
 
 
                 if line.startswith("modbusPort"):
                     self.old_modbus_port = int(line.split("=")[1].strip())
                     if new_modbus_port != self.old_modbus_port:
-                        lines[i] = f'modbusPort = {new_modbus_port}\n'
+                        new_line = f'modbusPort = {new_modbus_port}\n'
+                        lines[i] = new_line
+                        result.append(new_line)
                         update = True
+
+                if line.startswith("incrementalModbusAddress"):
+                    self.old_incremental_address = int(line.split("=")[1].strip())
+                    if new_incremental_address != self.old_incremental_address:
+                        new_line =  f'incrementalModbusAddress = {new_incremental_address}\n'
+                        lines[i] = new_line
+                        result.append(new_line) 
+                        update = True
+                        flag = True
+
 
         
         if update:
-            response = messagebox.askyesno(title="Are you sure?", message=f"Are you fine with this update? \n\nSerial Number: {new_serial_number} \nModbus Port: {new_modbus_port}")
+            joined_response = ', \n'.join(str(item) for item in result)
+            response = messagebox.askyesno(title="Are you sure?", message=f"Are you fine with this update? \n\n{joined_response}")
 
             if response:
                 with open(filename, "w") as file:
-                    file.writelines(lines)   
-            
-                messagebox.showinfo(title="Success", message="Configuration updated successfully.")
+                    file.writelines(lines)  
+
+                if flag:
+                    answer = messagebox.askyesno(title="Would you like to", message=f"Would you like to update the Modbus End Address? \n\nThis will update all the end addresses of the configured radios.")
+
+                    if answer:
+                        value = updateAllEndAddress(new_incremental_address)
+                        print(value)
+                        if value.get("error") == None:
+                            messagebox.showinfo(title="Success", message= f'Successfully {value.get("success")} configured radios.')
+                            self.refresh()
+                        else:
+                            messagebox.showerror(title="Error", message= str(value.get("error")))                       
+
+                messagebox.showinfo(title="Success", message="Variable updated successfully.")
+
+
+
         
         else:
             messagebox.showerror(title="Error", message="No new update detected.")
-
-        
-            
-
-
-                    
+ 
             
         
         self.configure_window.destroy()
