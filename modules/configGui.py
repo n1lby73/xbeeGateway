@@ -470,12 +470,12 @@ class Modbus_GUI(tk.Tk):
             
 
         self.configure_window = tk.Toplevel(self)
-        self.configure_window.title("Configure Serial Port")
+        self.configure_window.title("Configuration Window")
 
         self.configure_frame = tk.Frame(self.configure_window, padx=20, pady=20)
         self.configure_frame.pack(fill="both")
 
-        self.serial_label = tk.Label(self.configure_frame, text="Serial Port: ", width=30)
+        self.serial_label = tk.Label(self.configure_frame, text="Serial Number: ", width=30)
         self.serial_label.grid(row=1, column=0, pady=10, sticky='w')
         self.serial_input = tk.Entry(self.configure_frame, width=50)
         self.serial_input.grid(row=1, column=1, pady=10, sticky='w')
@@ -570,12 +570,7 @@ class Modbus_GUI(tk.Tk):
         
         else:
             messagebox.showerror(title="Error", message="No new update detected.")
-
-        
-            
-
-
-                    
+ 
             
         
         self.configure_window.destroy()
