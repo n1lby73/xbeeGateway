@@ -602,15 +602,13 @@ Together with `startProcess`, it ensures a robust, fault-tolerant startup and sh
 .. _configGui:
 
 configGui
------------
-
-Gateway Configuration GUI
-================
+----------
 
 This Tkinter-based GUI allows users to configure the XBee network and Modbus communication settings for the gateway.
 
 GUI Components
---------------
+^^^^^^^^^^^^^^
+
 The interface consists of several main sections:
 
 1. **Header Section**
@@ -645,7 +643,7 @@ The interface consists of several main sections:
 
 
 Dependencies
-------------
+^^^^^^^^^^^^^
 
 - ``tkinter``
 - ``PIL.Image``, ``PIL.ImageTk``
@@ -660,7 +658,7 @@ Dependencies
 
 
 Functions:
------------
+^^^^^^^^^^
 
 .. function:: get_database(self)
 
@@ -919,7 +917,7 @@ Functions:
 
 
 Notes
------
+^^^^^^
 
 - The GUI is designed for 800x650 resolution
 - All database operations are reflected immediately in the UI
