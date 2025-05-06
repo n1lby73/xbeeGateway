@@ -334,18 +334,39 @@
 <li class="toctree-l4"><a class="reference internal" href="#id93">Dependencies</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#getnodeid">getNodeId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getnodeid">getNodeId</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id94">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function-workflow">Function Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id95">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage-status">Usage Status</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id96">Dependencies</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#cayenneparse">cayenneParse</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#decoding-process">Decoding Process</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id94">Example Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id95">Usage Context</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id96">Notes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id97">Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id97">Example Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id98">Usage Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id99">Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id100">Dependencies</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id102">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#key-features">Key Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-constants">Global Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xbee-address-definitions">XBee Address Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulated-messages">Simulated Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#softwareserial-definitions">SoftwareSerial Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#function-setup">Function: setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#function-loop">Function: loop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#function-send-transmit-request">Function: send_transmit_request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#function-calculatechecksum">Function: calculateChecksum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#function-receive-transmit-request-optional-utility">Function: receive_transmit_request (optional utility)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage-notes">Usage Notes</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1909,9 +1930,9 @@ If successful, the tree view is updated and the input fields are cleared. If an 
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The MongoDB schema is optimized for time-series storage, and each XBee device is</p>
+<p>The MongoDB schema is optimized for time-series storage, and each XBee device is
+tracked using its 64-bit MAC address.</p>
 </div>
-<p>tracked using its 64-bit MAC address.</p>
 <section id="id19">
 <h3>Module Setup<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <section id="modules-dependencies">
@@ -1968,7 +1989,7 @@ References the main MongoDB database used by the gateway system.</p></li>
 - and structurally valid according to defined system-wide rules.</p>
 <p>It is typically used during the configuration or onboarding of new XBee radio nodes to ensure
 that each device is mapped to a safe and unique holding register range in the Modbus server context.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">param int proposedStartAddress<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The first Modbus holding register address being proposed for
 assignment (e.g., 40001).</p>
@@ -1981,9 +2002,8 @@ proposed.</p>
 <dd class="field-odd"><p>Returns a validation result object:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">True</span></code> — if the proposed range is valid and available.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{&quot;error&quot;:</span> <span class="pre">&quot;&lt;reason&gt;&quot;}</span></code> — if the proposed range is</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{&quot;error&quot;:</span> <span class="pre">&quot;&lt;reason&gt;&quot;}</span></code> — if the proposed range is invalid or would conflict with existing addresses.</p></li>
 </ul>
-<p>invalid or would conflict with existing addresses.</p>
 </dd>
 <dt class="field-even">rtype<span class="colon">:</span></dt>
 <dd class="field-even"><p>Union[bool, dict]</p>
@@ -2068,30 +2088,25 @@ proposed.</p>
 <div><p>This utility function is essential for maintaining visibility into unallocated Modbus holding register blocks. It identifies address gaps between already-configured devices and updates the <cite>availableModbusAddressCollection</cite> accordingly. The available ranges can then be reused when configuring new XBee devices.</p>
 <dl class="field-list">
 <dt class="field-odd">param bool returnData<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional. If set, the function returns the list of available address blocks as a list of dictionaries.
+<dd class="field-odd"><blockquote>
+<div><p>Optional. If set, the function returns the list of available address blocks as a list of dictionaries.
 If <cite>None</cite> (default), the function runs silently and only populates the database.</p>
-</dd>
-<dt class="field-even">returns<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul>
 <li><p>If <cite>returnData</cite> is <cite>None</cite>, returns <cite>None</cite>.</p></li>
-<li><p>If address gaps are found, returns a list of available range objects:</p></li>
-</ul>
-<blockquote>
-<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span>
+<li><p>If address gaps are found, returns a list of available range objects:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;modbusAddressRange&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4010-4030&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;consumable&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;✅&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
-<dl class="simple">
-<dt>[</dt><dd><dl class="simple">
-<dt>{</dt><dd><p>“modbusAddressRange”: “4010-4030”,
-“size”: 21,
-“consumable”: “✅”</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>]</p>
-</div></blockquote>
-<ul>
+</li>
 <li><p>If no address gaps exist, returns:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;info&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;No available address gaps found.&quot;</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
@@ -2100,8 +2115,10 @@ If <cite>None</cite> (default), the function runs silently and only populates th
 <li><p>If an error occurs, returns a dictionary with <cite>error</cite> and optional <cite>details</cite>.</p></li>
 </ul>
 </dd>
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[None, list, dict]</p>
+</dl>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>Union[None, list, dict]</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -2740,6 +2757,14 @@ Only the following keys are allowed:</p>
 <section id="document-structure-example">
 <h4>Document Structure Example:<a class="headerlink" href="#document-structure-example" title="Link to this heading"></a></h4>
 <p>The inserted document has the structure:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-05-06T14:33:21.832000&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">23.4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">55.6</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;more&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 <p>This allows efficient time-series querying and historical graphing.</p>
 </section>
 <section id="failure-modes">
@@ -4011,6 +4036,71 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </section>
 <section id="getnodeid">
 <h3>getNodeId<a class="headerlink" href="#getnodeid" title="Link to this heading"></a></h3>
+<section id="id94">
+<h4>Definition<a class="headerlink" href="#id94" title="Link to this heading"></a></h4>
+<dl class="py function">
+<dt class="sig sig-object py" id="getNodeId">
+<span class="sig-name descname"><span class="pre">getNodeId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macAddress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializedXbee</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#getNodeId" title="Link to this definition"></a></dt>
+<dd><p>Attempts to retrieve the Node Identifier (NI string) of a remote XBee device using a remote AT command. This utility function is designed for debugging, diagnostics, or node identification purposes during network setup and maintenance but is currently <strong>not used</strong> in the active codebase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>macAddress</strong> (<em>str</em>) – The 64-bit MAC address of the remote XBee device.</p></li>
+<li><p><strong>initializedXbee</strong> (<em>digi.xbee.devices.XBeeDevice</em>) – An active and initialized <cite>XBeeDevice</cite> instance from the Digi XBee Python library.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Node Identifier (NI string) of the remote XBee device, or <cite>“UNKNOWN”</cite> if it cannot be retrieved.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="function-workflow">
+<h4>Function Workflow<a class="headerlink" href="#function-workflow" title="Link to this heading"></a></h4>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>A <cite>RemoteXBeeDevice</cite> instance is created using the provided MAC address and the initialized local XBee device.</p></li>
+<li><p>A remote AT command <cite>“NI”</cite> is issued to request the Node Identifier string from the target XBee device.</p></li>
+<li><p>If a valid response is returned and the <cite>parameter</cite> field is not <cite>None</cite>, the NI string is decoded from bytes to a UTF-8 string.</p></li>
+<li><p>If no valid response is received or an error occurs during the process, <cite>“UNKNOWN”</cite> is returned as a fallback.</p></li>
+</ol>
+</div></blockquote>
+</section>
+<section id="id95">
+<h4>Error Handling<a class="headerlink" href="#id95" title="Link to this heading"></a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p>If any exception occurs during the AT command or decoding process, it is caught and logged with an error message.</p></li>
+<li><p>All failures result in a return value of <cite>“UNKNOWN”</cite> to maintain compatibility and prevent hard crashes.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nodeId</span> <span class="o">=</span> <span class="n">getNodeId</span><span class="p">(</span><span class="s2">&quot;0013A200419717AE&quot;</span><span class="p">,</span> <span class="n">xbeeInstance</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Remote Node ID is: </span><span class="si">{</span><span class="n">nodeId</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="usage-status">
+<h4>Usage Status<a class="headerlink" href="#usage-status" title="Link to this heading"></a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Currently not in use</strong> in the production code.</p></li>
+<li><p>It may be useful in future implementations for enhanced node discovery, logging, or debugging during deployments.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id96">
+<h4>Dependencies<a class="headerlink" href="#id96" title="Link to this heading"></a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>digi.xbee.devices.RemoteXBeeDevice</cite> for remote device representation.</p></li>
+<li><p><cite>digi.xbee.devices.XBeeDevice.send_remote_at_command()</cite> for issuing AT commands.</p></li>
+</ul>
+</div></blockquote>
+</section>
 </section>
 <section id="cayenneparse">
 <h3>cayenneParse<a class="headerlink" href="#cayenneparse" title="Link to this heading"></a></h3>
@@ -4047,22 +4137,22 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </ol>
 </div></blockquote>
 </section>
-<section id="id94">
-<h4>Example Output<a class="headerlink" href="#id94" title="Link to this heading"></a></h4>
+<section id="id97">
+<h4>Example Output<a class="headerlink" href="#id97" title="Link to this heading"></a></h4>
 <blockquote>
 <div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>List of values extracted from 0013A200419717AE byte array are: [22.4, 56.3, 1.02]
 </pre></div>
 </div>
 </div></blockquote>
 </section>
-<section id="id95">
-<h4>Usage Context<a class="headerlink" href="#id95" title="Link to this heading"></a></h4>
+<section id="id98">
+<h4>Usage Context<a class="headerlink" href="#id98" title="Link to this heading"></a></h4>
 <blockquote>
 <div><p>This function is used in the <code class="xref py py-func docutils literal notranslate"><span class="pre">modbusPolling()</span></code> routine (found in the <cite>modbus</cite> module), which receives raw data from the XBee serial interface, parses it using <cite>cayenneParse()</cite>, and writes the resulting floats into Modbus registers for network exposure.</p>
 </div></blockquote>
 </section>
-<section id="id96">
-<h4>Notes<a class="headerlink" href="#id96" title="Link to this heading"></a></h4>
+<section id="id99">
+<h4>Notes<a class="headerlink" href="#id99" title="Link to this heading"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p>Any sensor value that is <cite>None</cite> is skipped silently.</p></li>
@@ -4071,8 +4161,8 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </ul>
 </div></blockquote>
 </section>
-<section id="id97">
-<h4>Dependencies<a class="headerlink" href="#id97" title="Link to this heading"></a></h4>
+<section id="id100">
+<h4>Dependencies<a class="headerlink" href="#id100" title="Link to this heading"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p><cite>python_cayennelpp.decoder.decode</cite> for Cayenne LPP decoding.</p></li>
@@ -4084,7 +4174,125 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </section>
 </section>
 <section id="xbeedummydatatransmitter">
-<span id="id98"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+<span id="id101"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+<section id="id102">
+<h3>Overview<a class="headerlink" href="#id102" title="Link to this heading"></a></h3>
+<p>Simulates XBee slave devices broadcasting structured sensor data via SoftwareSerial.
+Each slave sends a structured sensor message wrapped in an XBee Transmit Request frame to the master.
+Frames are sent via SoftwareSerial and printed to the Serial monitor for inspection.</p>
+<p>This sketch is useful for simulating XBee slaves in a lab/test environment when actual hardware is limited.</p>
+</section>
+<section id="key-features">
+<h3>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Emulates 4 XBee slave devices.</p></li>
+<li><p>Sends structured payloads with XBee API frames.</p></li>
+<li><p>Uses SoftwareSerial to simulate individual slaves.</p></li>
+<li><p>Manually constructs and validates API frames and checksums.</p></li>
+</ul>
+</section>
+<section id="global-constants">
+<h3>Global Constants<a class="headerlink" href="#global-constants" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define META_DATA_LEN 17</span>
+<span class="cp">#define START_DELIMITER 0x7E</span>
+<span class="cp">#define START_DELIMITER_OFFSET 0</span>
+</pre></div>
+</div>
+</section>
+<section id="xbee-address-definitions">
+<h3>XBee Address Definitions<a class="headerlink" href="#xbee-address-definitions" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">master_addr</span><span class="p">[]</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x13</span><span class="p">,</span><span class="w"> </span><span class="mh">0xA2</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x42</span><span class="p">,</span><span class="w"> </span><span class="mh">0x39</span><span class="p">,</span><span class="w"> </span><span class="mh">0xE8</span><span class="p">,</span><span class="w"> </span><span class="mh">0x4F</span><span class="p">};</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">slave_1_addr</span><span class="p">[]</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x13</span><span class="p">,</span><span class="w"> </span><span class="mh">0xA2</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x42</span><span class="p">,</span><span class="w"> </span><span class="mh">0x5B</span><span class="p">,</span><span class="w"> </span><span class="mh">0xE1</span><span class="p">,</span><span class="w"> </span><span class="mh">0x07</span><span class="p">};</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">slave_2_addr</span><span class="p">[]</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x13</span><span class="p">,</span><span class="w"> </span><span class="mh">0xA2</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x42</span><span class="p">,</span><span class="w"> </span><span class="mh">0x39</span><span class="p">,</span><span class="w"> </span><span class="mh">0xEB</span><span class="p">,</span><span class="w"> </span><span class="mh">0xCC</span><span class="p">};</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">slave_3_addr</span><span class="p">[]</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x13</span><span class="p">,</span><span class="w"> </span><span class="mh">0xA2</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x42</span><span class="p">,</span><span class="w"> </span><span class="mh">0x39</span><span class="p">,</span><span class="w"> </span><span class="mh">0xE3</span><span class="p">,</span><span class="w"> </span><span class="mh">0xE2</span><span class="p">};</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">broadcast_addr</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">,</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="simulated-messages">
+<h3>Simulated Messages<a class="headerlink" href="#simulated-messages" title="Link to this heading"></a></h3>
+<p>Each message is a simulated Cayenne payload, unique per slave.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">slave1_message</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">};</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">slave2_message</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">};</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">slave3_message</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">};</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">slave4_message</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="softwareserial-definitions">
+<h3>SoftwareSerial Definitions<a class="headerlink" href="#softwareserial-definitions" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">SoftwareSerial</span><span class="w"> </span><span class="nf">slave1_serial</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<span class="n">SoftwareSerial</span><span class="w"> </span><span class="nf">slave2_serial</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+<span class="n">SoftwareSerial</span><span class="w"> </span><span class="nf">slave3_serial</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span>
+<span class="n">SoftwareSerial</span><span class="w"> </span><span class="nf">slave4_serial</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="function-setup">
+<h3>Function: setup<a class="headerlink" href="#function-setup" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">pinMode</span><span class="p">(</span><span class="n">LED_BUILTIN</span><span class="p">,</span><span class="w"> </span><span class="n">OUTPUT</span><span class="p">);</span>
+<span class="w">  </span><span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
+<span class="w">  </span><span class="n">slave1_serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
+<span class="w">  </span><span class="n">slave2_serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
+<span class="w">  </span><span class="n">slave3_serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
+<span class="w">  </span><span class="n">slave4_serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Initializes serial ports and sets up slave communication channels.</p>
+</section>
+<section id="function-loop">
+<h3>Function: loop<a class="headerlink" href="#function-loop" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">send_transmit_request</span><span class="p">(</span><span class="n">slave1_serial</span><span class="p">,</span><span class="w"> </span><span class="n">broadcast_addr</span><span class="p">,</span><span class="w"> </span><span class="n">slave1_message</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">slave1_message</span><span class="p">));</span>
+<span class="w">  </span><span class="n">send_transmit_request</span><span class="p">(</span><span class="n">slave2_serial</span><span class="p">,</span><span class="w"> </span><span class="n">broadcast_addr</span><span class="p">,</span><span class="w"> </span><span class="n">slave2_message</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">slave2_message</span><span class="p">));</span>
+<span class="w">  </span><span class="n">send_transmit_request</span><span class="p">(</span><span class="n">slave3_serial</span><span class="p">,</span><span class="w"> </span><span class="n">broadcast_addr</span><span class="p">,</span><span class="w"> </span><span class="n">slave3_message</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">slave3_message</span><span class="p">));</span>
+<span class="w">  </span><span class="n">send_transmit_request</span><span class="p">(</span><span class="n">slave4_serial</span><span class="p">,</span><span class="w"> </span><span class="n">broadcast_addr</span><span class="p">,</span><span class="w"> </span><span class="n">slave4_message</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">slave4_message</span><span class="p">));</span>
+<span class="w">  </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Sends a broadcast message from each simulated slave every second.</p>
+</section>
+<section id="function-send-transmit-request">
+<h3>Function: send_transmit_request<a class="headerlink" href="#function-send-transmit-request" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">send_transmit_request</span><span class="p">(</span><span class="n">SoftwareSerial</span><span class="w"> </span><span class="n">serial</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">dest_addr</span><span class="p">[],</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">message</span><span class="p">[],</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">message_len</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Constructs and sends a raw XBee Transmit Request API frame with:</p>
+<ul class="simple">
+<li><p>Frame delimiter (<cite>0x7E</cite>)</p></li>
+<li><p>Length, frame type, frame ID</p></li>
+<li><p>Destination address (64-bit + 16-bit)</p></li>
+<li><p>Broadcast radius and options</p></li>
+<li><p>Payload</p></li>
+<li><p>Checksum</p></li>
+</ul>
+<p>The frame is printed as a HEX dump on Serial.</p>
+</section>
+<section id="function-calculatechecksum">
+<h3>Function: calculateChecksum<a class="headerlink" href="#function-calculatechecksum" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">calculateChecksum</span><span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Calculates the checksum for an XBee frame, excluding the start delimiter and length fields.</p>
+</section>
+<section id="function-receive-transmit-request-optional-utility">
+<h3>Function: receive_transmit_request (optional utility)<a class="headerlink" href="#function-receive-transmit-request-optional-utility" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">receive_transmit_request</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Receives and prints an XBee API frame from Serial input. Currently unused in main logic.</p>
+</section>
+<section id="usage-notes">
+<h3>Usage Notes<a class="headerlink" href="#usage-notes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Ensure baud rate consistency across the system (<cite>9600</cite> in this case).</p></li>
+<li><p><cite>SoftwareSerial</cite> pins must be physically separate and not shared.</p></li>
+<li><p>Only one <cite>SoftwareSerial</cite> interface can be actively listening at a time—this sketch assumes slaves are transmit-only.</p></li>
+</ul>
+</section>
 </section>
 </section>
 

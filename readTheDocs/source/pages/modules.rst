@@ -515,6 +515,7 @@ Steps Breakdown
     context = contextManager()
 .. note::
     `contextManager()` is a helper function defined in the `modules.modbus` module.  
+
 It returns a `ModbusServerContext` object that holds all register blocks used in the server, including:
 
 - Discrete Inputs (DI)
@@ -1300,7 +1301,7 @@ This module manages all MongoDB-related operations for the XBee Modbus Gateway s
 
 .. note::
     The MongoDB schema is optimized for time-series storage, and each XBee device is
-tracked using its 64-bit MAC address.
+    tracked using its 64-bit MAC address.
 
 Module Setup
 ^^^^^^^^^^^^
@@ -1376,8 +1377,7 @@ Validates whether a given Modbus address range is available and conforms to syst
        Returns a validation result object:
 
        - ``True`` — if the proposed range is valid and available.
-       - ``{"error": "<reason>"}`` — if the proposed range is 
-       invalid or would conflict with existing addresses.
+       - ``{"error": "<reason>"}`` — if the proposed range is invalid or would conflict with existing addresses.
 
    :rtype: Union[bool, dict]
 
@@ -1455,21 +1455,21 @@ Scans configured Modbus address allocations and updates the database with all av
        Optional. If set, the function returns the list of available address blocks as a list of dictionaries.
        If `None` (default), the function runs silently and only populates the database.
 
-   :returns:
+      :returns:
 
        - If `returnData` is `None`, returns `None`.
-       - If address gaps are found, returns a list of available range objects:
-         
-        .. code-block:: json
 
-        [
-              {
-                "modbusAddressRange": "4010-4030",
-                "size": 21,
-                "consumable": "✅"
-              },
-              ...
-        ]
+       - If address gaps are found, returns a list of available range objects:
+
+         .. code-block:: json
+
+            [
+                {
+                    "modbusAddressRange": "4010-4030",
+                    "size": 21,
+                    "consumable": "✅"
+                }
+            ]
 
        - If no address gaps exist, returns:
 
@@ -1480,6 +1480,7 @@ Scans configured Modbus address allocations and updates the database with all av
        - If an error occurs, returns a dictionary with `error` and optional `details`.
 
    :rtype: Union[None, list, dict]
+
 
 Function Overview
 """"""""""""""""""
@@ -2067,13 +2068,16 @@ Document Structure Example:
 
 The inserted document has the structure:
 
+
 .. code-block:: json
+
     [
         {
         "timestamp": "2025-05-06T14:33:21.832000",
-        "data": [23.4, 1, 0, 55.6, ...]
+        "data": [23.4, 1, 0, 55.6, "more"]
         }
     ]
+
 This allows efficient time-series querying and historical graphing.
 
 Failure Modes
@@ -3382,7 +3386,7 @@ The `xbeeData` module is responsible for decoding and parsing sensor payloads re
 It serves as the bridge between raw radio transmission and structured application logic by applying decoding logic (using the Cayenne LPP format), extracting sensor values, and optionally interfacing with the database layer to store historical readings. This module helps centralize and abstract payload handling so other modules (such as the Modbus poller or analytics systems) can operate on clean, float-based sensor readings.
 
 Key Responsibilities
-"""""""""""""""""""
+"""""""""""""""""""""
 
 - Decode XBee-transmitted sensor payloads from binary to float values using the **Cayenne Low Power Payload (LPP)** decoding format via the third-party `python_cayennelpp` package.
 - Maintain consistent extraction of `value` fields from each decoded item.
@@ -3410,6 +3414,56 @@ This module provides a focused and reusable interface to interpret incoming payl
 
 getNodeId
 ^^^^^^^^^^
+
+Definition
+"""""""""""
+
+.. function:: getNodeId(macAddress, initializedXbee)
+
+    Attempts to retrieve the Node Identifier (NI string) of a remote XBee device using a remote AT command. This utility function is designed for debugging, diagnostics, or node identification purposes during network setup and maintenance but is currently **not used** in the active codebase.
+
+    :param macAddress: The 64-bit MAC address of the remote XBee device.
+    :type macAddress: str
+
+    :param initializedXbee: An active and initialized `XBeeDevice` instance from the Digi XBee Python library.
+    :type initializedXbee: digi.xbee.devices.XBeeDevice
+
+    :returns: The Node Identifier (NI string) of the remote XBee device, or `"UNKNOWN"` if it cannot be retrieved.
+    :rtype: str
+
+Function Workflow
+""""""""""""""""""
+
+    1. A `RemoteXBeeDevice` instance is created using the provided MAC address and the initialized local XBee device.
+    2. A remote AT command `"NI"` is issued to request the Node Identifier string from the target XBee device.
+    3. If a valid response is returned and the `parameter` field is not `None`, the NI string is decoded from bytes to a UTF-8 string.
+    4. If no valid response is received or an error occurs during the process, `"UNKNOWN"` is returned as a fallback.
+
+Error Handling
+""""""""""""""
+
+    - If any exception occurs during the AT command or decoding process, it is caught and logged with an error message.
+    - All failures result in a return value of `"UNKNOWN"` to maintain compatibility and prevent hard crashes.
+
+    **Example Use Case (Hypothetical)**
+    -----------------------------------
+
+    .. code-block:: python
+
+        nodeId = getNodeId("0013A200419717AE", xbeeInstance)
+        print(f"Remote Node ID is: {nodeId}")
+
+Usage Status
+"""""""""""""
+
+    - **Currently not in use** in the production code.
+    - It may be useful in future implementations for enhanced node discovery, logging, or debugging during deployments.
+
+Dependencies
+""""""""""""
+
+    - `digi.xbee.devices.RemoteXBeeDevice` for remote device representation.
+    - `digi.xbee.devices.XBeeDevice.send_remote_at_command()` for issuing AT commands.
 
 cayenneParse
 ^^^^^^^^^^^^
@@ -3463,8 +3517,140 @@ Dependencies
     - `storeXbeeHistoryData` from `dbIntegration` for MongoDB storage.
     - `datetime.datetime` for timestamping historical records.
 
-
 .. _xbeeDummyDataTransmitter:
 
 xbeeDummyDataTransmitter
 ----------------------------
+
+Overview
+^^^^^^^^^
+
+Simulates XBee slave devices broadcasting structured sensor data via SoftwareSerial.  
+Each slave sends a structured sensor message wrapped in an XBee Transmit Request frame to the master.  
+Frames are sent via SoftwareSerial and printed to the Serial monitor for inspection.
+
+This sketch is useful for simulating XBee slaves in a lab/test environment when actual hardware is limited.
+
+Key Features
+^^^^^^^^^^^^^
+
+- Emulates 4 XBee slave devices.
+- Sends structured payloads with XBee API frames.
+- Uses SoftwareSerial to simulate individual slaves.
+- Manually constructs and validates API frames and checksums.
+
+Global Constants
+^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+    #define META_DATA_LEN 17
+    #define START_DELIMITER 0x7E
+    #define START_DELIMITER_OFFSET 0
+
+XBee Address Definitions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+    uint8_t master_addr[]    = {0x00, 0x13, 0xA2, 0x00, 0x42, 0x39, 0xE8, 0x4F};
+    uint8_t slave_1_addr[]   = {0x00, 0x13, 0xA2, 0x00, 0x42, 0x5B, 0xE1, 0x07};
+    uint8_t slave_2_addr[]   = {0x00, 0x13, 0xA2, 0x00, 0x42, 0x39, 0xEB, 0xCC};
+    uint8_t slave_3_addr[]   = {0x00, 0x13, 0xA2, 0x00, 0x42, 0x39, 0xE3, 0xE2};
+    uint8_t broadcast_addr[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF};
+
+Simulated Messages
+^^^^^^^^^^^^^^^^^^^^^
+
+Each message is a simulated Cayenne payload, unique per slave.
+
+.. code-block:: cpp
+
+    uint8_t slave1_message[] = { ... };
+    uint8_t slave2_message[] = { ... };
+    uint8_t slave3_message[] = { ... };
+    uint8_t slave4_message[] = { ... };
+
+SoftwareSerial Definitions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+    SoftwareSerial slave1_serial(2, 3);
+    SoftwareSerial slave2_serial(4, 5);
+    SoftwareSerial slave3_serial(6, 7);
+    SoftwareSerial slave4_serial(8, 9);
+
+Function: setup
+^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+    void setup() {
+      pinMode(LED_BUILTIN, OUTPUT);
+      Serial.begin(9600);
+      slave1_serial.begin(9600);
+      slave2_serial.begin(9600);
+      slave3_serial.begin(9600);
+      slave4_serial.begin(9600);
+    }
+
+Initializes serial ports and sets up slave communication channels.
+
+Function: loop
+^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+    void loop() {
+      send_transmit_request(slave1_serial, broadcast_addr, slave1_message, sizeof(slave1_message));
+      send_transmit_request(slave2_serial, broadcast_addr, slave2_message, sizeof(slave2_message));
+      send_transmit_request(slave3_serial, broadcast_addr, slave3_message, sizeof(slave3_message));
+      send_transmit_request(slave4_serial, broadcast_addr, slave4_message, sizeof(slave4_message));
+      delay(1000);
+    }
+
+Sends a broadcast message from each simulated slave every second.
+
+Function: send_transmit_request
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+    void send_transmit_request(SoftwareSerial serial, uint8_t dest_addr[], uint8_t message[], uint16_t message_len);
+
+Constructs and sends a raw XBee Transmit Request API frame with:
+
+- Frame delimiter (`0x7E`)
+- Length, frame type, frame ID
+- Destination address (64-bit + 16-bit)
+- Broadcast radius and options
+- Payload
+- Checksum
+
+The frame is printed as a HEX dump on Serial.
+
+Function: calculateChecksum
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: cpp
+
+    uint8_t calculateChecksum(uint8_t* frame, int length);
+
+Calculates the checksum for an XBee frame, excluding the start delimiter and length fields.
+
+Function: receive_transmit_request (optional utility)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. code-block:: cpp
+
+    void receive_transmit_request();
+
+Receives and prints an XBee API frame from Serial input. Currently unused in main logic.
+
+Usage Notes
+^^^^^^^^^^^^^^^^
+
+- Ensure baud rate consistency across the system (`9600` in this case).
+- `SoftwareSerial` pins must be physically separate and not shared.
+- Only one `SoftwareSerial` interface can be actively listening at a time—this sketch assumes slaves are transmit-only.
+
