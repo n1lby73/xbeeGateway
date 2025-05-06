@@ -1267,14 +1267,6 @@ Functions:
    **Dependencies:**
     - Assumes `self.search_bar` is a `tk.Entry` widget.
 
-
-
-
-
-
-
-
-
 Notes
 ^^^^^^
 
