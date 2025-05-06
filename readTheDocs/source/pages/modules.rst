@@ -3252,6 +3252,121 @@ In actual runtime, port selection is typically done automatically by calling `se
 variables
 ------------
 
+Overview
+^^^^^^^^
+
+The `variable` module serves as a centralized configuration and global state management file for the XBee Modbus gateway system.  
+It defines constants and mutable runtime variables used across multiple modules including Modbus configuration, XBee communication, and application logic.
+
+This module separates configuration from logic, enabling better modularity and maintainability of the system.
+
+Global Configuration Constants
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **prefferedRadioSerialNumber**:  
+  .. code-block:: python
+
+      prefferedRadioSerialNumber = "SER=A10NX8UT"
+
+  The USB serial number (typically from `hwid`) of the preferred XBee radio.  
+  Used by the `serialSelector` module to automatically identify the correct serial port.
+
+- **xbeeBaudRate**:  
+  .. code-block:: python
+
+      xbeeBaudRate = 9600
+
+  The baud rate used for serial communication with the XBee device.
+
+- **modbusPort**:  
+  .. code-block:: python
+
+      modbusPort = 5020
+
+  The TCP port on which the Modbus server listens.  
+  Common default is 502; this system uses 5020 to avoid conflicts and for better sandboxing.
+
+- **validMacAddressLength**:  
+  .. code-block:: python
+
+      validMacAddressLength = 16
+
+  Expected length of an XBee MAC address string (in hexadecimal digits).
+
+- **validModbusAddressLength**:  
+  .. code-block:: python
+
+      validModbusAddressLength = 3
+
+  Expected length of a valid Modbus address string (assumed to be three-digit numeric).
+
+- **incrementalModbusAddress**:  
+  .. code-block:: python
+
+      incrementalModbusAddress = 50
+
+  The number of Modbus register addresses allocated per XBee device.  
+  Ensures each device has a dedicated, non-overlapping register block.
+
+- **lowestRegister**:  
+  .. code-block:: python
+
+      lowestRegister = 0
+
+  The base (minimum) address in the Modbus register space.
+
+- **highestRegister**:  
+  .. code-block:: python
+
+      highestRegister = 1000 - incrementalModbusAddress
+
+  The upper bound of usable Modbus registers (accounting for per-device allocation).  
+  Set to avoid overflows when allocating `incrementalModbusAddress`-sized blocks.
+
+Global Runtime Variables
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **knownXbeeAddress**:  
+  .. code-block:: python
+
+      knownXbeeAddress = []
+
+  A dynamically updated list of XBee MAC addresses that have been discovered or configured.  
+  Used to track device presence and avoid duplicate configuration.
+
+- **xbeeInstance**:  
+  .. code-block:: python
+
+      xbeeInstance = None
+
+  Holds a reference to the currently connected `XBeeDevice` object.  
+  Assigned during XBee initialization and used across modules to send/receive data.
+
+- **xbeePollingTask**:  
+  .. code-block:: python
+
+      xbeePollingTask = None
+
+  Holds a reference to the asyncio Task responsible for polling XBee radios.  
+  Allows centralized task management (starting, stopping, or checking status).
+
+- **data_callback**:  
+  .. code-block:: python
+
+      data_callback = None
+
+  Placeholder for the asynchronous callback function used to process incoming XBee data packets.  
+  This is dynamically assigned to link XBee reception with user-defined logic.
+
+Usage Context
+^^^^^^^^^^^^^
+
+This module is imported into most other modules (such as `serialSelector`, `xbeeComm`, `modbus`, and `dbintegration`) to:
+
+- Maintain consistency in port, baud rate, and address allocation logic.
+- Access or update shared state variables like `xbeeInstance` and `knownXbeeAddress`.
+- Prevent magic numbers or hard-coded strings scattered throughout the codebase.
+
 
 
 .. _xbeeDAta:
@@ -3259,11 +3374,95 @@ variables
 xbeeData
 ------------
 
+Overview
+^^^^^^^^
+
+The `xbeeData` module is responsible for decoding and parsing sensor payloads received from XBee radio devices, transforming raw byte data into human-readable values, and logging this information for historical storage and debugging purposes.
+
+It serves as the bridge between raw radio transmission and structured application logic by applying decoding logic (using the Cayenne LPP format), extracting sensor values, and optionally interfacing with the database layer to store historical readings. This module helps centralize and abstract payload handling so other modules (such as the Modbus poller or analytics systems) can operate on clean, float-based sensor readings.
+
+Key Responsibilities
+"""""""""""""""""""
+
+- Decode XBee-transmitted sensor payloads from binary to float values using the **Cayenne Low Power Payload (LPP)** decoding format via the third-party `python_cayennelpp` package.
+- Maintain consistent extraction of `value` fields from each decoded item.
+- Persist decoded values to a MongoDB historian using the `storeXbeeHistoryData()` function from the `dbIntegration` module.
+- Output extracted values for human-readable debugging and operational transparency.
+- (Commented out) Provide an optional utility for retrieving XBee node identifiers (NI) through remote AT commands. This can be useful for device mapping, metadata tracking, or debugging physical deployments.
+
+Usage Context
+"""""""""""""""
+
+This module is invoked by polling functions such as `modbusPolling()` in the `modbus` module. The `cayenneParse()` coroutine is used to interpret the sensor payload returned by XBee radios and convert it into a format suitable for storage and Modbus register mapping.
+
+The output of this module is a clean list of floating-point sensor values derived from XBee data frames.
+
+Dependencies
+"""""""""""""
+
+- `digi.xbee.devices`: For handling XBee addresses and device communication (used in the commented utility).
+- `python_cayennelpp.decoder`: For decoding the payloads from Cayenne LPP format into structured sensor data.
+- `datetime`: For timestamping sensor readings during storage.
+- `dbIntegration`: Specifically for the `storeXbeeHistoryData()` function that handles database insertion of sensor logs.
+
+This module provides a focused and reusable interface to interpret incoming payloads from edge XBee devices and is a core part of the Modbus-XBee gateway data pipeline.
+
+
 getNodeId
-'''''''''''''''''''''''
+^^^^^^^^^^
 
 cayenneParse
-'''''''''''''''''''''''
+^^^^^^^^^^^^
+
+.. function:: async cayenneParse(xbeeMacAddress, xbeeByteData)
+
+    Asynchronously parses and decodes a raw payload received from an XBee radio device using the Cayenne Low Power Payload (LPP) format. This function translates the raw binary data into a list of floating-point sensor values, stores them in the MongoDB historian, and prints the decoded result for logging purposes.
+
+    This function acts as a critical link between the binary data transmitted by XBee remote nodes and the human-readable sensor values used in higher-level logic such as Modbus register updates or analytics.
+
+    :param xbeeMacAddress: The 64-bit MAC address of the XBee device that sent the payload.
+    :type xbeeMacAddress: str
+
+    :param xbeeByteData: The raw data payload received from the XBee device as a bytes object.
+    :type xbeeByteData: bytes
+
+    :returns: A list of decoded float sensor values extracted from the Cayenne-formatted payload.
+    :rtype: list[float]
+
+Decoding Process
+""""""""""""""""""
+
+    1. The raw bytes are converted into a hex string (`hexConversion`) which is required by the Cayenne decoder.
+    2. The `decode()` function from the `python_cayennelpp` package parses this hex string into a list of dictionaries, each representing a sensor reading.
+    3. The function extracts only the `value` field from each dictionary item (if it exists), casts it to a float, and appends it to a result list.
+    4. The resulting list is stored in a MongoDB database by calling :func:`storeXbeeHistoryData` with the MAC address, list of float values, and a timestamp.
+    5. The decoded values are printed to the console for debugging or operational transparency.
+
+Example Output
+""""""""""""""
+
+    .. code-block:: text
+
+        List of values extracted from 0013A200419717AE byte array are: [22.4, 56.3, 1.02]
+
+Usage Context
+""""""""""""""
+
+    This function is used in the :func:`modbusPolling()` routine (found in the `modbus` module), which receives raw data from the XBee serial interface, parses it using `cayenneParse()`, and writes the resulting floats into Modbus registers for network exposure.
+
+Notes
+""""""
+    - Any sensor value that is `None` is skipped silently.
+    - The decoder assumes that the payload strictly follows the Cayenne LPP format.
+    - The database storage is timestamped using the current system time via `datetime.datetime.now()`.
+
+Dependencies
+"""""""""""""
+
+    - `python_cayennelpp.decoder.decode` for Cayenne LPP decoding.
+    - `storeXbeeHistoryData` from `dbIntegration` for MongoDB storage.
+    - `datetime.datetime` for timestamping historical records.
+
 
 .. _xbeeDummyDataTransmitter:
 

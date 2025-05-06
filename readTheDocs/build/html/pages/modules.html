@@ -320,8 +320,31 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#variables">variables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#xbeedata">xbeeData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variables">variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id88">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-configuration-constants">Global Configuration Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-runtime-variables">Global Runtime Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id89">Usage Context</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xbeedata">xbeeData</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id91">Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#key-responsibilities">Key Responsibilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id92">Usage Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id93">Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#getnodeid">getNodeId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cayenneparse">cayenneParse</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#decoding-process">Decoding Process</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id94">Example Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id95">Usage Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id96">Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id97">Dependencies</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a></li>
 </ul>
 </li>
@@ -3836,12 +3859,232 @@ It provides a command-line interface (CLI) for interacting with the USB port sel
 </section>
 <section id="variables">
 <span id="id87"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+<section id="id88">
+<h3>Overview<a class="headerlink" href="#id88" title="Link to this heading"></a></h3>
+<p>The <cite>variable</cite> module serves as a centralized configuration and global state management file for the XBee Modbus gateway system.
+It defines constants and mutable runtime variables used across multiple modules including Modbus configuration, XBee communication, and application logic.</p>
+<p>This module separates configuration from logic, enabling better modularity and maintainability of the system.</p>
+</section>
+<section id="global-configuration-constants">
+<h3>Global Configuration Constants<a class="headerlink" href="#global-configuration-constants" title="Link to this heading"></a></h3>
+<ul>
+<li><p><strong>prefferedRadioSerialNumber</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>prefferedRadioSerialNumber = “SER=A10NX8UT”</p>
+</div></blockquote>
+<p>The USB serial number (typically from <cite>hwid</cite>) of the preferred XBee radio.
+Used by the <cite>serialSelector</cite> module to automatically identify the correct serial port.</p>
+</li>
+<li><p><strong>xbeeBaudRate</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>xbeeBaudRate = 9600</p>
+</div></blockquote>
+<p>The baud rate used for serial communication with the XBee device.</p>
+</li>
+<li><p><strong>modbusPort</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>modbusPort = 5020</p>
+</div></blockquote>
+<p>The TCP port on which the Modbus server listens.
+Common default is 502; this system uses 5020 to avoid conflicts and for better sandboxing.</p>
+</li>
+<li><p><strong>validMacAddressLength</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>validMacAddressLength = 16</p>
+</div></blockquote>
+<p>Expected length of an XBee MAC address string (in hexadecimal digits).</p>
+</li>
+<li><p><strong>validModbusAddressLength</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>validModbusAddressLength = 3</p>
+</div></blockquote>
+<p>Expected length of a valid Modbus address string (assumed to be three-digit numeric).</p>
+</li>
+<li><p><strong>incrementalModbusAddress</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>incrementalModbusAddress = 50</p>
+</div></blockquote>
+<p>The number of Modbus register addresses allocated per XBee device.
+Ensures each device has a dedicated, non-overlapping register block.</p>
+</li>
+<li><p><strong>lowestRegister</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>lowestRegister = 0</p>
+</div></blockquote>
+<p>The base (minimum) address in the Modbus register space.</p>
+</li>
+<li><p><strong>highestRegister</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>highestRegister = 1000 - incrementalModbusAddress</p>
+</div></blockquote>
+<p>The upper bound of usable Modbus registers (accounting for per-device allocation).
+Set to avoid overflows when allocating <cite>incrementalModbusAddress</cite>-sized blocks.</p>
+</li>
+</ul>
+</section>
+<section id="global-runtime-variables">
+<h3>Global Runtime Variables<a class="headerlink" href="#global-runtime-variables" title="Link to this heading"></a></h3>
+<ul>
+<li><p><strong>knownXbeeAddress</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>knownXbeeAddress = []</p>
+</div></blockquote>
+<p>A dynamically updated list of XBee MAC addresses that have been discovered or configured.
+Used to track device presence and avoid duplicate configuration.</p>
+</li>
+<li><p><strong>xbeeInstance</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>xbeeInstance = None</p>
+</div></blockquote>
+<p>Holds a reference to the currently connected <cite>XBeeDevice</cite> object.
+Assigned during XBee initialization and used across modules to send/receive data.</p>
+</li>
+<li><p><strong>xbeePollingTask</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>xbeePollingTask = None</p>
+</div></blockquote>
+<p>Holds a reference to the asyncio Task responsible for polling XBee radios.
+Allows centralized task management (starting, stopping, or checking status).</p>
+</li>
+<li><p><strong>data_callback</strong>:
+.. code-block:: python</p>
+<blockquote>
+<div><p>data_callback = None</p>
+</div></blockquote>
+<p>Placeholder for the asynchronous callback function used to process incoming XBee data packets.
+This is dynamically assigned to link XBee reception with user-defined logic.</p>
+</li>
+</ul>
+</section>
+<section id="id89">
+<h3>Usage Context<a class="headerlink" href="#id89" title="Link to this heading"></a></h3>
+<p>This module is imported into most other modules (such as <cite>serialSelector</cite>, <cite>xbeeComm</cite>, <cite>modbus</cite>, and <cite>dbintegration</cite>) to:</p>
+<ul class="simple">
+<li><p>Maintain consistency in port, baud rate, and address allocation logic.</p></li>
+<li><p>Access or update shared state variables like <cite>xbeeInstance</cite> and <cite>knownXbeeAddress</cite>.</p></li>
+<li><p>Prevent magic numbers or hard-coded strings scattered throughout the codebase.</p></li>
+</ul>
+</section>
 </section>
 <section id="xbeedata">
-<span id="id88"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+<span id="id90"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+<section id="id91">
+<h3>Overview<a class="headerlink" href="#id91" title="Link to this heading"></a></h3>
+<p>The <cite>xbeeData</cite> module is responsible for decoding and parsing sensor payloads received from XBee radio devices, transforming raw byte data into human-readable values, and logging this information for historical storage and debugging purposes.</p>
+<p>It serves as the bridge between raw radio transmission and structured application logic by applying decoding logic (using the Cayenne LPP format), extracting sensor values, and optionally interfacing with the database layer to store historical readings. This module helps centralize and abstract payload handling so other modules (such as the Modbus poller or analytics systems) can operate on clean, float-based sensor readings.</p>
+<section id="key-responsibilities">
+<h4>Key Responsibilities<a class="headerlink" href="#key-responsibilities" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Decode XBee-transmitted sensor payloads from binary to float values using the <strong>Cayenne Low Power Payload (LPP)</strong> decoding format via the third-party <cite>python_cayennelpp</cite> package.</p></li>
+<li><p>Maintain consistent extraction of <cite>value</cite> fields from each decoded item.</p></li>
+<li><p>Persist decoded values to a MongoDB historian using the <cite>storeXbeeHistoryData()</cite> function from the <cite>dbIntegration</cite> module.</p></li>
+<li><p>Output extracted values for human-readable debugging and operational transparency.</p></li>
+<li><p>(Commented out) Provide an optional utility for retrieving XBee node identifiers (NI) through remote AT commands. This can be useful for device mapping, metadata tracking, or debugging physical deployments.</p></li>
+</ul>
+</section>
+<section id="id92">
+<h4>Usage Context<a class="headerlink" href="#id92" title="Link to this heading"></a></h4>
+<p>This module is invoked by polling functions such as <cite>modbusPolling()</cite> in the <cite>modbus</cite> module. The <cite>cayenneParse()</cite> coroutine is used to interpret the sensor payload returned by XBee radios and convert it into a format suitable for storage and Modbus register mapping.</p>
+<p>The output of this module is a clean list of floating-point sensor values derived from XBee data frames.</p>
+</section>
+<section id="id93">
+<h4>Dependencies<a class="headerlink" href="#id93" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><cite>digi.xbee.devices</cite>: For handling XBee addresses and device communication (used in the commented utility).</p></li>
+<li><p><cite>python_cayennelpp.decoder</cite>: For decoding the payloads from Cayenne LPP format into structured sensor data.</p></li>
+<li><p><cite>datetime</cite>: For timestamping sensor readings during storage.</p></li>
+<li><p><cite>dbIntegration</cite>: Specifically for the <cite>storeXbeeHistoryData()</cite> function that handles database insertion of sensor logs.</p></li>
+</ul>
+<p>This module provides a focused and reusable interface to interpret incoming payloads from edge XBee devices and is a core part of the Modbus-XBee gateway data pipeline.</p>
+</section>
+</section>
+<section id="getnodeid">
+<h3>getNodeId<a class="headerlink" href="#getnodeid" title="Link to this heading"></a></h3>
+</section>
+<section id="cayenneparse">
+<h3>cayenneParse<a class="headerlink" href="#cayenneparse" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">async</span> <span class="pre">cayenneParse(xbeeMacAddress,</span> <span class="pre">xbeeByteData)</span></span></dt>
+<dd><p>Asynchronously parses and decodes a raw payload received from an XBee radio device using the Cayenne Low Power Payload (LPP) format. This function translates the raw binary data into a list of floating-point sensor values, stores them in the MongoDB historian, and prints the decoded result for logging purposes.</p>
+<p>This function acts as a critical link between the binary data transmitted by XBee remote nodes and the human-readable sensor values used in higher-level logic such as Modbus register updates or analytics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xbeeMacAddress</strong> (<em>str</em>) – The 64-bit MAC address of the XBee device that sent the payload.</p></li>
+<li><p><strong>xbeeByteData</strong> (<em>bytes</em>) – The raw data payload received from the XBee device as a bytes object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of decoded float sensor values extracted from the Cayenne-formatted payload.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="decoding-process">
+<h4>Decoding Process<a class="headerlink" href="#decoding-process" title="Link to this heading"></a></h4>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The raw bytes are converted into a hex string (<cite>hexConversion</cite>) which is required by the Cayenne decoder.</p></li>
+<li><p>The <cite>decode()</cite> function from the <cite>python_cayennelpp</cite> package parses this hex string into a list of dictionaries, each representing a sensor reading.</p></li>
+<li><p>The function extracts only the <cite>value</cite> field from each dictionary item (if it exists), casts it to a float, and appends it to a result list.</p></li>
+<li><p>The resulting list is stored in a MongoDB database by calling <code class="xref py py-func docutils literal notranslate"><span class="pre">storeXbeeHistoryData()</span></code> with the MAC address, list of float values, and a timestamp.</p></li>
+<li><p>The decoded values are printed to the console for debugging or operational transparency.</p></li>
+</ol>
+</div></blockquote>
+</section>
+<section id="id94">
+<h4>Example Output<a class="headerlink" href="#id94" title="Link to this heading"></a></h4>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>List of values extracted from 0013A200419717AE byte array are: [22.4, 56.3, 1.02]
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="id95">
+<h4>Usage Context<a class="headerlink" href="#id95" title="Link to this heading"></a></h4>
+<blockquote>
+<div><p>This function is used in the <code class="xref py py-func docutils literal notranslate"><span class="pre">modbusPolling()</span></code> routine (found in the <cite>modbus</cite> module), which receives raw data from the XBee serial interface, parses it using <cite>cayenneParse()</cite>, and writes the resulting floats into Modbus registers for network exposure.</p>
+</div></blockquote>
+</section>
+<section id="id96">
+<h4>Notes<a class="headerlink" href="#id96" title="Link to this heading"></a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p>Any sensor value that is <cite>None</cite> is skipped silently.</p></li>
+<li><p>The decoder assumes that the payload strictly follows the Cayenne LPP format.</p></li>
+<li><p>The database storage is timestamped using the current system time via <cite>datetime.datetime.now()</cite>.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id97">
+<h4>Dependencies<a class="headerlink" href="#id97" title="Link to this heading"></a></h4>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>python_cayennelpp.decoder.decode</cite> for Cayenne LPP decoding.</p></li>
+<li><p><cite>storeXbeeHistoryData</cite> from <cite>dbIntegration</cite> for MongoDB storage.</p></li>
+<li><p><cite>datetime.datetime</cite> for timestamping historical records.</p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
 </section>
 <section id="xbeedummydatatransmitter">
-<span id="id89"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+<span id="id98"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
 </section>
 </section>
 
