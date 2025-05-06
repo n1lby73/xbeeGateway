@@ -37,7 +37,7 @@ def selectUsbPort(get=False):
         
         else: 
 
-            txt = "run 'python -m modules.serialSelector -get' to retrieve connected port serial number and add replace in variable.py file"
+            txt = "run 'python -m modules.serialSelector -g' to retrieve connected port serial number and add replace in variable.py file"
             print(txt)
             return None
 
