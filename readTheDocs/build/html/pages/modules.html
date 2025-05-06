@@ -110,6 +110,22 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#configgui">configGui</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#gateway-configuration-gui">Gateway Configuration GUI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#gui-components">GUI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions:</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#get_database"><code class="docutils literal notranslate"><span class="pre">get_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add_database"><code class="docutils literal notranslate"><span class="pre">add_database()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refresh"><code class="docutils literal notranslate"><span class="pre">refresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#live_search"><code class="docutils literal notranslate"><span class="pre">live_search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sort_table"><code class="docutils literal notranslate"><span class="pre">sort_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get_available_address"><code class="docutils literal notranslate"><span class="pre">get_available_address()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete_selected"><code class="docutils literal notranslate"><span class="pre">delete_selected()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id17">Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dbintegration">dbIntegration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#modbus">modbus</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#serialselector">serialSelector</a></li>
@@ -684,23 +700,503 @@ It returns a <cite>ModbusServerContext</cite> object that holds all register blo
 <section id="configgui">
 <span id="id16"></span><h2>configGui<a class="headerlink" href="#configgui" title="Link to this heading"></a></h2>
 </section>
+</section>
+<section id="gateway-configuration-gui">
+<h1>Gateway Configuration GUI<a class="headerlink" href="#gateway-configuration-gui" title="Link to this heading"></a></h1>
+<p>This Tkinter-based GUI allows users to configure the XBee network and Modbus communication settings for the gateway.</p>
+<section id="gui-components">
+<h2>GUI Components<a class="headerlink" href="#gui-components" title="Link to this heading"></a></h2>
+<p>The interface consists of several main sections:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><strong>Header Section</strong></dt><dd><ul class="simple">
+<li><p>Displays the application title</p></li>
+<li><p>Shows the Modbus server IP address</p></li>
+<li><p>Contains the “Configure Serial Number” button</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Add New Entry Section</strong></dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>Input fields for:</dt><dd><ul>
+<li><p>Node Identifier</p></li>
+<li><p>Radio MAC Address</p></li>
+<li><p>Modbus Start Address</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>“Available Addresses” button</p></li>
+<li><p>“Add to Database” button</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Configured XBee Radios Section</strong></dt><dd><ul class="simple">
+<li><p>Search bar with placeholder text</p></li>
+<li><p>Refresh button</p></li>
+<li><p>Sorting dropdown (First/Last Modified, Ascending/Descending Modbus Address)</p></li>
+<li><dl class="simple">
+<dt>Treeview table displaying configured radios with columns for:</dt><dd><ul>
+<li><p>S/N (Serial Number)</p></li>
+<li><p>Node Identifier</p></li>
+<li><p>Radio MAC Address</p></li>
+<li><p>Modbus Start Address</p></li>
+<li><p>Modbus End Address</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>“Delete Selected” and “Update Selected” buttons</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Modal Windows</strong></dt><dd><ul class="simple">
+<li><p>Available Addresses window</p></li>
+<li><p>Update Entry window</p></li>
+<li><p>Configuration window</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tkinter</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PIL.Image</span></code>, <code class="docutils literal notranslate"><span class="pre">PIL.ImageTk</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.modbus.getIpAddress</span></code></p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">.dbIntegration</span></code> module functions:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">configureXbeeRadio</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retrieveAllConfiguredRadio</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deleteXbeeDetails</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">updateXbeeDetails</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">updateReusableAddress</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">updateAllEndAddress</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="functions">
+<h2>Functions:<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="get_database">
+<span class="sig-name descname"><span class="pre">get_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#get_database" title="Link to this definition"></a></dt>
+<dd><p>Retrieves all configured radio entries from the database and inserts them into the GUI tree view.
+If an error occurs during retrieval, an error message is shown to the user.</p>
+<dl class="simple">
+<dt>This function performs the following tasks:</dt><dd><ul class="simple">
+<li><p>Calls the <cite>retrieveAllConfiguredRadio()</cite> function to fetch all radio configurations.</p></li>
+<li><p>Iterates through the fetched data, inserting each entry into the GUI tree view with details such as index, item[0], item[1], item[2], and item[3].</p></li>
+<li><p>If the result is a dictionary and contains an “error” key, an error message is displayed using a messagebox.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_object</span><span class="o">.</span><span class="n">get_database</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Error Handling:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If the function retrieves an error message (when the result is a dictionary and contains the “error” key), the function will show an error dialog using <cite>messagebox.showerror</cite> with the message provided in the error field.</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>Important Notes:</strong></dt><dd><ul class="simple">
+<li><p>The <cite>retrieveAllConfiguredRadio()</cite> function should return a list or iterable with radio configurations, where each item is a tuple containing at least four elements. If the result is a dictionary with an “error” key, the function displays an error.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="add_database">
+<span class="sig-name descname"><span class="pre">add_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#add_database" title="Link to this definition"></a></dt>
+<dd><p>Adds a new radio entry to the database by configuring an XBee radio with a specified radio address, Modbus address, and node identifier.
+If successful, the tree view is updated and the input fields are cleared. If an error occurs, an error message is shown to the user.</p>
+<dl class="simple">
+<dt>This function performs the following tasks:</dt><dd><ul class="simple">
+<li><p>Retrieves the radio address, Modbus address, and node identifier from the corresponding input fields.</p></li>
+<li><p>Attempts to configure the XBee radio using the <cite>configureXbeeRadio()</cite> function with the provided details.</p></li>
+<li><p>If the configuration is successful, clears the input fields, shows a success message, and updates the tree view by calling <cite>get_database()</cite> to repopulate it.</p></li>
+<li><p>If there is an error during the configuration, an error message is displayed.</p></li>
+<li><p>If a <cite>ValueError</cite> is raised due to invalid input (e.g., non-integer Modbus address), an error message is displayed.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<p>If this function is part of a class, the method can be invoked as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_object</span><span class="o">.</span><span class="n">add_database</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Error Handling:</strong></p>
+<dl class="simple">
+<dt>The function handles errors in the following ways:</dt><dd><ul class="simple">
+<li><p><strong>XBee Configuration Error</strong>: If the <cite>configureXbeeRadio()</cite> function returns an error message, an error dialog is shown using <cite>messagebox.showerror</cite>.</p></li>
+<li><p><strong>Invalid Modbus Address</strong>: If a <cite>ValueError</cite> occurs due to an invalid Modbus address (non-integer value), an error dialog is shown with a specific message.</p></li>
+</ul>
+</dd>
+<dt><strong>Important Notes:</strong></dt><dd><ul class="simple">
+<li><p>The function expects the Modbus address input to be a valid integer. If the input is not a valid integer, the function raises a <cite>ValueError</cite> and prompts the user to enter a valid value.</p></li>
+<li><p>The <cite>configureXbeeRadio()</cite> function must return a dictionary, where the absence of an “error” key indicates a successful configuration, and the presence of an “error” key indicates failure.</p></li>
+<li><p>After a successful entry, the tree view is cleared and repopulated using the <cite>get_database()</cite> function.</p></li>
+<li><p>This function does not return any value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#refresh" title="Link to this definition"></a></dt>
+<dd><p>Refreshes the GUI by clearing and repopulating the radio configuration table and updating the displayed IP address of the Modbus server.</p>
+<dl class="simple">
+<dt>This function performs the following tasks:</dt><dd><ul class="simple">
+<li><p>Clears all existing entries from the tree view widget.</p></li>
+<li><p>Calls <cite>get_database()</cite> to reload and display the latest radio configuration data.</p></li>
+<li><p>Retrieves the current IP address of the Modbus server using <cite>getIpAddress()</cite>.</p></li>
+<li><p>Updates the <cite>ip_address_label</cite> widget to display the retrieved IP address.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_object</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Function Details:</strong></p>
+<ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method. (Implicit)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This function does not return any value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="simple">
+<dt><strong>Important Notes:</strong></dt><dd><ul class="simple">
+<li><p>Assumes that <cite>get_database()</cite> repopulates the tree view with current configuration data.</p></li>
+<li><p>Assumes <cite>getIpAddress()</cite> returns a string representing the Modbus server’s current IP address.</p></li>
+<li><p>The <cite>ip_address_label</cite> widget must already be defined and configured in the GUI for the IP update to display correctly.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="live_search">
+<span class="sig-name descname"><span class="pre">live_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#live_search" title="Link to this definition"></a></dt>
+<dd><p>Filters and displays tree view rows based on a live search query entered by the user in the search bar. If no matches are found, an informational dialog is shown.</p>
+<dl class="simple">
+<dt>This function performs the following steps:</dt><dd><ul class="simple">
+<li><p>Retrieves the user’s input from the search bar and converts it to lowercase.</p></li>
+<li><p>Temporarily detaches all items from the tree view to prepare for filtering.</p></li>
+<li><p>Iterates through stored data (<cite>self.data</cite>) and reattaches only the items that match the search query.</p></li>
+<li><p>If no matches are found, displays a message box notifying the user.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">search_bar</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;KeyRelease&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_search</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Function Details:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">param event<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Automatically passed by event bindings (optional).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This method does not return a value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>Data Requirements:</strong></dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt><cite>self.data</cite> should be a list of tuples in the form <cite>(values, iid)</cite>, where:</dt><dd><ul>
+<li><p><cite>values</cite> is an iterable of displayed column values,</p></li>
+<li><p><cite>iid</cite> is the item identifier in the tree view.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><cite>self.search_bar</cite> should be an input widget (e.g., <cite>Entry</cite>) containing the search query.</p></li>
+<li><p><cite>self.tree</cite> should be a <cite>ttk.Treeview</cite> widget.</p></li>
+</ul>
+</dd>
+<dt><strong>Behavior:</strong></dt><dd><ul class="simple">
+<li><p>The search is case-insensitive and matches substrings within any of the row values.</p></li>
+<li><p>Matching rows are reattached to the tree; all others remain detached.</p></li>
+<li><p>If no matches are found, a message box is shown with a “No match found” message.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sort_table">
+<span class="sig-name descname"><span class="pre">sort_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sort_table" title="Link to this definition"></a></dt>
+<dd><p>Sorts the entries in the tree view based on the selected criterion from a dropdown menu. Sorting options include modification order and Modbus address values.</p>
+<dl class="simple">
+<dt>This function performs the following tasks:</dt><dd><ul class="simple">
+<li><p>Retrieves the current sorting option from a dropdown selection.</p></li>
+<li><p>Collects all tree view items and their associated data.</p></li>
+<li><dl class="simple">
+<dt>Sorts the data based on the selected criterion:</dt><dd><ul>
+<li><p><strong>First Modified</strong>: Sorts by original order (ascending by <cite>text</cite> field(an invisible column which carries values similar to an identification number)).</p></li>
+<li><p><strong>Last Modified</strong>: Sorts by reverse order (descending by <cite>text</cite> field).</p></li>
+<li><p><strong>Ascending Modbus Address</strong>: Sorts entries by the Modbus address in ascending order.</p></li>
+<li><p><strong>Descending Modbus Address</strong>: Sorts entries by the Modbus address in descending order.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Reassigns serial numbers to each item based on the new order.</p></li>
+<li><p>Moves each item in the tree view to reflect the sorted arrangement.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">dropdown</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;&lt;ComboboxSelected&gt;&gt;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_table</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Function Details:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">param event<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional event object from GUI interactions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This method does not return a value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>Dependencies and Assumptions:</strong></dt><dd><ul class="simple">
+<li><p><cite>self.dropdown</cite>: A dropdown widget (<cite>ttk.Combobox</cite>) used to select the sorting criterion.</p></li>
+<li><p><cite>self.tree</cite>: A <cite>ttk.Treeview</cite> widget that displays rows of data.</p></li>
+<li><p>The <cite>values</cite> for each tree item must be a list where the 4th value (<cite>values[3]</cite>) represents the Modbus address.</p></li>
+<li><p>The <cite>text</cite> field of each item is used as a sortable ID (typically representing insertion order).</p></li>
+</ul>
+</dd>
+<dt><strong>Sorting Behavior:</strong></dt><dd><ul class="simple">
+<li><p>Each tree item’s serial number (first column value) is updated to reflect its position after sorting.</p></li>
+<li><p>Items are visually reordered in the GUI using <cite>tree.move()</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="get_available_address">
+<span class="sig-name descname"><span class="pre">get_available_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#get_available_address" title="Link to this definition"></a></dt>
+<dd><p>Opens a new window displaying a list of available Modbus address ranges retrieved from the backend. The data is shown in a scrollable table with columns for serial number, address range, range size, and usability.</p>
+<dl class="simple">
+<dt>This function performs the following tasks:</dt><dd><ul class="simple">
+<li><p>Creates a new <cite>Toplevel</cite> window titled “Available Addresses”.</p></li>
+<li><p>Retrieves available address data using the <cite>updateReusableAddress(“test”)</cite> function.</p></li>
+<li><p>Constructs a scrollable <cite>ttk.Treeview</cite> table to present the address range data.</p></li>
+<li><p>Populates the table with the retrieved data.</p></li>
+<li><p>If an error occurs during address retrieval, displays an error dialog using <cite>messagebox.showerror</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">get_available_address</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Function Details:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This method does not return a value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>UI Elements Created:</strong></dt><dd><ul class="simple">
+<li><p>A new <cite>Toplevel</cite> window (<cite>self.available_address_window</cite>) sized 800x300.</p></li>
+<li><dl class="simple">
+<dt>A scrollable <cite>ttk.Treeview</cite> (<cite>self.tree_available</cite>) with the following columns:</dt><dd><ul>
+<li><p><strong>S/N</strong>: Serial number (auto-incremented).</p></li>
+<li><p><strong>Available Range</strong>: The Modbus address range available.</p></li>
+<li><p><strong>Range Size</strong>: Size of the address range.</p></li>
+<li><p><strong>Usability</strong>: Whether the range is consumable or not.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt><strong>Data Source:</strong></dt><dd><ul class="simple">
+<li><p>Uses <cite>updateReusableAddress(“test”)</cite> to fetch available address ranges.</p></li>
+<li><dl class="simple">
+<dt>Expects a list of dictionaries, each containing:</dt><dd><ul>
+<li><p><cite>“modbusAddressRange”</cite> (str),</p></li>
+<li><p><cite>“size”</cite> (int),</p></li>
+<li><p><cite>“consumable”</cite> (bool or str indicating usability).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt><strong>Error Handling:</strong></dt><dd><ul class="simple">
+<li><p>If the response is a dictionary with an <cite>“error”</cite> key, an error message box is shown.</p></li>
+</ul>
+</dd>
+<dt><strong>Notes:</strong></dt><dd><ul class="simple">
+<li><p>The function assumes that all UI elements (e.g., <cite>tk</cite>, <cite>ttk</cite>, and <cite>messagebox</cite>) are properly imported and available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="delete_selected">
+<span class="sig-name descname"><span class="pre">delete_selected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#delete_selected" title="Link to this definition"></a></dt>
+<dd><p>Deletes one or more selected entries from the tree view and the backend database after user confirmation. If deletion is successful, the view is refreshed and a success message is shown.</p>
+<dl class="simple">
+<dt>This function performs the following steps:</dt><dd><ul class="simple">
+<li><p>Retrieves selected items from the tree view.</p></li>
+<li><p>If no item is selected, displays an error dialog prompting the user to select one.</p></li>
+<li><p>Prompts the user with a confirmation dialog before deletion.</p></li>
+<li><dl class="simple">
+<dt>For each selected item:</dt><dd><ul>
+<li><p>Extracts the radio MAC address from the item’s values.</p></li>
+<li><p>Calls <cite>deleteXbeeDetails()</cite> to remove the corresponding entry from the backend.</p></li>
+<li><p>If successful, deletes the item from the tree view.</p></li>
+<li><p>If an error occurs during deletion, displays an error message.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Refreshes the UI by calling <cite>self.refresh()</cite> and shows a success message if deletions completed.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">delete_selected</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Function Details:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">param self<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance of the class calling the method.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This method does not return a value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>User Prompts:</strong></dt><dd><ul class="simple">
+<li><p>If nothing is selected: shows <cite>“Please select an item to delete.”</cite></p></li>
+<li><p>Before deletion: asks for confirmation via <cite>“Are you sure you want to proceed?”</cite></p></li>
+<li><p>After success: shows <cite>“Entry deleted successfully.”</cite></p></li>
+</ul>
+</dd>
+<dt><strong>Assumptions:</strong></dt><dd><ul class="simple">
+<li><p>The third value (<cite>values[2]</cite>) of each tree item contains the radio MAC address.</p></li>
+<li><p><cite>deleteXbeeDetails(mac_address)</cite> returns a dictionary and uses an <cite>“error”</cite> key to indicate failure.</p></li>
+<li><p><cite>self.refresh()</cite> updates the view after deletion.</p></li>
+</ul>
+</dd>
+<dt><strong>Error Handling:</strong></dt><dd><ul class="simple">
+<li><p>No selection: shows an error dialog.</p></li>
+<li><p>Backend error during deletion: shows the error message in a dialog.</p></li>
+</ul>
+</dd>
+<dt><strong>Notes:</strong></dt><dd><ul class="simple">
+<li><p>The tree view must use the <cite>ttk.Treeview</cite> widget.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id17">
+<h2>Notes<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The GUI is designed for 800x650 resolution</p></li>
+<li><p>All database operations are reflected immediately in the UI</p></li>
+<li><p>Input validation is performed for Modbus addresses</p></li>
+<li><p>Confirmation dialogs are shown for destructive operations</p></li>
+</ul>
+</section>
 <section id="dbintegration">
-<span id="id17"></span><h2>dbIntegration<a class="headerlink" href="#dbintegration" title="Link to this heading"></a></h2>
+<span id="id18"></span><h2>dbIntegration<a class="headerlink" href="#dbintegration" title="Link to this heading"></a></h2>
 </section>
 <section id="modbus">
-<span id="id18"></span><h2>modbus<a class="headerlink" href="#modbus" title="Link to this heading"></a></h2>
+<span id="id19"></span><h2>modbus<a class="headerlink" href="#modbus" title="Link to this heading"></a></h2>
 </section>
 <section id="serialselector">
-<span id="id19"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
+<span id="id20"></span><h2>serialSelector<a class="headerlink" href="#serialselector" title="Link to this heading"></a></h2>
 </section>
 <section id="variables">
-<span id="id20"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+<span id="id21"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
 </section>
 <section id="xbeedata">
-<span id="id21"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+<span id="id22"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
 </section>
 <section id="xbeedummydatatransmitter">
-<span id="id22"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+<span id="id23"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
 </section>
 </section>
 

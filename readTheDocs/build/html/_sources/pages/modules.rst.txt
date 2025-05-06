@@ -602,7 +602,331 @@ Together with `startProcess`, it ensures a robust, fault-tolerant startup and sh
 .. _configGui:
 
 configGui
+-----------
+
+Gateway Configuration GUI
+================
+
+This Tkinter-based GUI allows users to configure the XBee network and Modbus communication settings for the gateway.
+
+GUI Components
+--------------
+The interface consists of several main sections:
+
+1. **Header Section**
+    - Displays the application title
+    - Shows the Modbus server IP address
+    - Contains the "Configure Serial Number" button
+
+2. **Add New Entry Section**
+    - Input fields for:
+        - Node Identifier
+        - Radio MAC Address
+        - Modbus Start Address
+    - "Available Addresses" button
+    - "Add to Database" button
+
+3. **Configured XBee Radios Section**
+    - Search bar with placeholder text
+    - Refresh button
+    - Sorting dropdown (First/Last Modified, Ascending/Descending Modbus Address)
+    - Treeview table displaying configured radios with columns for:
+        - S/N (Serial Number)
+        - Node Identifier
+        - Radio MAC Address
+        - Modbus Start Address
+        - Modbus End Address
+    - "Delete Selected" and "Update Selected" buttons
+
+4. **Modal Windows**
+    - Available Addresses window
+    - Update Entry window
+    - Configuration window
+
+
+Dependencies
 ------------
+
+- ``tkinter``
+- ``PIL.Image``, ``PIL.ImageTk``
+- ``.modbus.getIpAddress``
+- ``.dbIntegration`` module functions:
+    - ``configureXbeeRadio``
+    - ``retrieveAllConfiguredRadio``
+    - ``deleteXbeeDetails``
+    - ``updateXbeeDetails``
+    - ``updateReusableAddress``
+    - ``updateAllEndAddress``
+
+
+Functions:
+-----------
+
+.. function:: get_database(self)
+
+
+   Retrieves all configured radio entries from the database and inserts them into the GUI tree view. 
+   If an error occurs during retrieval, an error message is shown to the user.
+
+   This function performs the following tasks:
+    - Calls the `retrieveAllConfiguredRadio()` function to fetch all radio configurations.
+    - Iterates through the fetched data, inserting each entry into the GUI tree view with details such as index, item[0], item[1], item[2], and item[3].
+    - If the result is a dictionary and contains an "error" key, an error message is displayed using a messagebox.
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      my_object.get_database()
+
+   **Error Handling:**
+
+    - If the function retrieves an error message (when the result is a dictionary and contains the "error" key), the function will show an error dialog using `messagebox.showerror` with the message provided in the error field.
+
+   **Important Notes:**
+    - The `retrieveAllConfiguredRadio()` function should return a list or iterable with radio configurations, where each item is a tuple containing at least four elements. If the result is a dictionary with an "error" key, the function displays an error.
+
+
+
+.. function:: add_database(self)
+
+
+   Adds a new radio entry to the database by configuring an XBee radio with a specified radio address, Modbus address, and node identifier. 
+   If successful, the tree view is updated and the input fields are cleared. If an error occurs, an error message is shown to the user.
+
+   This function performs the following tasks:
+    - Retrieves the radio address, Modbus address, and node identifier from the corresponding input fields.
+    - Attempts to configure the XBee radio using the `configureXbeeRadio()` function with the provided details.
+    - If the configuration is successful, clears the input fields, shows a success message, and updates the tree view by calling `get_database()` to repopulate it.
+    - If there is an error during the configuration, an error message is displayed.
+    - If a `ValueError` is raised due to invalid input (e.g., non-integer Modbus address), an error message is displayed.
+
+   **Example Usage:**
+
+   If this function is part of a class, the method can be invoked as follows:
+
+   .. code-block:: python
+
+      my_object.add_database()
+
+
+   **Error Handling:**
+
+   The function handles errors in the following ways:
+    - **XBee Configuration Error**: If the `configureXbeeRadio()` function returns an error message, an error dialog is shown using `messagebox.showerror`.
+    - **Invalid Modbus Address**: If a `ValueError` occurs due to an invalid Modbus address (non-integer value), an error dialog is shown with a specific message.
+
+   **Important Notes:**
+    - The function expects the Modbus address input to be a valid integer. If the input is not a valid integer, the function raises a `ValueError` and prompts the user to enter a valid value.
+    - The `configureXbeeRadio()` function must return a dictionary, where the absence of an "error" key indicates a successful configuration, and the presence of an "error" key indicates failure.
+    - After a successful entry, the tree view is cleared and repopulated using the `get_database()` function.
+    - This function does not return any value.
+
+
+
+.. function:: refresh(self)
+
+   Refreshes the GUI by clearing and repopulating the radio configuration table and updating the displayed IP address of the Modbus server.
+
+   This function performs the following tasks:
+    - Clears all existing entries from the tree view widget.
+    - Calls `get_database()` to reload and display the latest radio configuration data.
+    - Retrieves the current IP address of the Modbus server using `getIpAddress()`.
+    - Updates the `ip_address_label` widget to display the retrieved IP address.
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      my_object.refresh()
+
+   **Function Details:**
+
+   - :param self: The instance of the class calling the method. (Implicit)
+   - :return: This function does not return any value.
+
+   **Important Notes:**
+    - Assumes that `get_database()` repopulates the tree view with current configuration data.
+    - Assumes `getIpAddress()` returns a string representing the Modbus server’s current IP address.
+    - The `ip_address_label` widget must already be defined and configured in the GUI for the IP update to display correctly.
+
+
+
+.. function:: live_search(self, event=None)
+
+   Filters and displays tree view rows based on a live search query entered by the user in the search bar. If no matches are found, an informational dialog is shown.
+
+   This function performs the following steps:
+    - Retrieves the user's input from the search bar and converts it to lowercase.
+    - Temporarily detaches all items from the tree view to prepare for filtering.
+    - Iterates through stored data (`self.data`) and reattaches only the items that match the search query.
+    - If no matches are found, displays a message box notifying the user.
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.search_bar.bind("<KeyRelease>", self.live_search)
+
+   **Function Details:**
+
+    - :param self: The instance of the class calling the method.
+    - :param event: Automatically passed by event bindings (optional).
+    - :return: This method does not return a value.
+
+   **Data Requirements:**
+    - `self.data` should be a list of tuples in the form `(values, iid)`, where:
+        - `values` is an iterable of displayed column values,
+        - `iid` is the item identifier in the tree view.
+    - `self.search_bar` should be an input widget (e.g., `Entry`) containing the search query.
+    - `self.tree` should be a `ttk.Treeview` widget.
+
+   **Behavior:**
+    - The search is case-insensitive and matches substrings within any of the row values.
+    - Matching rows are reattached to the tree; all others remain detached.
+    - If no matches are found, a message box is shown with a “No match found” message.
+
+
+.. function:: sort_table(self, event=None)
+
+   Sorts the entries in the tree view based on the selected criterion from a dropdown menu. Sorting options include modification order and Modbus address values.
+
+   This function performs the following tasks:
+    - Retrieves the current sorting option from a dropdown selection.
+    - Collects all tree view items and their associated data.
+    - Sorts the data based on the selected criterion:
+        - **First Modified**: Sorts by original order (ascending by `text` field(an invisible column which carries values similar to an identification number)).
+        - **Last Modified**: Sorts by reverse order (descending by `text` field).
+        - **Ascending Modbus Address**: Sorts entries by the Modbus address in ascending order.
+        - **Descending Modbus Address**: Sorts entries by the Modbus address in descending order.
+    - Reassigns serial numbers to each item based on the new order.
+    - Moves each item in the tree view to reflect the sorted arrangement.
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.dropdown.bind("<<ComboboxSelected>>", self.sort_table)
+
+   **Function Details:**
+
+    - :param self: The instance of the class calling the method.
+    - :param event: Optional event object from GUI interactions.
+    - :return: This method does not return a value.
+
+   **Dependencies and Assumptions:**
+    - `self.dropdown`: A dropdown widget (`ttk.Combobox`) used to select the sorting criterion.
+    - `self.tree`: A `ttk.Treeview` widget that displays rows of data.
+    - The `values` for each tree item must be a list where the 4th value (`values[3]`) represents the Modbus address.
+    - The `text` field of each item is used as a sortable ID (typically representing insertion order).
+
+   **Sorting Behavior:**
+    - Each tree item’s serial number (first column value) is updated to reflect its position after sorting.
+    - Items are visually reordered in the GUI using `tree.move()`.
+
+
+
+.. function:: get_available_address(self)
+
+   Opens a new window displaying a list of available Modbus address ranges retrieved from the backend. The data is shown in a scrollable table with columns for serial number, address range, range size, and usability.
+
+   This function performs the following tasks:
+    - Creates a new `Toplevel` window titled "Available Addresses".
+    - Retrieves available address data using the `updateReusableAddress("test")` function.
+    - Constructs a scrollable `ttk.Treeview` table to present the address range data.
+    - Populates the table with the retrieved data.
+    - If an error occurs during address retrieval, displays an error dialog using `messagebox.showerror`.
+
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.get_available_address()
+
+   **Function Details:**
+
+    - :param self: The instance of the class calling the method.
+    - :return: This method does not return a value.
+
+   **UI Elements Created:**
+    - A new `Toplevel` window (`self.available_address_window`) sized 800x300.
+    - A scrollable `ttk.Treeview` (`self.tree_available`) with the following columns:
+        - **S/N**: Serial number (auto-incremented).
+        - **Available Range**: The Modbus address range available.
+        - **Range Size**: Size of the address range.
+        - **Usability**: Whether the range is consumable or not.
+
+   **Data Source:**
+    - Uses `updateReusableAddress("test")` to fetch available address ranges.
+    - Expects a list of dictionaries, each containing:
+        - `"modbusAddressRange"` (str),
+        - `"size"` (int),
+        - `"consumable"` (bool or str indicating usability).
+
+   **Error Handling:**
+    - If the response is a dictionary with an `"error"` key, an error message box is shown.
+
+   **Notes:**
+    - The function assumes that all UI elements (e.g., `tk`, `ttk`, and `messagebox`) are properly imported and available.
+
+
+.. function:: delete_selected(self)
+
+   Deletes one or more selected entries from the tree view and the backend database after user confirmation. If deletion is successful, the view is refreshed and a success message is shown.
+
+   This function performs the following steps:
+    - Retrieves selected items from the tree view.
+    - If no item is selected, displays an error dialog prompting the user to select one.
+    - Prompts the user with a confirmation dialog before deletion.
+    - For each selected item:
+        - Extracts the radio MAC address from the item's values.
+        - Calls `deleteXbeeDetails()` to remove the corresponding entry from the backend.
+        - If successful, deletes the item from the tree view.
+        - If an error occurs during deletion, displays an error message.
+    - Refreshes the UI by calling `self.refresh()` and shows a success message if deletions completed.
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.delete_selected()
+
+   **Function Details:**
+
+    - :param self: The instance of the class calling the method.
+    - :return: This method does not return a value.
+
+   **User Prompts:**
+    - If nothing is selected: shows `"Please select an item to delete."`
+    - Before deletion: asks for confirmation via `"Are you sure you want to proceed?"`
+    - After success: shows `"Entry deleted successfully."`
+
+   **Assumptions:**
+    - The third value (`values[2]`) of each tree item contains the radio MAC address.
+    - `deleteXbeeDetails(mac_address)` returns a dictionary and uses an `"error"` key to indicate failure.
+    - `self.refresh()` updates the view after deletion.
+
+   **Error Handling:**
+    - No selection: shows an error dialog.
+    - Backend error during deletion: shows the error message in a dialog.
+
+   **Notes:**
+    - The tree view must use the `ttk.Treeview` widget.
+
+
+Notes
+-----
+
+- The GUI is designed for 800x650 resolution
+- All database operations are reflected immediately in the UI
+- Input validation is performed for Modbus addresses
+- Confirmation dialogs are shown for destructive operations
+
+
 
 .. _dbIntegration:
 
