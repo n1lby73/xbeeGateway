@@ -452,8 +452,8 @@ Steps Breakdown
 .. code-block:: python
 
     context = contextManager()
-
-`contextManager()` is a helper function defined in the `modules.modbus` module.  
+.. note::
+    `contextManager()` is a helper function defined in the `modules.modbus` module.  
 It returns a `ModbusServerContext` object that holds all register blocks used in the server, including:
 
 - Discrete Inputs (DI)
@@ -609,26 +609,859 @@ configGui
 dbIntegration
 ----------------
 
+This module manages all MongoDB-related operations for the XBee Modbus Gateway system. It handles:
+
+- Configuration, validation, and updating of XBee radio metadata such as MAC addresses, Modbus start/end addresses, and node identifiers.
+- Ensuring Modbus address allocation is valid and conflict-free using range validation and gap detection.
+- Updating and retrieving reusable Modbus address ranges for dynamic allocation.
+- Managing historical data storage for each XBee radio, supporting initialization, updates, and full data swaps in cases of MAC address reassignment.
+- Providing database interfaces for querying and modifying the Modbus address map and XBee radio assignments.
+
+.. note::
+    The MongoDB schema is optimized for time-series storage, and each XBee device is
+tracked using its 64-bit MAC address.
+
+Module Setup
+^^^^^^^^^^^^
+
+Modules & Dependencies
+"""""""""""""""""""""""
+
+The following standard and third-party modules are imported:
+
+- ``datetime``, ``random``, ``string``:  
+  Core Python modules used for timestamps, ID generation, and text manipulation.
+
+- ``pymongo``, ``pymongo.errors.PyMongoError``:  
+  MongoDB driver for Python and exception handling for database operations.
+
+Application-specific modules:
+
+- ``modules.variables``:  
+  Stores shared runtime variables and configuration constants.
+
+- ``modules.modbus``:  
+  Provides:
+  
+  - ``getIpAddress``: Retrieves the current IP address of the device, used to bind the MongoDB client to the local network interface.
+
+MongoDB Collections
+""""""""""""""""""""
+
+Two main MongoDB collections are initialized:
+
+- ``configuredRadioCollection``:  
+  Stores metadata for each configured XBee device, such as MAC address, Modbus address range, and human-readable identifier.
+
+- ``availableModbusAddressCollection``:  
+  Maintains a list of reusable Modbus address ranges freed after device deletion or reallocation.
+
+
+Database Initialization
+"""""""""""""""""""""""
+
+- ``dbclient = pymongo.MongoClient(...)``:  
+  Initializes the MongoDB client connection using the host IP determined by ``getIpAddress()`` from ``modules.modbus``.
+
+- ``gatewaDb = dbclient["Gateway"]``:  
+  References the main MongoDB database used by the gateway system.
+
 modbusAddressPolice
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    modbusAddressPolice(proposedStartAddress, supposedEndAddress)
+
+Validates whether a given Modbus address range is available and conforms to system constraints.
+
+   This function checks whether a proposed range of Modbus register addresses is:
+   - within allowable numeric bounds,
+   - not overlapping with any existing Modbus address ranges already registered in the system,
+   - and structurally valid according to defined system-wide rules.
+
+   It is typically used during the configuration or onboarding of new XBee radio nodes to ensure
+   that each device is mapped to a safe and unique holding register range in the Modbus server context.
+
+   :param int proposedStartAddress: 
+       The first Modbus holding register address being proposed for 
+       assignment (e.g., 40001).
+
+   :param int supposedEndAddress: 
+       The last Modbus holding register address (inclusive) being 
+       proposed.
+
+   :returns: 
+       Returns a validation result object:
+
+       - ``True`` — if the proposed range is valid and available.
+       - ``{"error": "<reason>"}`` — if the proposed range is 
+       invalid or would conflict with existing addresses.
+
+   :rtype: Union[bool, dict]
+
+Validation Logic
+""""""""""""""""""
+
+   - The start address must be less than or equal to the end address.
+   - The length (number of digits) of the start address must conform to the `validModbusAddressLength` constraint defined in `variables`.
+   - The range must fall within bounds set by `variables.lowestRegister` and `variables.highestRegister`.
+   - The address range must not overlap with any existing ranges stored in the `configuredRadioCollection` MongoDB collection.
+
+Overlapping Address Rule:
+""""""""""""""""""""""""""
+
+   Two address ranges are considered overlapping if:
+
+   .. code-block:: text
+
+      proposedStart <= existingEnd and proposedEnd >= existingStart
+
+Example Usage:
+""""""""""""""
+
+   .. code-block:: python
+
+      result = modbusAddressPolice(40021, 40040)
+      if result is True:
+          print("Modbus address range is valid.")
+      else:
+          print("Address validation failed:", result["error"])
+
+Error Response Format:
+""""""""""""""""""""""
+
+   When validation fails, the function returns a dictionary of the form:
+
+   .. code-block:: json
+
+      {
+         "error": "Descriptive error message"
+      }
+
+Typical Errors:
+""""""""""""""""
+
+   - "Start address cannot be greater than end address"
+   - "Invalid modbus address"
+   - "Modbus address out of range"
+   - "Could not update: Selected modbus startAddress would cause address overlapping"
+   - Any internal exception is returned as an error string
+
+Dependencies:
+""""""""""""""
+
+   - Uses global `variables` module to access:
+     - `lowestRegister`
+     - `highestRegister`
+     - `validModbusAddressLength`
+   - Reads from `configuredRadioCollection`, a MongoDB collection containing all configured devices and their Modbus address ranges.
+
 
 updateReusableAddress
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    updateReusableAddress(returnData=None)
+
+Scans configured Modbus address allocations and updates the database with all available (unused) address ranges.
+
+   This utility function is essential for maintaining visibility into unallocated Modbus holding register blocks. It identifies address gaps between already-configured devices and updates the `availableModbusAddressCollection` accordingly. The available ranges can then be reused when configuring new XBee devices.
+
+   :param bool returnData:
+
+       Optional. If set, the function returns the list of available address blocks as a list of dictionaries.
+       If `None` (default), the function runs silently and only populates the database.
+
+   :returns:
+
+       - If `returnData` is `None`, returns `None`.
+       - If address gaps are found, returns a list of available range objects:
+         
+        .. code-block:: json
+
+        [
+              {
+                "modbusAddressRange": "4010-4030",
+                "size": 21,
+                "consumable": "✅"
+              },
+              ...
+        ]
+
+       - If no address gaps exist, returns:
+
+         .. code-block:: json
+
+            { "info": "No available address gaps found." }
+
+       - If an error occurs, returns a dictionary with `error` and optional `details`.
+
+   :rtype: Union[None, list, dict]
+
+Function Overview
+""""""""""""""""""
+
+   This function performs the following steps:
+
+   1. **Drops the `availableModbusAddressCollection`** to clear outdated data.
+   2. **Retrieves all configured address ranges** from `configuredRadioCollection`.
+   3. **Sorts** the address ranges by `modbusStartAddress`.
+   4. **Scans for gaps** between configured ranges:
+      - A "gap" is defined as an unused range between two allocated address blocks.
+      - Gaps are considered **consumable** if their size is greater than or equal to `variables.incrementalModbusAddress`.
+   5. **Stores valid gaps** in `availableModbusAddressCollection`, each with:
+      - `modbusAddressRange`: The range in "start-end" format.
+      - `size`: Number of registers in the gap.
+      - `consumable`: "✅" if usable, "❌" otherwise.
+   6. **Optionally returns the result** if `returnData` is specified.
+
+Gap Detection Algorithm
+""""""""""""""""""""""""
+
+   Gaps are identified by comparing the `endAddress` of a configured device with the `startAddress` of the next:
+
+   .. code-block:: python
+
+      if startAddress - previousEnd > 1:
+          gapStart = previousEnd + 1
+          gapEnd = startAddress - 1
+
+   The final unallocated range (from the last used address to the highest possible register) is also checked.
+
+Consumable Criteria
+""""""""""""""""""""
+
+   A gap is marked as **consumable** (`✅`) only if:
+
+   .. code-block:: python
+
+      gapSize >= variables.incrementalModbusAddress
+
+   Otherwise, it is marked as **not consumable** (`❌`).
+
+Error Handling
+""""""""""""""
+
+   - MongoDB `insert_one` failures are caught and returned with detailed error messages.
+   - General exceptions are caught and returned with an `"error"` key.
+
+Dependencies
+"""""""""""""
+
+   - MongoDB collections:
+
+     - `configuredRadioCollection` (read-only)
+     - `availableModbusAddressCollection` (dropped and written)
+
+   - Variables from the `variables` module:
+
+     - `lowestRegister`
+     - `highestRegister`
+     - `incrementalModbusAddress`
+
+   - Requires `PyMongoError` for database exception handling.
+
+Example
+"""""""
+
+   .. code-block:: python
+
+      # Run silently
+      updateReusableAddress()
+
+      # Run and fetch results for further processing
+      availableBlocks = updateReusableAddress(returnData=True)
+      for block in availableBlocks:
+          print(block["modbusAddressRange"], block["consumable"])
 
 updateAllEndAddress
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+    
+    updateAllEndAddress(newRange)
+
+Recalculates and updates the `modbusEndAddress` field for all configured radios using a uniform range size derived from the provided `newRange` value.
+
+   This function is useful when there's a global change in how many Modbus registers should be allocated per device. It ensures all documents in the `configuredRadioCollection` reflect this new register allocation model, based on their existing `modbusStartAddress`.
+
+   :param int newRange:
+
+       The number of Modbus registers to assign per device. The function adds `(newRange - 1)` to each device's `modbusStartAddress` to compute the new `modbusEndAddress`.
+
+   :returns:
+
+       - If updates are made:
+
+         .. code-block:: json
+
+            { "sucess": "updated 25" }
+
+         (Where 25 is the number of documents updated.)
+
+       - If an error occurs during the update operation:
+
+         .. code-block:: json
+
+            { "error": "Descriptive error message" }
+
+       - If no `modbusStartAddress` is found, or no documents are modified, returns `None`.
+
+   :rtype: Union[dict, None]
+
+Functional Summary
+""""""""""""""""""
+
+This function:
+
+   1. **Queries all radio documents** from `configuredRadioCollection` that have a `modbusStartAddress`.
+   2. **Calculates** the new `modbusEndAddress` for each document as:
+
+      .. code-block:: python
+
+         newEndAddress = startAddress + (newRange - 1)
+
+   3. **Performs a batch update** using `bulk_write()` with `UpdateOne` operations to apply changes efficiently.
+   4. **Calls `updateReusableAddress()`** to refresh available address blocks after modifications.
+   5. **Returns** the number of modified documents or an error response.
+
+Error Handling
+"""""""""""""""
+
+   - All exceptions are caught and returned as a dictionary with an `error` key.
+   - If the `bulk_write()` operation fails or modifies nothing, the function silently returns `None`.
+
+Dependencies
+""""""""""""""
+   - MongoDB collection:
+
+     - `configuredRadioCollection` (read and write)
+
+   - External function:
+
+     - `updateReusableAddress()` — called after successful updates to refresh available address gaps.
+
+   - Libraries:
+
+     - `pymongo.UpdateOne` and `bulk_write`
+
+Performance Note
+""""""""""""""""
+
+   - The use of `bulk_write()` ensures efficient updating even for large numbers of documents.
+   - The function assumes the presence of a valid `modbusStartAddress` in each document.
+
+Example Usage
+""""""""""""""
+
+   .. code-block:: python
+
+      # Update all configured radios to use 20 Modbus registers each
+      result = updateAllEndAddress(newRange=20)
+      print(result)
+
+Related Functions
+""""""""""""""""""
+
+   - :func:`updateReusableAddress` — updates the list of reusable Modbus address gaps based on current configurations.
 
 dbQueryModbusStartAddress
-'''''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    dbQueryModbusStartAddress(xbeeMacAddress)
+
+Retrieves the configured Modbus start address for a given XBee MAC address from the database.
+
+This function performs a lookup in the ``configuredRadioCollection`` to find the ``modbusStartAddress`` associated with a specific XBee radio. It is typically used during Modbus polling to determine where sensor data from each radio should be written in the Modbus context.
+
+:param str xbeeMacAddress:
+    The 64-bit MAC address of the XBee device, provided as a string. The function automatically converts the address to uppercase to match the format stored in the database.
+
+:returns:
+    - If the MAC address exists in the database, returns the integer value of ``modbusStartAddress``.
+    - If the MAC address is not found, returns a string indicating that the address is missing.
+    - If an exception occurs, prints the error and returns it as a string.
+
+:rtype: Union[int, str]
+
+Function Overview
+""""""""""""""""""
+
+This function executes the following steps:
+
+1. Converts the provided MAC address to uppercase.
+2. Searches the ``configuredRadioCollection`` for a matching ``xbeeMac`` value.
+3. If a matching document is found, extracts and returns the ``modbusStartAddress``.
+4. If no document is found, returns a descriptive message.
+5. Catches and prints any exceptions, returning the error message.
+
+Usage Context
+""""""""""""""
+
+This function is called inside the Modbus polling logic to determine the register block for each XBee:
+
+.. code-block:: python
+
+    startAddress = dbQueryModbusStartAddress(mac)
+    if isinstance(startAddress, int):
+        contextValue[0].setValues(3, startAddress, registers)
+        contextValue[0].setValues(4, startAddress, registers)
+
+Error Handling
+""""""""""""""
+
+- Wraps all logic in a try-except block.
+- On failure, prints the error message and returns it.
+- Ensures the main polling loop remains stable during faults.
+
+Dependencies
+"""""""""""""
+
+- MongoDB collection:
+
+  - ``configuredRadioCollection`` — stores XBee device configurations and associated Modbus address mappings.
+
+Example
+"""""""
+
+.. code-block:: python
+
+    mac = "0013A20040B41234"
+    startAddress = dbQueryModbusStartAddress(mac)
+
+    if isinstance(startAddress, int):
+        print(f"Start address: {startAddress}")
+    else:
+        print(f"Error or not found: {startAddress}")
+
 
 configureXbeeRadio
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    configureXbeeRadio(xbeeMacAddress, startAddress, nodeIdentifier)
+
+Registers a new XBee radio device in the system by associating it with a unique MAC address, Modbus register block, and node identifier.
+
+   This function performs comprehensive validation to ensure no conflicts exist in the configured Modbus address space or device identifiers. It calculates the Modbus **end address internally** using the formula:
+
+   .. code-block:: python
+
+      endAddress = startAddress + (variables.incrementalModbusAddress - 1)
+
+   On success, it updates the database and creates a dedicated collection for storing historical data for that device.
+
+   :param str xbeeMacAddress:
+       The 64-bit MAC address of the XBee radio to configure (e.g., ``0013A20040B2C3D4``). Must be uppercase and 16 characters long.
+
+   :param int startAddress:
+       The starting Modbus register address for this device. Must be an integer and not conflict with existing device ranges.
+
+   :param str nodeIdentifier:
+       A unique, human-readable label for the device (e.g., ``WELLHEAD_A01``). Cannot be empty or reused.
+
+   :returns:
+       - On success:
+
+         .. code-block:: json
+
+            { "success": "radio configured successfully" }
+
+       - On validation failure (e.g., duplicates, format errors):
+
+         .. code-block:: json
+
+            { "error": "Start address already utilized by WELLHEAD_A01" }
+
+       - On general exception:
+
+         .. code-block:: json
+
+            { "error": "Exception message" }
+
+   :rtype: dict
+
+Address Calculation
+"""""""""""""""""""
+
+- The function automatically derives the Modbus `endAddress` using:
+
+  .. code-block:: python
+
+     endAddress = startAddress + (variables.incrementalModbusAddress - 1)
+
+- This defines the register block [startAddress, endAddress] inclusive.
+
+Validation Logic
+"""""""""""""""""
+
+1. **MAC Address:**
+   - Must be uppercase and 16 characters long.
+   - Must not already exist in `configuredRadioCollection`.
+
+2. **Start Address:**
+   - Must be a valid integer.
+   - Must not be already used as a start address.
+   - Must not overlap with any existing Modbus block (validated by `modbusAddressPolice()`).
+
+3. **Node Identifier:**
+   - Cannot be empty.
+   - Must be unique across configured devices.
+
+Configuration Actions
+""""""""""""""""""""""
+
+- Inserts the following document into `configuredRadioCollection`:
+
+  .. code-block:: json
+
+     {
+       "xbeeNodeIdentifier": "NODE1",
+       "xbeeMac": "0013A20040B2C3D4",
+       "modbusStartAddress": 4001,
+       "modbusEndAddress": 4050
+     }
+
+- Creates a MongoDB collection named after the MAC address (e.g., `0013A20040B2C3D4`) for storing historical radio data. The collection is seeded with:
+
+  .. code-block:: json
+
+     {
+       "timestamp": "2025-05-06T12:00:00",
+       "data": [0, 0, 0, 0, 0, 0, 0, 0, 0]
+     }
+
+- Triggers a call to `updateReusableAddress()` to recalculate and store the list of free Modbus address blocks.
+
+Dependencies
+""""""""""""
+
+- MongoDB Collections:
+  - `configuredRadioCollection`
+  - `gatewayDb[<xbeeMacAddress>]` (dynamic collection for history)
+- Functions:
+  - `modbusAddressPolice()`
+  - `updateReusableAddress()`
+- Constants from `variables`:
+  - `validMacAddressLength`
+  - `incrementalModbusAddress`
+
+Example
+"""""""
+
+.. code-block:: python
+
+   configureXbeeRadio("0013A20040B2C3D4", 4001, "WELLHEAD_A01")
 
 updateXbeeDetails
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    updateXbeeDetails(oldXbeeMacAddress, jsonParameterToBeUpdated)
+
+Updates specific fields of an already-configured XBee radio entry, with full validation of MAC address uniqueness, Modbus register allocation correctness, and node identifier exclusivity.
+
+   This function allows updating one or more of the following fields for an existing device:
+
+   - ``xbeeMac`` (MAC address)
+   - ``modbusStartAddress``
+   - ``modbusEndAddress``
+   - ``xbeeNodeIdentifier``
+
+   Updates are only accepted if no conflicts exist in the system, and the modified values differ from the existing values. 
+   If address-related fields are modified, the `updateReusableAddress()` utility is automatically triggered to refresh available register gaps. Additionally, if a MAC address is changed, the function **renames the associated historian collection** to match the new MAC.
+
+   :param str oldXbeeMacAddress:
+
+       The current MAC address of the XBee device to update. 
+       Must already exist in the `configuredRadioCollection`.
+
+   :param dict jsonParameterToBeUpdated:
+
+       A dictionary containing one or more keys to update. 
+       Only the following keys are allowed:
+       
+       - ``xbeeMac`` (str)
+       - ``modbusStartAddress`` (int)
+       - ``modbusEndAddress`` (int)
+       - ``xbeeNodeIdentifier`` (str)
+
+   :returns:
+       - On success:
+
+         .. code-block:: json
+
+            { "success": "Document updated successfully." }
+
+       - On validation failure:
+
+         .. code-block:: json
+
+            { "error": "new mac address already exist" }
+
+       - On redundant request (no change detected):
+
+         .. code-block:: json
+
+            { "error": "Update request received, but no changes were made." }
+
+       - On general exception:
+
+         .. code-block:: json
+
+            { "error": "Exception message" }
+
+   :rtype: dict
+
+Input Validations
+""""""""""""""""""
+
+- ``jsonParameterToBeUpdated`` must be a `dict`. Otherwise:
+
+  .. code-block:: json
+
+     { "error": "Structure of updated value is invalid. Expected a dictionary." }
+
+- Only the allowed keys are permitted. If unknown keys are found:
+
+  .. code-block:: json
+
+     { "error": "Invalid keys found: ['badKey']. Allowed keys: [...]" }
+
+MAC Address Update
+"""""""""""""""""""
+
+- Validates that the new MAC:
+
+  - Is 16 characters long (as per `variables.validMacAddressLength`)
+  - Is different from the existing MAC
+  - Does not already exist in the system
+
+- If valid:
+
+  - The existing historian collection under `gatewayDb[oldXbeeMacAddress]` is **renamed** to the new MAC.
+
+Modbus Address Update
+""""""""""""""""""""""
+
+- If either `modbusStartAddress` or `modbusEndAddress` is updated:
+
+  - The function resolves both values, using provided ones or falling back to existing ones.
+  - The range is validated using `modbusAddressPolice(start, end)`.
+  - If valid, the update is flagged to **refresh address gaps** via `updateReusableAddress()` after DB update.
+
+Node Identifier Update
+""""""""""""""""""""""""
+
+- The new identifier:
+
+  - Must not be empty.
+  - Must be different from the existing one.
+  - Must not be already used by another radio.
+
+Update Workflow
+"""""""""""""""""
+
+1. Normalize all string inputs to uppercase.
+2. Validate each requested change:
+
+   - MAC → uniqueness and length
+   - Modbus → address overlap prevention
+   - Node ID → uniqueness and validity
+
+3. Perform atomic update via:
+
+   .. code-block:: python
+
+      configuredRadioCollection.update_one({"xbeeMac": oldXbeeMacAddress}, {"$set": updates})
+
+4. If a Modbus address was changed:
+
+   - Call `updateReusableAddress()` to recalculate and store new available blocks.
+
+Side Effects
+""""""""""""""
+
+- Historian collection is **renamed** if MAC is updated.
+- Modbus address availability is **recalculated** if start/end address is changed.
+
+Dependencies
+"""""""""""""
+
+- MongoDB collections:
+
+  - `configuredRadioCollection`
+  - `gatewayDb[<xbeeMac>]` (for renaming historian)
+
+- Internal functions:
+
+  - `modbusAddressPolice()`
+  - `updateReusableAddress()`
+
+- Variables from `variables`:
+
+  - `validMacAddressLength`
+
+Example
+""""""""
+
+.. code-block:: python
+
+   # Update MAC address and start address
+   updateXbeeDetails("0013A20040B2C3D4", {
+       "xbeeMac": "0013A20040B2C3D9",
+       "modbusStartAddress": 4060
+   })
+
+   # Update only node identifier
+   updateXbeeDetails("0013A20040B2C3D4", {
+       "xbeeNodeIdentifier": "WELLHEAD_B07"
+   })
 
 storeXbeeHistoryData
-'''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   storeXbeeHistoryData(xbeeMacAddress, xbeeData, xbeeDataTimestamp)
+
+Stores a timestamped data snapshot from an XBee device into a dedicated MongoDB historian collection named after the XBee MAC address.
+
+   This function is intended to be called whenever a new packet of radio sensor data is received. It verifies the MAC address has been configured, ensures the data is correctly structured as a list, and inserts it into a corresponding MongoDB collection (one collection per radio, named by MAC).
+
+   :param str xbeeMacAddress:
+       MAC address of the radio node. Must match a previously configured device in `configuredRadioCollection`.
+
+   :param list xbeeData:
+       List of sensor or telemetry values received from the XBee device. Must be of list type.
+
+   :param datetime xbeeDataTimestamp:
+       A `datetime` object representing when the data was received. Used as the timestamp for the inserted document.
+
+   :returns:
+       - ``True`` on successful insertion into the historian collection.
+       - ``None`` on validation failure, database failure, or unexpected exceptions.
+
+   :rtype: bool | None
+
+Input Normalization and Validation
+"""""""""""""""""""""""""""""""""""
+
+1. **MAC Normalization**:
+   - MAC address is converted to uppercase with ``str(xbeeMacAddress).upper()``.
+
+2. **MAC Existence Check**:
+   - The function checks if the MAC is registered in `configuredRadioCollection`:
+     
+     .. code-block:: python
+
+        configuredRadioCollection.find_one({"xbeeMac": xbeeMacAddress})
+
+   - If not found, the function logs an error and exits early.
+
+3. **Data Type Validation**:
+   - Ensures `xbeeData` is a Python list. If not, it logs the type mismatch and exits.
+
+Historian Collection Behavior
+"""""""""""""""""""""""""""""""
+
+- A historian collection is automatically created or reused using:
+
+  .. code-block:: python
+
+     xbeeHistoryEntry = gatewayDb[xbeeMacAddress]
+
+  This ensures:
+  - Each XBee device gets its own dedicated collection.
+  - The collection name is the uppercase MAC string (e.g., `0013A20040B2C3D4`).
+
+Document Structure Example:
+""""""""""""""""""""""""""""
+
+The inserted document has the structure:
+
+.. code-block:: json
+    [
+        {
+        "timestamp": "2025-05-06T14:33:21.832000",
+        "data": [23.4, 1, 0, 55.6, ...]
+        }
+    ]
+This allows efficient time-series querying and historical graphing.
+
+Failure Modes
+"""""""""""""""
+
+- **Unregistered MAC address**:
+  
+  Logs:
+
+  .. code-block:: none
+
+     Mac Address has not been configured
+
+  Returns: ``None``
+
+- **Data is not a list**:
+
+  Logs:
+
+  .. code-block:: none
+
+     Expected data <xbeeData> should be passed as list
+
+  Returns: ``None``
+
+- **MongoDB insertion fails**:
+
+  Logs:
+
+  .. code-block:: none
+
+     Could not update the database
+
+  Returns: ``None``
+
+- **Unhandled exception**:
+
+  Logs:
+
+  .. code-block:: none
+
+     Fatal error with details as; <exception string>
+
+  Returns: ``None``
+
+Dependencies
+""""""""""""""
+
+- **MongoDB collections**:
+  - `configuredRadioCollection`: Verifies MAC address registration.
+  - `gatewayDb[<xbeeMac>]`: Target collection for historian entries.
+
+Example Usage
+""""""""""""""
+
+.. code-block:: python
+
+   storeXbeeHistoryData(
+       "0013A20040B2C3D4",
+       [78.2, 1, 0, 33.5, 9.8, 0, 1, 1],
+       datetime.datetime.utcnow()
+   )
+
+Notes
+"""""""
+
+- This function assumes that the historian collections have been initialized via `configureXbeeRadio()`.
+- It does **not** check for data schema conformity (e.g., number or type of elements in `xbeeData`) beyond requiring a list.
+
 
 swapXbeeHistoryAndMacAddress
 '''''''''''''''''''''''''''''
