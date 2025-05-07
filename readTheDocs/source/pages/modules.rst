@@ -133,68 +133,6 @@ Implementation
 
 Data Reception Callback
 """""""""""""""""""""""
-def getIpAddress():
-
-    interfaces = psutil.net_if_addrs()
-    ethernetIp = None
-    wifiIp = None
-    default = "0.0.0.0"
-
-    # Common interface name patterns for different platforms
-    ethernetPatterns = [
-
-        'eth', 'en', 'ethernet', 
-        'local area connection', '有线'
-
-    ]
-    
-    wifiPatterns = [
-
-        'wifi', 'wi-fi', 'wireless', 
-        'wl', 'wlan', '无线', 'wi_fi'
-
-    ]
-
-    for interfaceName, interfaceAddresses in interfaces.items():
-
-        for address in interfaceAddresses:
-
-            if address.family == socket.AF_INET and not address.address.startswith("127."):
-
-                if any(pattern in interfaceName.lower() for pattern in ethernetPatterns):
-
-                    # Check if the IP address is from the APIPA range and skip it
-                    if address.address.startswith("169.254"):
-                        
-                        continue
-
-                    if not ethernetIp:
-
-                        ethernetIp = address.address
-
-                elif any(pattern in interfaceName.lower() for pattern in wifiPatterns):
-
-                    if not wifiIp:
-
-                        wifiIp = address.address
-
-    if ethernetIp:
-
-        print(f"Ethernet IP Address: {ethernetIp}")
-        return ethernetIp
-    
-    elif wifiIp:
-
-        print("No Ethernet interface detected. Falling back to Wi-Fi.")
-        print(f"Wi-Fi IP Address: {wifiIp}")
-        return wifiIp
-    
-    else:
-
-        print("No Ethernet or Wi-Fi network detected on this machine.")
-        print(f"Using default address {default}")
-        return default
-
 .. code-block:: python
 
     def dataReceiveCallback(xbeeMessage):
