@@ -10,6 +10,7 @@ imagesize==1.4.1
 Jinja2==3.1.6
 MarkupSafe==3.0.2
 packaging==25.0
+pillow==11.2.1
 psutil==7.0.0
 Pygments==2.19.1
 pymodbus==3.9.2
