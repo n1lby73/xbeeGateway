@@ -185,6 +185,15 @@ There is a placeholder for future support of USB disconnection events:
     # variables.xbeeInstance.add_error_callback(partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance))
 
 This uses a `functools.partial` to prebind the device instance and register a disconnection handler, but it is currently disabled (commented out).
+⚠️ **Note for developers:** The `add_error_callback` method is **not available in the official Digi XBee Python library** (`digi-xbee`). It has been introduced in a **custom fork** of the library:
+
+🔗 https://github.com/n1lby73/xbee-python
+
+A pull request to include this feature in the upstream library has already been submitted:
+
+🔗 https://github.com/digidotcom/xbee-python/pull/310
+
+As of now, the pull request has **not yet been merged** by Digi International (the library maintainers). Until then, this functionality will only work if you use the custom fork mentioned above.
 
 Summary
 """""""""
