@@ -3168,6 +3168,46 @@ Spaghetti Code Warning
 
    Doing so would significantly improve testability, error handling, and maintainability.
 
+radioConnectionStatus
+^^^^^^^^^^^^^^^^^^^^^
+
+Definition
+"""""""""""
+
+.. code-block:: python
+
+    def radioConnectionStatus():
+        return variables.radioFlag
+
+Description
+""""""""""""
+
+Returns the current status of the XBee radio connection.
+
+This function checks the global `variables.radioFlag`, which is set to `True` when the XBee radio is successfully opened and operational, and `False` if it is disconnected or not yet initialized.
+
+Returns
+""""""""
+
+- (`bool`) – `True` if the XBee radio is currently connected and active, otherwise `False`.
+
+Behavior
+""""""""""
+
+- Acts as a status accessor to determine whether the radio is online.
+- Internally depends on the state maintained in `variables.radioFlag`, which is toggled during device setup and disconnection events.
+
+Example Usage
+""""""""""""""
+
+.. code-block:: python
+
+    if radioConnectionStatus():
+        print("Radio is connected.")
+    else:
+        print("Radio is not connected.")
+
+
 __main__ Execution Block
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
