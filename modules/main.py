@@ -1,4 +1,5 @@
 import sys, asyncio
+from functools import partial
 from modules import variables
 from datetime import datetime
 from digi.xbee.devices import XBeeDevice
