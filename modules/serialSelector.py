@@ -95,6 +95,9 @@ def handleUsbDisconnection(err, xbeeQueue=None,xbeeObject=None):
 
             print (f"usb connected- {detectPort}")
 
+def radioConnectionStatus():
+
+    return variables.radioFlag
 
 # # In serialSelector.py
 # import asyncio
