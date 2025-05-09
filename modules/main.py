@@ -9,7 +9,7 @@ from pymodbus.device import ModbusDeviceIdentification
 from modules.dbIntegration import dbQueryModbusStartAddress
 from modules.serialSelector import selectUsbPort, handleUsbDisconnection
 from modules.modbus import floatToRegisters, contextManager, getIpAddress
-# from functools import partial
+from functools import partial
 
 # Async queue to store incoming packets
 xbeeQueue = asyncio.Queue() # Stores recieved mac address and data temporarily for processing
