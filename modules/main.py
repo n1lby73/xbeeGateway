@@ -29,7 +29,7 @@ async def xbeePolling():
     try:
 
         variables.xbeeInstance.open()
-
+        variables.radioFlag = True
         def dataReceiveCallback(xbeeMessage):
 
             xbeeMacAddress = str(xbeeMessage.remote_device.get_64bit_addr())
