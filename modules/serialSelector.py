@@ -1,9 +1,8 @@
-import serial, argparse, sys
-import serial.tools.list_ports
-from digi.xbee.devices import XBeeDevice
-import asyncio
 from . import variables
 from functools import partial
+from datetime import datetime
+from digi.xbee.devices import XBeeDevice
+import serial, argparse, sys, serial.tools.list_ports
 
 def selectUsbPort(get=False):
 
@@ -58,95 +57,133 @@ def selectUsbPort(get=False):
         txt = f"Error while selecting serial port: {str(e)}"
         print(txt)
         return None
+    
+def handleUsbDisconnection(err, xbeeQueue=None,xbeeObject=None):
 
-# In serialSelector.py
-import asyncio
-import sys
-from functools import partial
-from digi.xbee.devices import XBeeDevice
-from digi.xbee.exception import XBeeException  # Add missing import
-from . import variables
+    usbDetected = False
+    variables.radioFlag = False
 
-# Add local import for xbeePolling to avoid circular dependencies
-def import_xbee_polling():
-    from osPlatform.linux import xbeePolling  # Local import to break circular dependency
-    return xbeePolling
+    xbeeObject.close()
+    def dataReceiveCallback(xbeeMessage):
 
-async def async_reconnect():
-    """Full async reconnection sequence with proper cleanup and restart"""
-    try:
-        # 1. Cancel and await old polling task
-        if variables.xbeePollingTask:
-            variables.xbeePollingTask.cancel()
-            try:
-                await variables.xbeePollingTask
-            except asyncio.CancelledError:
-                print("Cancelled previous polling task")
-            finally:
-                variables.xbeePollingTask = None
+            xbeeMacAddress = str(xbeeMessage.remote_device.get_64bit_addr())
+            timestamp = datetime.fromtimestamp(xbeeMessage.timestamp)
+            xbeeDataAsByte = xbeeMessage.data
 
-        # 2. Close old connection
-        if variables.xbeeInstance and variables.xbeeInstance.is_open():
-            variables.xbeeInstance.close()
-            print("Closed old XBee connection")
+            if str(xbeeMacAddress) not in variables.knownXbeeAddress:
 
-        # 3. Allow OS to release resources
-        await asyncio.sleep(2)
+                print (f"\nNew XBee Address Discovered: {xbeeMacAddress}")
 
-        # 4. Detect new port with retries
-        new_port = None
-        max_retries = 5
-        for attempt in range(max_retries):
-            new_port = selectUsbPort()
-            if new_port:
-                break
-            print(f"Port detection attempt {attempt+1}/{max_retries}")
-            await asyncio.sleep(2 ** attempt)  # Exponential backoff
+                variables.knownXbeeAddress.append(str(xbeeMacAddress))
+
+                print (f"List of addresses discovered so far are: {variables.knownXbeeAddress}\n")
+
+            print(f"Received data from {xbeeMacAddress} are: {xbeeDataAsByte}\n")
+            xbeeQueue.put_nowait((xbeeMacAddress, xbeeDataAsByte))
+
+    while not usbDetected:
+
+        detectPort = selectUsbPort()
+
+        if detectPort is not None:
+
+            usbDetected = True
+            xbee = XBeeDevice(detectPort, variables.xbeeBaudRate)
+            xbee.open()
+            xbee.add_data_received_callback(dataReceiveCallback)
+            xbee.add_error_callback(partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance))
+
+            print (f"usb connected- {detectPort}")
+
+
+# # In serialSelector.py
+# import asyncio
+# import sys
+# from functools import partial
+# from digi.xbee.devices import XBeeDevice
+# from digi.xbee.exception import XBeeException  # Add missing import
+# from . import variables
+
+# # Add local import for xbeePolling to avoid circular dependencies
+# def import_xbee_polling():
+#     from osPlatform.linux import xbeePolling  # Local import to break circular dependency
+#     return xbeePolling
+
+# async def async_reconnect():
+#     """Full async reconnection sequence with proper cleanup and restart"""
+#     try:
+#         # 1. Cancel and await old polling task
+#         if variables.xbeePollingTask:
+#             variables.xbeePollingTask.cancel()
+#             try:
+#                 await variables.xbeePollingTask
+#             except asyncio.CancelledError:
+#                 print("Cancelled previous polling task")
+#             finally:
+#                 variables.xbeePollingTask = None
+
+#         # 2. Close old connection
+#         if variables.xbeeInstance and variables.xbeeInstance.is_open():
+#             variables.xbeeInstance.close()
+#             print("Closed old XBee connection")
+
+#         # 3. Allow OS to release resources
+#         await asyncio.sleep(2)
+
+#         # 4. Detect new port with retries
+#         new_port = None
+#         max_retries = 5
+#         for attempt in range(max_retries):
+#             new_port = selectUsbPort()
+#             if new_port:
+#                 break
+#             print(f"Port detection attempt {attempt+1}/{max_retries}")
+#             await asyncio.sleep(2 ** attempt)  # Exponential backoff
         
-        if not new_port:
-            print("Failed to detect new port after retries")
-            return
+#         if not new_port:
+#             print("Failed to detect new port after retries")
+#             return
 
-        # 5. Create and configure new device
-        variables.xbeeInstance = XBeeDevice(new_port, variables.xbeeBaudRate)
-        variables.xbeeInstance.open()
-        print(f"New connection established on {new_port}")
+#         # 5. Create and configure new device
+#         variables.xbeeInstance = XBeeDevice(new_port, variables.xbeeBaudRate)
+#         variables.xbeeInstance.open()
+#         print(f"New connection established on {new_port}")
 
-        # 6. Re-register callbacks
-        if variables.data_callback:  # Ensure this is set in main.py
-            variables.xbeeInstance.add_data_received_callback(variables.data_callback)
+#         # 6. Re-register callbacks
+#         if variables.data_callback:  # Ensure this is set in main.py
+#             variables.xbeeInstance.add_data_received_callback(variables.data_callback)
             
-        variables.xbeeInstance.add_error_callback(
-            partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance)
-        )
+#         variables.xbeeInstance.add_error_callback(
+#             partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance)
+#         )
 
-        # 7. Restart polling task using local import
-        xbeePolling = import_xbee_polling()
-        variables.xbeePollingTask = asyncio.create_task(xbeePolling())
-        print("XBee polling restarted successfully")
+#         # 7. Restart polling task using local import
+#         xbeePolling = import_xbee_polling()
+#         variables.xbeePollingTask = asyncio.create_task(xbeePolling())
+#         print("XBee polling restarted successfully")
 
-    except XBeeException as xbee_err:
-        print(f"XBee error during reconnection: {xbee_err}")
-    except Exception as gen_err:
-        print(f"Critical reconnection error: {gen_err}")
-        raise
+#     except XBeeException as xbee_err:
+#         print(f"XBee error during reconnection: {xbee_err}")
+#     except Exception as gen_err:
+#         print(f"Critical reconnection error: {gen_err}")
+#         raise
 
-def handleUsbDisconnection(err, xbeeObject=None):
-    """Thread-safe disconnection handler"""
-    print(f"Disconnection detected: {err}")
+# def handleUsbDisconnection(err, xbeeObject=None):
+#     """Thread-safe disconnection handler"""
+#     print(f"Disconnection detected: {err}")
     
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+#     try:
+#         loop = asyncio.get_event_loop()
+#     except RuntimeError:
+#         loop = asyncio.new_event_loop()
+#         asyncio.set_event_loop(loop)
     
-    if loop.is_running():
-        loop.call_soon_threadsafe(
-            lambda: loop.create_task(async_reconnect())
-        )
-    else:
-        loop.run_until_complete(async_reconnect())
+#     if loop.is_running():
+#         loop.call_soon_threadsafe(
+#             lambda: loop.create_task(async_reconnect())
+#         )
+#     else:
+#         loop.run_until_complete(async_reconnect())
 
 # async def async_reconnect():
 #     """Handles the entire reconnection process asynchronously."""
