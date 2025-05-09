@@ -48,7 +48,7 @@ async def xbeePolling():
             xbeeQueue.put_nowait((xbeeMacAddress, xbeeDataAsByte))
 
         variables.xbeeInstance.add_data_received_callback(dataReceiveCallback)
-        # variables.xbeeInstance.add_error_callback(partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance))
+        variables.xbeeInstance.add_error_callback(partial(handleUsbDisconnection, xbeeQueue=xbeeQueue, xbeeObject=variables.xbeeInstance))
 
         while True:
             # This is to make sure that the data is open and awaiting data
