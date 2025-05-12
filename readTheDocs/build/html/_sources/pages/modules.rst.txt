@@ -197,6 +197,25 @@ This uses a `functools.partial` to prebind the device instance and register a di
 
     As of now, the pull request has **not yet been merged** by Digi International (the library maintainers). Until then, this functionality will only work if you use the custom fork mentioned above.
 
+<<<<<<< HEAD
+=======
+The project now includes support for handling USB disconnection events for the XBee radio.
+
+.. code-block:: python
+
+    variables.xbeeInstance.add_error_callback(partial(handleUsbDisconnection, xbeeObject=variables.xbeeInstance))
+
+This line registers an error callback that detects when the USB-connected XBee device is unexpectedly removed.
+
+.. note::
+
+   While this functionality is now active, the implementation is currently **not cleanly modularized**.
+   It has been integrated in a somewhat "spaghetti" manner as a temporary solution to maintain stability
+   and ensure continuous operation.
+
+   Future refactoring is planned to improve separation of concerns and robustness in the disconnection handling logic.
+
+>>>>>>> c4887382974d76bbd46d8463d05c240418b0dadd
 Summary
 """""""""
 
@@ -2417,12 +2436,6 @@ Side Effects
 - **Read-Only**: This function does not modify the database.
 - **Stateless**: It can be safely called multiple times without impacting system state.
 
-Limitations
-""""""""""""""
-
-- The returned data does not preserve original dictionary keys, only the values. This could make parsing harder in some frontend systems.
-- Order of keys in MongoDB documents is not guaranteed, so value order in each list may vary unless explicitly ordered.
-
 Example Usage
 """""""""""""""
 
@@ -2544,26 +2557,6 @@ Side Effects
 - **Consumes Modbus address space** in the range 39000–39999.
 - Can cause **significant slowdown** due to excessive console output and database writes.
 
-Limitations
-""""""""""""""
-
-- Console output becomes unreadable beyond a few hundred entries.
-- May result in performance bottlenecks, especially on limited hardware like Raspberry Pi.
-- Can exhaust MongoDB resources (memory, disk, indexing) over time.
-- Inserts are not de-duplicated; rare chance of MAC address collision despite randomness.
-
-Recommendations
-""""""""""""""""""
-
-- Wrap the `print()` call in a debug flag or limit it (e.g., print every 1000 inserts).
-- Use a shorter range during local testing (e.g., 100 radios) to avoid unintentional overload.
-- Consider deleting all entries after the test using a cleanup helper.
-- Replace raw `print(retrieveAllConfiguredRadio())` with summary statistics like:
-
-   .. code-block:: python
-
-      if i % 1000 == 0:
-          print(f"Inserted {i+1} radios")
 
 Example Output
 """"""""""""""""
@@ -2641,31 +2634,6 @@ Side Effects
   - Launch services or daemons
   - Populate or modify the database
   - Run standalone validation scripts
-
-Limitations
-""""""""""""""
-
-- The block is inert (`pass`) and performs no actions in its current state.
-- Omitting `__main__` logic can lead to confusion when trying to run the file directly and expecting visible behavior.
-
-Recommendations
-""""""""""""""""""
-
-- Replace `pass` with a functional call like:
-
-   .. code-block:: python
-
-      if __name__ == "__main__":
-          startProcess()
-
-- Use it for debug helpers during development:
-
-   .. code-block:: python
-
-      if __name__ == "__main__":
-          populateDbHelper()
-
-- Add comments indicating its purpose and which function(s) should be run for testing or production.
 
 Example Usage
 """"""""""""""""
@@ -2785,19 +2753,6 @@ This function is used in the main gateway polling loop:
    contextValue[0].setValues(4, startAddress, registers)
 
 The above logic shows that each sensor value is first passed to `floatToRegisters`, then the resulting register pairs are written to **Holding (FC3)** and **Input (FC4)** Modbus registers.
-
-Limitations
-""""""""""""""
-
-- Only supports 32-bit `float` types. It does **not** handle double-precision floats or alternative encoding schemes.
-- Assumes **little-endian** byte order, which may need adjustment for systems using big-endian Modbus encoding.
-- No error handling for invalid input (e.g., non-numeric types).
-
-Recommendations
-""""""""""""""""""
-
-- Consider adding a `registersToFloat()` reverse function for systems that require reading floats from Modbus registers.
-- Use with Modbus register sets that are guaranteed to store **two consecutive 16-bit slots** per float.
 
 
 contextManager
@@ -2981,22 +2936,6 @@ This function is commonly used at system or server initialization time to:
 - Show diagnostics or status in a GUI or terminal.
 - Avoid binding services to the wrong interface.
 
-Limitations
-""""""""""""""
-
-- Interface name pattern matching is **heuristic-based** and not foolproof — it may miss obscure naming schemes.
-- Assumes **English or Chinese interface labels**. Will not work as expected if system is localized to another language without matching keywords.
-- Does not support **IPv6** or multiple NIC prioritization strategies (e.g., metric-based routing).
-- Only selects **one IP**, even if multiple Ethernet/Wi-Fi adapters are active.
-
-Recommendations
-""""""""""""""""""
-
-- Extend the `ethernetPatterns` and `wifiPatterns` lists for non-standard naming in industrial or embedded platforms.
-- Add support for selecting interfaces based on **gateway reachability** or **routing table priority** for more robust detection.
-- Consider allowing **manual IP override** through a configuration file or environment variable in production systems.
-
-
 
 .. _serialSelector:
 
@@ -3134,6 +3073,143 @@ This function can also be triggered directly via command line:
     python -m modules.serialSelector --g
 
 This prints all connected serial devices with hardware info, and helps configure the correct serial number in `variables.py`.
+
+handleUsbDisconnection
+^^^^^^^^^^^^^^^^^^^^^^
+
+Definition
+""""""""""
+
+.. code-block:: python
+
+    def handleUsbDisconnection(err, xbeeQueue=None, xbeeObject=None):
+
+Description
+"""""""""""
+
+Handles unexpected USB disconnection events related to the XBee device, and attempts automatic recovery by detecting reconnected ports and reinitializing the XBee radio.
+
+This function is triggered via an error callback registered on the XBee device using ``add_error_callback()``. When a disconnection occurs, it flags the radio as offline, closes the old connection, continuously polls for an available USB port, and re-initializes the XBee device when found.
+
+.. note::
+
+   This implementation currently functions as intended, but its structure is considered spaghetti code (see `Spaghetti Code Warning` section).
+
+Parameters
+"""""""""""
+
+- ``err`` (*Exception*): Error raised by the Digi XBee library when USB disconnection occurs.
+- ``xbeeQueue`` (*asyncio.Queue*, optional): Queue to which parsed data will be pushed once reconnected.
+- ``xbeeObject`` (*XBeeDevice*, optional): The currently active XBee device instance to close and replace.
+
+Returns
+"""""""
+
+- None
+
+Behavior
+"""""""""
+
+- Sets ``variables.radioFlag`` to ``False``.
+- Closes the existing ``xbeeObject`` connection.
+- Enters a loop to poll USB ports using ``selectUsbPort()`` until a match is found.
+- Once a valid port is found:
+  
+  - Initializes a new ``XBeeDevice`` on the detected port.
+  - Opens the device and re-registers both data and error callbacks.
+  - Sets ``variables.radioFlag`` back to ``True``.
+
+Exceptions Handled
+"""""""""""""""""""
+
+- None directly, but the function is invoked in response to runtime exceptions from the XBee library.
+
+Example Usage
+"""""""""""""
+
+.. code-block:: python
+
+    from functools import partial
+    xbeeDevice.add_error_callback(partial(handleUsbDisconnection, xbeeQueue=myQueue, xbeeObject=xbeeDevice))
+
+Spaghetti Code Warning
+""""""""""""""""""""""
+
+.. warning::
+
+   While effective in practice, this function's structure is currently unmaintainable and should be refactored:
+
+   - It nests callbacks (`dataReceiveCallback`) inside the function body.
+   - It blocks with ``while not usbDetected``, which can stall the main thread.
+   - It mixes recovery, I/O, and callback logic into one procedural block.
+   - It depends on shared global state via ``variables.*``.
+
+   A cleaner implementation should extract:
+   
+   - Port selection
+   - Device setup
+   - Callback registration
+   - Recovery logic
+
+   into modular, reusable functions that can be tested and maintained independently.
+
+    The current implementation achieves its purpose but suffers from structural and architectural issues, classifying it as *spaghetti code*. Key concerns include:
+
+   - **Nested Callback Definitions**: The `dataReceiveCallback` is defined inside `xbeePolling()`, limiting reusability and making testing difficult.
+   - **Global State Side Effects**: Critical variables such as `variables.xbeeInstance`, `variables.radioFlag`, and `variables.knownXbeeAddress` are accessed and mutated across multiple scopes and functions.
+   - **Duplicated Initialization Logic**: The USB disconnection recovery routine duplicates the radio setup logic rather than calling the `xbeePolling()` function or a shared initializer.
+   - **Async + Blocking Confusion**: The loop in `xbeePolling()` awaits sleep without doing actual work. This keeps the coroutine alive but doesn't leverage asyncio for I/O tasks.
+   - **Error Recovery Lacks Structure**: Error handling is done via a partially applied `handleUsbDisconnection` function, which adds more callbacks and I/O operations in-line.
+
+   Refactoring Suggestions:
+   
+   - Move `dataReceiveCallback` to a top-level function.
+   - Isolate shared setup logic into a reusable `initializeXbeeDevice()` function.
+   - Store device state in a class or context manager rather than global `variables`.
+   - Replace bare `await asyncio.sleep()` loop with actual task queue polling or health checks.
+   - Use dependency injection or a state machine to separate device control flow from data handling.
+
+   Doing so would significantly improve testability, error handling, and maintainability.
+
+radioConnectionStatus
+^^^^^^^^^^^^^^^^^^^^^
+
+Definition
+"""""""""""
+
+.. code-block:: python
+
+    def radioConnectionStatus():
+        return variables.radioFlag
+
+Description
+""""""""""""
+
+Returns the current status of the XBee radio connection.
+
+This function checks the global `variables.radioFlag`, which is set to `True` when the XBee radio is successfully opened and operational, and `False` if it is disconnected or not yet initialized.
+
+Returns
+""""""""
+
+- (`bool`) – `True` if the XBee radio is currently connected and active, otherwise `False`.
+
+Behavior
+""""""""""
+
+- Acts as a status accessor to determine whether the radio is online.
+- Internally depends on the state maintained in `variables.radioFlag`, which is toggled during device setup and disconnection events.
+
+Example Usage
+""""""""""""""
+
+.. code-block:: python
+
+    if radioConnectionStatus():
+        print("Radio is connected.")
+    else:
+        print("Radio is not connected.")
+
 
 __main__ Execution Block
 ^^^^^^^^^^^^^^^^^^^^^^^^

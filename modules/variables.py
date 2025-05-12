@@ -16,3 +16,4 @@ knownXbeeAddress = []
 xbeeInstance = None # Holds the current xbee object instance
 xbeePollingTask = None # Holds the current polling task
 data_callback = None
+radioFlag = None

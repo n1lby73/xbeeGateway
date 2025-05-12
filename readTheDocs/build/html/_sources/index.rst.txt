@@ -18,17 +18,17 @@
 XBee Gateway's documentation!
 =============================
 
-The **XBee Gateway** is an industrial-grade Python-based communication bridge designed to collect, process, and expose field data from distributed wireless RTUs (Remote Terminal Units) over Modbus TCP. It is particularly suited for oilfields, power plants, and other SCADA-style environments where reliability, scalability, and real-time data integration are critical.
+The **XBee Gateway** is a robust, Python-based industrial communication bridge designed for collecting, processing, and transmitting field data from distributed wireless RTUs (Remote Terminal Units) over Modbus TCP. Ideal for applications in oilfields, power plants, and SCADA-driven environments, it offers high reliability, scalability, and real-time data integration.
 
 Project Features
 ----------------
 
-- 📡 **XBee Radio Integration**: Collects sensor and control data from remote RTUs via Digi XBee radios using serial communication.
-- 🧠 **Data Parsing & Mapping**: Converts binary payloads into human-readable or Modbus-compatible values using custom logic.
-- 🗃️ **Modbus TCP Server**: Maps incoming data to Modbus holding registers, enabling integration with HMIs, PLCs, and SCADA systems.
-- 🧩 **MongoDB Support**: Optionally stores historical or configuration data in a local or remote MongoDB database.
-- 🧪 **Modular Architecture**: Built using a clean separation of concerns (polling, parsing, database, Modbus context), making it easy to extend or debug.
-- 🐍 **Python 3.9+ Compatible**: Works reliably on embedded systems like Raspberry Pi 4 (ARM64) with low resource usage.
+- 📡 **XBee Radio Integration**: Acquires sensor and control data from remote RTUs using Digi XBee radios over serial communication.
+- 🧠 **Data Parsing & Mapping**: Transforms binary payloads into human-readable formats or Modbus-compatible values through customizable logic.
+- 🗃️ **Modbus TCP Server**: Maps parsed data to Modbus holding registers, enabling seamless integration with HMIs, PLCs, and SCADA systems.
+- 🧩 **MongoDB Support**: Optionally logs historical or configuration data to a local or remote MongoDB database.
+- 🧪 **Modular Architecture**: Designed with clear modular separation (polling, parsing, storage, Modbus context) for easy maintenance and extension.
+- 🐍 **Python 3.9+ Compatible**: Optimized for low-resource embedded systems like the Raspberry Pi 4 (ARM64).
 
 Use Cases
 ---------
