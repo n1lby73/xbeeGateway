@@ -39,7 +39,7 @@ def selectUsbPort(get=False):
             txt = "run 'python -m modules.serialSelector -g' to retrieve connected port serial number and add replace in variable.py file"
             print(txt)
             return None
-
+ 
     except KeyboardInterrupt:
 
         txt = "Operation interrupted by the user."
