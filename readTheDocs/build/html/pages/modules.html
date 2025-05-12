@@ -521,71 +521,6 @@
 </section>
 <section id="data-reception-callback">
 <h4>Data Reception Callback<a class="headerlink" href="#data-reception-callback" title="Link to this heading"></a></h4>
-<p>def getIpAddress():</p>
-<blockquote>
-<div><p>interfaces = psutil.net_if_addrs()
-ethernetIp = None
-wifiIp = None
-default = “0.0.0.0”</p>
-<p># Common interface name patterns for different platforms
-ethernetPatterns = [</p>
-<blockquote>
-<div><p>‘eth’, ‘en’, ‘ethernet’,
-‘local area connection’, ‘有线’</p>
-</div></blockquote>
-<p>]</p>
-<p>wifiPatterns = [</p>
-<blockquote>
-<div><p>‘wifi’, ‘wi-fi’, ‘wireless’,
-‘wl’, ‘wlan’, ‘无线’, ‘wi_fi’</p>
-</div></blockquote>
-<p>]</p>
-<p>for interfaceName, interfaceAddresses in interfaces.items():</p>
-<blockquote>
-<div><p>for address in interfaceAddresses:</p>
-<blockquote>
-<div><p>if address.family == socket.AF_INET and not address.address.startswith(“127.”):</p>
-<blockquote>
-<div><p>if any(pattern in interfaceName.lower() for pattern in ethernetPatterns):</p>
-<blockquote>
-<div><p># Check if the IP address is from the APIPA range and skip it
-if address.address.startswith(“169.254”):</p>
-<blockquote>
-<div><p>continue</p>
-</div></blockquote>
-<p>if not ethernetIp:</p>
-<blockquote>
-<div><p>ethernetIp = address.address</p>
-</div></blockquote>
-</div></blockquote>
-<p>elif any(pattern in interfaceName.lower() for pattern in wifiPatterns):</p>
-<blockquote>
-<div><p>if not wifiIp:</p>
-<blockquote>
-<div><p>wifiIp = address.address</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-<p>if ethernetIp:</p>
-<blockquote>
-<div><p>print(f”Ethernet IP Address: {ethernetIp}”)
-return ethernetIp</p>
-</div></blockquote>
-<p>elif wifiIp:</p>
-<blockquote>
-<div><p>print(“No Ethernet interface detected. Falling back to Wi-Fi.”)
-print(f”Wi-Fi IP Address: {wifiIp}”)
-return wifiIp</p>
-</div></blockquote>
-<p>else:</p>
-<blockquote>
-<div><p>print(“No Ethernet or Wi-Fi network detected on this machine.”)
-print(f”Using default address {default}”)
-return default</p>
-</div></blockquote>
-</div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dataReceiveCallback</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="p">):</span>
     <span class="n">xbeeMacAddress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="o">.</span><span class="n">remote_device</span><span class="o">.</span><span class="n">get_64bit_addr</span><span class="p">())</span>
     <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">xbeeMessage</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
@@ -634,6 +569,14 @@ return default</p>
 </pre></div>
 </div>
 <p>This uses a <cite>functools.partial</cite> to prebind the device instance and register a disconnection handler, but it is currently disabled (commented out).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>⚠️ <strong>Note for developers:</strong> The <cite>add_error_callback</cite> method is <strong>not available in the official Digi XBee Python library</strong> (<cite>digi-xbee</cite>). It has been introduced in a <strong>custom fork</strong> of the library:</p>
+<p>🔗 <a class="reference external" href="https://github.com/n1lby73/xbee-python">https://github.com/n1lby73/xbee-python</a></p>
+<p>A pull request to include this feature in the upstream library has already been submitted:</p>
+<p>🔗 <a class="reference external" href="https://github.com/digidotcom/xbee-python/pull/310">https://github.com/digidotcom/xbee-python/pull/310</a></p>
+<p>As of now, the pull request has <strong>not yet been merged</strong> by Digi International (the library maintainers). Until then, this functionality will only work if you use the custom fork mentioned above.</p>
+</div>
 </section>
 <section id="id2">
 <h4>Summary<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>

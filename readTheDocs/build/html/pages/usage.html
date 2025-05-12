@@ -45,7 +45,12 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-gui">Starting the GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-gateway-script">Starting the Gateway Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#project-flow-summary">Project Flow Summary</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
 
@@ -75,7 +80,42 @@
              
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
-<p>There are different modules that works together to make the gateway a functional one</p>
+<p>This project consists of two individual components that work hand-in-hand to achieve a common goal:
+a configuration <strong>GUI</strong> and the main <strong>Python script</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is <strong>mandatory</strong> to have MongoDB installed and running locally before starting the application.
+Without it, no configuration or historical data will be stored.</p>
+<p>Please refer to the official MongoDB documentation to set up MongoDB for your operating system:
+<a class="reference external" href="https://www.mongodb.com/docs/manual/installation/">https://www.mongodb.com/docs/manual/installation/</a></p>
+</div>
+<section id="starting-the-gui">
+<h2>Starting the GUI<a class="headerlink" href="#starting-the-gui" title="Link to this heading"></a></h2>
+<p>To launch the graphical user interface for managing device configurations, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>modules.configGui
+</pre></div>
+</div>
+<p>This will open a window allowing you to view, add, update, or delete XBee device configurations
+stored in the MongoDB database.</p>
+</section>
+<section id="starting-the-gateway-script">
+<h2>Starting the Gateway Script<a class="headerlink" href="#starting-the-gateway-script" title="Link to this heading"></a></h2>
+<p>To start the Modbus gateway application, which polls XBee devices, maps data to Modbus registers,
+and serves the Modbus TCP server, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py
+</pre></div>
+</div>
+<p>This script initializes the Modbus context, sets up XBee polling, handles real-time communication with
+XBee radios, and exposes the data over a Modbus TCP server interface for client applications.</p>
+</section>
+<section id="project-flow-summary">
+<h2>Project Flow Summary<a class="headerlink" href="#project-flow-summary" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Ensure MongoDB is running locally.</strong></p></li>
+<li><p><strong>Use the GUI (`python -m modules.configGui`)</strong> to configure connected XBee radios and Modbus address ranges.</p></li>
+<li><p><strong>Start the main application (`python run.py`)</strong> to begin polling data and exposing it via Modbus TCP.</p></li>
+</ol>
+</section>
 </section>
 
 
