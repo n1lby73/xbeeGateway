@@ -189,7 +189,7 @@ This uses a `functools.partial` to prebind the device instance and register a di
 .. note::
     ⚠️ **Note for developers:** The `add_error_callback` method is **not available in the official Digi XBee Python library** (`digi-xbee`). It has been introduced in a **custom fork** of the library:
 
-    🔗 https://github.com/n1lby73/xbee-python
+    🔗 https://github.com/n1lby73/xbee-python/tree/exposeSerialSelection
 
     A pull request to include this feature in the upstream library has already been submitted:
 
