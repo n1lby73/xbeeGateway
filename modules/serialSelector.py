@@ -103,18 +103,16 @@ def getListOfConnectedSerialDevice():
 
     ports = list(serial.tools.list_ports.comports())
 
-        usbPorts = [{"port":port.device, "hwid":port.hwid} for port in ports if "USB" or "COM" in port.device.upper()]
+    usbPorts = [{"port":port.device, "hwid":port.hwid} for port in ports if "USB" or "COM" in port.device.upper()]
 
-        if usbPorts:
+    if usbPorts:
 
-            print("serial number starts with ser\n\nAvaialbe serial devices and info are:\n")
-            portValues = []
-            for connectedDevices in usbPorts:
+        portValues = []
 
-                portValues.append(connectedDevices)                
-                print (connectedDevices)
-                print ("\nCopy desired device serial number and replace in variable.py file\n")
-                return portValues
+        for connectedDevices in usbPorts:
+            portValues.append(connectedDevices)     
+
+    return portValues
 
 if __name__ == "__main__":
 

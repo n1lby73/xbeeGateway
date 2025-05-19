@@ -4,6 +4,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 from .modbus import getIpAddress
 from .dbIntegration import configureXbeeRadio, retrieveAllConfiguredRadio, deleteXbeeDetails, updateXbeeDetails, updateReusableAddress, updateAllEndAddress
+from .serialSelector import getListOfConnectedSerialDevice, radioConnectionStatus
 
 class Modbus_GUI(tk.Tk):
 
@@ -26,15 +27,20 @@ class Modbus_GUI(tk.Tk):
         self.config_button = tk.Button(self.head_frame, text="Configure Serial Port", bg="blue", fg="white", command = self.configure_button)
         self.config_button.grid(row=0, column=2, padx=20 , pady = 5)
 
+        self.connection = tk.Button(self.head_frame, text="Connection Status", bg="blue", fg="white", command = self.connection_status)
+        self.connection.grid(row=0, column=3, padx=20 , pady = 5)
+
+        self.select_usb = tk.Button(self.head_frame, text="Selected USB", bg="blue", fg="white", command = self.select_usb)
+        self.select_usb.grid(row=0, column=4, padx=20 , pady = 5)
+
         self.canvas = tk.Canvas(self, width=800, height=8)
         self.canvas.pack()
-
 
         self.canvas.create_line(0, 3, 800, 3, fill="#D3D3D3")
         
 
         self.add_entry_frame = tk.Frame(self)
-        self.add_entry_frame.pack(fill="both")
+        self.add_entry_frame.pack(expand= True, fill="both", anchor = "center")
 
         self.add_label = tk.Label(self.add_entry_frame, text="Add New Entry")
         self.add_label.grid(row =0, column= 0,columnspan=3)
@@ -575,6 +581,27 @@ class Modbus_GUI(tk.Tk):
         
         self.configure_window.destroy()
 
+    def connection_status(self):
+        status = radioConnectionStatus()
 
+        if status == True:
+            messagebox.showinfo(title="Connection Status", message="Radio is connected.")
+
+        elif status == False or status == None:
+            messagebox.showerror(title="Connection Status", message="Radio is not connected.")
+        
+        else:
+            messagebox.showerror(title="Connection Status", message= f"Error: {status}")
+
+    def select_usb(self):
+        portValues = getListOfConnectedSerialDevice()
+
+        message = """"""
+        for value in portValues:
+            message += f"Port: {value['port']} \nHWID: {value['hwid']}\n\n"
+
+        messagebox.showinfo(title="Connected Serial Devices", message= f"""Connected Serial Devices:
+                             \n{message}""")
+        
 my_app = Modbus_GUI()
 my_app.mainloop()

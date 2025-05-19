@@ -1232,6 +1232,70 @@ Functions:
    **Dependencies:**
     - Assumes `self.search_bar` is a `tk.Entry` widget.
 
+
+.. function:: select_usb(self)
+
+    Displays a list of connected USB serial devices in a message box.
+
+    This method fetches the list of currently connected serial (USB) devices using the `getListOfConnectedSerialDevice()` function and displays the port and HWID of each device in a formatted message box.
+
+   **Behavior:**
+
+    - Calls `getListOfConnectedSerialDevice()` to retrieve a list of serial devices.
+    - Iterates over the list and formats each device's port and hardware ID (HWID).
+    - Displays the formatted device information in a Tkinter info messagebox titled *"Connected Serial Devices"*.
+
+   **Dependencies:**
+
+    - `getListOfConnectedSerialDevice()` — should return a list of dictionaries with at least `port` and `hwid` keys.
+    - `tkinter.messagebox` — for displaying the list to the user.
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.select_usb()
+
+
+   **Example Output:**
+
+   .. code-block:: text
+
+      Connected Serial Devices:
+
+      Port: COM9
+      HWID: BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\8&11925E23&2&000000000000_00000000
+
+      Port: COM10
+      HWID: BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\8&11925E23&2&000000000000_00000001
+
+
+.. function:: connection_status(self)
+
+    Checks and displays the current radio connection status using a message box.
+
+    This method calls the `radioConnectionStatus()` function to determine whether the radio is connected. Based on the result, it displays a corresponding Tkinter message box.
+
+   **Behavior:**
+
+    - Calls `radioConnectionStatus()` to check if the radio is connected.
+    - If the result is `True`, it shows a success message.
+    - If the result is `False` or `None`, it shows an error message indicating disconnection.
+    - If the result is any other value (e.g., a string error), it displays that as an error message.
+
+   **Dependencies:**
+
+    - `radioConnectionStatus()` — a function that returns `True`, `False`, `None`, or an error description.
+    - `tkinter.messagebox` — for displaying the status result to the user.
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.connection_status()
+
+
+
 Notes
 ^^^^^^
 
