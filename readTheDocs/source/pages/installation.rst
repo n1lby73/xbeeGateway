@@ -22,3 +22,9 @@ Follow these steps to install the **XBee Gateway**:
    .. code-block:: bash
 
        pip install -r requirements.txt
+
+4. **Install Customized digi-xbee library**
+
+   .. code-block:: bash
+      
+       pip install git+https://github.com/n1lby73/xbee-python.git@exposeSerialSelection
