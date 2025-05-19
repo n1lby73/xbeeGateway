@@ -30,7 +30,7 @@ class Modbus_GUI(tk.Tk):
         self.connection = tk.Button(self.head_frame, text="Connection Status", bg="blue", fg="white", command = self.connection_status)
         self.connection.grid(row=0, column=3, padx=20 , pady = 5)
 
-        self.select_usb = tk.Button(self.head_frame, text="Selected USB", bg="blue", fg="white", command = self.select_usb)
+        self.select_usb = tk.Button(self.head_frame, text="Connected USB", bg="blue", fg="white", command = self.select_usb)
         self.select_usb.grid(row=0, column=4, padx=20 , pady = 5)
 
         self.canvas = tk.Canvas(self, width=800, height=8)
