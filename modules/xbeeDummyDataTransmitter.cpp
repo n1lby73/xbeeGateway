@@ -26,6 +26,7 @@ void send_transmit_request(SoftwareSerial serial, uint8_t dest_addr[], uint8_t m
 uint8_t calculateChecksum(uint8_t* frame, int length);
 void receive_transmit_request();
 
+#define randomInRange(min, max) (rand() % (max - min)) + min
 
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
@@ -48,12 +49,38 @@ void loop() {
 
   // Serial.write(slave_message, sizeof(slave_message));
   // Serial.println("sent");
-  send_transmit_request(slave1_serial, broadcast_addr, (uint8_t *)slave1_message, sizeof(slave1_message));
-  send_transmit_request(slave2_serial, broadcast_addr, (uint8_t *)slave2_message, sizeof(slave2_message));
-  send_transmit_request(slave3_serial, broadcast_addr, (uint8_t *)slave3_message, sizeof(slave3_message));
-  send_transmit_request(slave4_serial, broadcast_addr, (uint8_t *)slave4_message, sizeof(slave4_message));
+  size_t slave1_last_send_time = 0;
+  if (millis() - slave1_last_send_time >  (size_t) randomInRange(2,3)) {  
+    send_transmit_request(slave1_serial, broadcast_addr, (uint8_t *)slave1_message, sizeof(slave1_message));
+    slave1_last_send_time = millis();
+  }
+
+    size_t slave2_last_send_time = 0;
+  if (millis() - slave2_last_send_time >  (size_t) randomInRange(2,5)) {  
+    send_transmit_request(slave2_serial, broadcast_addr, (uint8_t *)slave2_message, sizeof(slave2_message));
+    slave2_last_send_time = millis();
+  }
+
+    size_t slave3_last_send_time = 0;
+  if (millis() - slave3_last_send_time >  (size_t) randomInRange(5,8)) {  
+    send_transmit_request(slave3_serial, broadcast_addr, (uint8_t *)slave3_message, sizeof(slave3_message));
+    slave3_last_send_time = millis();
+  }
+    size_t slave4_last_send_time = 0;
+  if (millis() - slave4_last_send_time >  (size_t) randomInRange(1,6)) {  
+    send_transmit_request(slave4_serial, broadcast_addr, (uint8_t *)slave4_message, sizeof(slave4_message));
+    
+    Serial.println(randomInRange(2,5));
+    slave4_last_send_time = millis();
+  }
   // receive_transmit_request();
-  delay(1000);
+  // delay(5000);
+
+  // digitalWrite(LED_BUILTIN, HIGH);
+  // delay(500);
+  // digitalWrite(LED_BUILTIN, LOW);
+  // delay(500);
+
 
 }
 #define META_DATA_LEN 17
