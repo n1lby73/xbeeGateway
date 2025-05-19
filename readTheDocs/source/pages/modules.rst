@@ -3065,6 +3065,7 @@ Dependencies
 - It also requires a correctly defined `prefferedRadioSerialNumber` in the `variables.py` module to perform auto-selection.
 - The XBee device itself is not opened or initialized here, but the port returned can be passed to `XBeeDevice` elsewhere in the application.
 
+
 selectUsbPort
 ^^^^^^^^^^^^^
 
@@ -3134,6 +3135,7 @@ This function can also be triggered directly via command line:
     python -m modules.serialSelector --g
 
 This prints all connected serial devices with hardware info, and helps configure the correct serial number in `variables.py`.
+
 
 handleUsbDisconnection
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -3231,6 +3233,56 @@ Spaghetti Code Warning
    - Use dependency injection or a state machine to separate device control flow from data handling.
 
    Doing so would significantly improve testability, error handling, and maintainability.
+
+
+getListOfConnectedSerialDevice
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Definition
+"""""""""""
+
+.. code-block:: python
+
+    def getListOfConnectedSerialDevice():
+
+
+Description
+"""""""""""
+
+Scans the system for available serial (COM or USB) ports and returns a list of connected devices.
+Uses pyserial's serial.tools.list_ports.comports() to retrieve serial port details, then filters and formats ports that appear to be connected via USB or are labeled as COM ports.
+
+Parameters
+"""""""""""
+- None
+
+Returns
+"""""""
+
+- list[dict]: A list of dictionaries, each containing:
+
+- port (str): The device name (e.g., "COM3" or "/dev/ttyUSB0").
+
+- hwid (str): The hardware ID of the serial device.
+
+Behavior
+"""""""""
+
+- Calls serial.tools.list_ports.comports() to retrieve all connected serial ports.
+
+- Filters the results to include ports whose names contain USB or COM.
+
+- Constructs and returns a list of dictionaries containing port and HWID.
+
+Example Usage
+"""""""""""""
+.. code-block:: python
+
+    ports = getListOfConnectedSerialDevice()
+    for port in ports:
+        print(f"Port: {port['port']}, HWID: {port['hwid']}")
+
+
 
 radioConnectionStatus
 ^^^^^^^^^^^^^^^^^^^^^
