@@ -1,0 +1,15 @@
+[Unit]
+Description=Cors Gateway Configuration
+After=xbee_gateway.service
+Requires=graphical.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/xbeeGateway # Change this path to the path where the project was cloned
+Environment=DISPLAY=:0
+ExecStart=venv/bin/python -m modules.configGui # Rename the venv if you did not name your virtual environment with the conventional venv name pattern
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=graphical.target
