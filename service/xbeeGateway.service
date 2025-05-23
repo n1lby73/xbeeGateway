@@ -1,0 +1,24 @@
+[Unit]
+Description=CORS Gateway
+After=multi-user.target  # Waits for full system initialization
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/xbeeGateway # Change this path to the path where the project was cloned
+# Use lsof to find and kill processes on port 5020 (no sudo)
+ExecStartPre=/usr/bin/bash -c 'lsof -ti:5020 | xargs -r kill -9 || true'
+# Optional: Add a small delay to ensure port is released
+ExecStartPre=/bin/sleep 2
+ExecStart=venv/bin/python run.py # If conventional name been venv for virutal environment was not used, change venv to the name of the virtual environment
+Restart=always
+RestartSec=10s
+#Environment="PYTHONUNBUFFERED=1"  # Prevents log buffering
+StandardOutput=file:corsGatewayService.txt
+StandardError=file:corsGatewayErrorService.txt
+
+# Optional: Limit resources to prevent leaks
+MemoryMax=200M
+CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target
