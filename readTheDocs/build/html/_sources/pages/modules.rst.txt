@@ -189,7 +189,7 @@ This uses a `functools.partial` to prebind the device instance and register a di
 .. note::
     ⚠️ **Note for developers:** The `add_error_callback` method is **not available in the official Digi XBee Python library** (`digi-xbee`). It has been introduced in a **custom fork** of the library:
 
-    🔗 https://github.com/n1lby73/xbee-python
+    🔗 https://github.com/n1lby73/xbee-python/tree/exposeSerialSelection
 
     A pull request to include this feature in the upstream library has already been submitted:
 
@@ -197,8 +197,6 @@ This uses a `functools.partial` to prebind the device instance and register a di
 
     As of now, the pull request has **not yet been merged** by Digi International (the library maintainers). Until then, this functionality will only work if you use the custom fork mentioned above.
 
-<<<<<<< HEAD
-=======
 The project now includes support for handling USB disconnection events for the XBee radio.
 
 .. code-block:: python
@@ -215,7 +213,6 @@ This line registers an error callback that detects when the USB-connected XBee d
 
    Future refactoring is planned to improve separation of concerns and robustness in the disconnection handling logic.
 
->>>>>>> c4887382974d76bbd46d8463d05c240418b0dadd
 Summary
 """""""""
 
@@ -1234,6 +1231,70 @@ Functions:
 
    **Dependencies:**
     - Assumes `self.search_bar` is a `tk.Entry` widget.
+
+
+.. function:: select_usb(self)
+
+    Displays a list of connected USB serial devices in a message box.
+
+    This method fetches the list of currently connected serial (USB) devices using the `getListOfConnectedSerialDevice()` function and displays the port and HWID of each device in a formatted message box.
+
+   **Behavior:**
+
+    - Calls `getListOfConnectedSerialDevice()` to retrieve a list of serial devices.
+    - Iterates over the list and formats each device's port and hardware ID (HWID).
+    - Displays the formatted device information in a Tkinter info messagebox titled *"Connected Serial Devices"*.
+
+   **Dependencies:**
+
+    - `getListOfConnectedSerialDevice()` — should return a list of dictionaries with at least `port` and `hwid` keys.
+    - `tkinter.messagebox` — for displaying the list to the user.
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.select_usb()
+
+
+   **Example Output:**
+
+   .. code-block:: text
+
+      Connected Serial Devices:
+
+      Port: COM9
+      HWID: BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\8&11925E23&2&000000000000_00000000
+
+      Port: COM10
+      HWID: BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&0000\8&11925E23&2&000000000000_00000001
+
+
+.. function:: connection_status(self)
+
+    Checks and displays the current radio connection status using a message box.
+
+    This method calls the `radioConnectionStatus()` function to determine whether the radio is connected. Based on the result, it displays a corresponding Tkinter message box.
+
+   **Behavior:**
+
+    - Calls `radioConnectionStatus()` to check if the radio is connected.
+    - If the result is `True`, it shows a success message.
+    - If the result is `False` or `None`, it shows an error message indicating disconnection.
+    - If the result is any other value (e.g., a string error), it displays that as an error message.
+
+   **Dependencies:**
+
+    - `radioConnectionStatus()` — a function that returns `True`, `False`, `None`, or an error description.
+    - `tkinter.messagebox` — for displaying the status result to the user.
+
+   **Example Usage:**
+
+   .. code-block:: python
+
+      self.connection_status()
+
+
 
 Notes
 ^^^^^^
@@ -3004,6 +3065,7 @@ Dependencies
 - It also requires a correctly defined `prefferedRadioSerialNumber` in the `variables.py` module to perform auto-selection.
 - The XBee device itself is not opened or initialized here, but the port returned can be passed to `XBeeDevice` elsewhere in the application.
 
+
 selectUsbPort
 ^^^^^^^^^^^^^
 
@@ -3073,6 +3135,7 @@ This function can also be triggered directly via command line:
     python -m modules.serialSelector --g
 
 This prints all connected serial devices with hardware info, and helps configure the correct serial number in `variables.py`.
+
 
 handleUsbDisconnection
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -3170,6 +3233,56 @@ Spaghetti Code Warning
    - Use dependency injection or a state machine to separate device control flow from data handling.
 
    Doing so would significantly improve testability, error handling, and maintainability.
+
+
+getListOfConnectedSerialDevice
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Definition
+"""""""""""
+
+.. code-block:: python
+
+    def getListOfConnectedSerialDevice():
+
+
+Description
+"""""""""""
+
+Scans the system for available serial (COM or USB) ports and returns a list of connected devices.
+Uses pyserial's serial.tools.list_ports.comports() to retrieve serial port details, then filters and formats ports that appear to be connected via USB or are labeled as COM ports.
+
+Parameters
+"""""""""""
+- None
+
+Returns
+"""""""
+
+- list[dict]: A list of dictionaries, each containing:
+
+- port (str): The device name (e.g., "COM3" or "/dev/ttyUSB0").
+
+- hwid (str): The hardware ID of the serial device.
+
+Behavior
+"""""""""
+
+- Calls serial.tools.list_ports.comports() to retrieve all connected serial ports.
+
+- Filters the results to include ports whose names contain USB or COM.
+
+- Constructs and returns a list of dictionaries containing port and HWID.
+
+Example Usage
+"""""""""""""
+.. code-block:: python
+
+    ports = getListOfConnectedSerialDevice()
+    for port in ports:
+        print(f"Port: {port['port']}, HWID: {port['hwid']}")
+
+
 
 radioConnectionStatus
 ^^^^^^^^^^^^^^^^^^^^^

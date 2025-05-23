@@ -46,9 +46,24 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#starting-the-gui">Starting the GUI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#starting-the-gateway-script">Starting the Gateway Script</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-flow-summary">Project Flow Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-mode">1. Development Mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#starting-the-gui">Starting the GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#starting-the-gateway-script">Starting the Gateway Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#project-flow-summary">Project Flow Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#production-mode">2. Production Mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#systemd-service-configuration">Systemd Service Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#customize-the-service-files">1. Customize the Service Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#move-service-files-to-systemd-directory">2. Move Service Files to systemd Directory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reload-and-enable-the-services">3. Reload and Enable the Services</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#start-the-services">4. Start the Services</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#verify-the-services">5. Verify the Services</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#log-verification">6. Log Verification</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
@@ -80,41 +95,138 @@
              
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
-<p>This project consists of two individual components that work hand-in-hand to achieve a common goal:
-a configuration <strong>GUI</strong> and the main <strong>Python script</strong>.</p>
+<p>There are two ways to run the XBee Gateway:</p>
+<p>The development mode is intended for testing and debugging, while the production mode is designed for deployment on a Raspberry Pi or any systemd-based system. The following sections provide detailed instructions for both modes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>It is <strong>mandatory</strong> to have MongoDB installed and running locally before starting the application.
-Without it, no configuration or historical data will be stored.</p>
-<p>Please refer to the official MongoDB documentation to set up MongoDB for your operating system:
-<a class="reference external" href="https://www.mongodb.com/docs/manual/installation/">https://www.mongodb.com/docs/manual/installation/</a></p>
+<p><strong>Development</strong> – Applicable on all operating systems.</p>
+<p><strong>Production</strong> – Only applicable on Linux systems that support systemd.</p>
+<p>Make sure you are working in the directory where you cloned the repository.</p>
+<p><strong>Path</strong> e.g., <cite>/home/pi/xbeeGateway</cite>.</p>
 </div>
+<section id="development-mode">
+<h2>1. Development Mode<a class="headerlink" href="#development-mode" title="Link to this heading"></a></h2>
 <section id="starting-the-gui">
-<h2>Starting the GUI<a class="headerlink" href="#starting-the-gui" title="Link to this heading"></a></h2>
+<h3>Starting the GUI<a class="headerlink" href="#starting-the-gui" title="Link to this heading"></a></h3>
 <p>To launch the graphical user interface for managing device configurations, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>modules.configGui
 </pre></div>
 </div>
-<p>This will open a window allowing you to view, add, update, or delete XBee device configurations
-stored in the MongoDB database.</p>
+<p>This will open a window allowing you to view, add, update, or delete XBee device configurations stored in the MongoDB database.</p>
 </section>
 <section id="starting-the-gateway-script">
-<h2>Starting the Gateway Script<a class="headerlink" href="#starting-the-gateway-script" title="Link to this heading"></a></h2>
-<p>To start the Modbus gateway application, which polls XBee devices, maps data to Modbus registers,
-and serves the Modbus TCP server, run:</p>
+<h3>Starting the Gateway Script<a class="headerlink" href="#starting-the-gateway-script" title="Link to this heading"></a></h3>
+<p>To start the Modbus gateway application, which polls XBee devices, maps data to Modbus registers, and serves the Modbus TCP server, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run.py
 </pre></div>
 </div>
-<p>This script initializes the Modbus context, sets up XBee polling, handles real-time communication with
-XBee radios, and exposes the data over a Modbus TCP server interface for client applications.</p>
+<p>This script initializes the Modbus context, sets up XBee polling, handles real-time communication with XBee radios, and exposes the data over a Modbus TCP server interface for client applications.</p>
 </section>
 <section id="project-flow-summary">
-<h2>Project Flow Summary<a class="headerlink" href="#project-flow-summary" title="Link to this heading"></a></h2>
+<h3>Project Flow Summary<a class="headerlink" href="#project-flow-summary" title="Link to this heading"></a></h3>
 <ol class="arabic simple">
 <li><p><strong>Ensure MongoDB is running locally.</strong></p></li>
 <li><p><strong>Use the GUI (`python -m modules.configGui`)</strong> to configure connected XBee radios and Modbus address ranges.</p></li>
 <li><p><strong>Start the main application (`python run.py`)</strong> to begin polling data and exposing it via Modbus TCP.</p></li>
 </ol>
+</section>
+</section>
+<section id="production-mode">
+<h2>2. Production Mode<a class="headerlink" href="#production-mode" title="Link to this heading"></a></h2>
+<p>This guide explains how to set up and manage two systemd services—xbeeGateway and xbeeGui—for the CORS Gateway on a Raspberry Pi or any systemd-based system. These services ensure the gateway and its GUI start automatically and run continuously, including after reboots.
+Set up the systemd services as described below to run the gateway automatically on startup and ensure it restarts in case of failure. The project is composed of two components that work together to achieve a unified goal: a configuration GUI for managing device settings and the main Python script that handles Modbus communication.</p>
+<section id="systemd-service-configuration">
+<h3>Systemd Service Configuration<a class="headerlink" href="#systemd-service-configuration" title="Link to this heading"></a></h3>
+<p>This section describes the configuration and usage of the <strong>CORS Gateway</strong> systemd services: <code class="docutils literal notranslate"><span class="pre">xbeeGateway</span></code> and <code class="docutils literal notranslate"><span class="pre">xbeeGui</span></code>. These services ensure the gateway runs continuously on a Raspberry Pi (or other systemd-compatible system), handling initialization and recovery as needed.</p>
+<section id="customize-the-service-files">
+<h4>1. Customize the Service Files<a class="headerlink" href="#customize-the-service-files" title="Link to this heading"></a></h4>
+<p>Edit the following lines in both <code class="docutils literal notranslate"><span class="pre">xbeeGateway.service</span></code> and <code class="docutils literal notranslate"><span class="pre">xbeeGui.service</span></code> files:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">User</span><span class="o">=</span><span class="s">{your username}</span>
+<span class="na">WorkingDirectory</span><span class="o">=</span><span class="s">{directory where you cloned the repository}</span>
+</pre></div>
+</div>
+<p>Replace the placeholders with your actual system username and the full path to the <code class="docutils literal notranslate"><span class="pre">xbeeGateway</span></code> directory.</p>
+</section>
+<section id="move-service-files-to-systemd-directory">
+<h4>2. Move Service Files to systemd Directory<a class="headerlink" href="#move-service-files-to-systemd-directory" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>cp<span class="w"> </span>xbeeGateway.service<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>cp<span class="w"> </span>xbeeGui.service<span class="w"> </span>/etc/systemd/system/
+</pre></div>
+</div>
+</section>
+<section id="reload-and-enable-the-services">
+<h4>3. Reload and Enable the Services<a class="headerlink" href="#reload-and-enable-the-services" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>xbeeGateway
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>xbeeGui
+</pre></div>
+</div>
+</section>
+<section id="start-the-services">
+<h4>4. Start the Services<a class="headerlink" href="#start-the-services" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>xbeeGateway
+sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>xbeeGui
+</pre></div>
+</div>
+</section>
+<section id="verify-the-services">
+<h4>5. Verify the Services<a class="headerlink" href="#verify-the-services" title="Link to this heading"></a></h4>
+<p>Check if the services are running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>xbeeGateway
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>xbeeGui
+</pre></div>
+</div>
+<p>The output for <code class="docutils literal notranslate"><span class="pre">xbeeGateway</span></code> should resemble:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>xbeeGateway.service - CORS Gateway
+     Loaded: loaded (/etc/systemd/system/xbeeGateway.service; enabled; preset: &gt;)
+     Active: active (running) since Thu 2025-05-22 13:52:05 BST; 2h 53min ago
+    Process: 4494 ExecStartPre=/usr/bin/bash -c lsof -ti:5020 | xargs -r kill -&gt;
+    Process: 4497 ExecStartPre=/bin/sleep 2 (code=exited, status=0/SUCCESS)
+   Main PID: 4499 (python)
+      Tasks: 10 (limit: 3913)
+        CPU: 1min 33.389s
+     CGroup: /system.slice/xbeeGateway.service
+             └─4499 /home/pi/xbeeGateway/venv/bin/python /home/pi/xbeeGateway/run.py
+
+May 22 13:52:03 raspberrypi systemd[1]: Starting xbeeGateway.service - CORS Gateway...
+May 22 13:52:05 raspberrypi systemd[1]: Started xbeeGateway.service - CORS Gateway.
+</pre></div>
+</div>
+</section>
+<section id="log-verification">
+<h4>6. Log Verification<a class="headerlink" href="#log-verification" title="Link to this heading"></a></h4>
+<p>Navigate to the project directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/home/pi/xbeeGateway
+</pre></div>
+</div>
+<p>Ensure the following files are created:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">corsGatewayService.txt</span></code> – logs standard service output</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">corsGatewayErrorService.txt</span></code> – logs error messages</p></li>
+</ul>
+<p>If both files are <strong>empty</strong>:</p>
+<ol class="arabic simple">
+<li><p>Confirm that your radio is connected and receiving data.</p></li>
+<li><p>Fix file ownership if necessary:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>chown<span class="w"> </span>pi:pi<span class="w"> </span>/home/pi/xbeeGateway/corsGatewayService.txt
+sudo<span class="w"> </span>chown<span class="w"> </span>pi:pi<span class="w"> </span>/home/pi/xbeeGateway/corsGatewayErrorService.txt
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you encounter a “cannot bind” error, it likely means the gateway is already running—possibly in production mode—while you’re trying to start it in development mode.</p>
+<p>First, ensure no other instance is running. If needed, terminate any process using port 502 or 5020:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span><span class="k">$(</span>sudo<span class="w"> </span>lsof<span class="w"> </span>-t<span class="w"> </span>-i<span class="w"> </span>:5020<span class="k">)</span>
+</pre></div>
+</div>
+<p>To list all processes using ports 502 or 5020:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lsof<span class="w"> </span>-t<span class="w"> </span>-i<span class="w"> </span>:5020
+</pre></div>
+</div>
+</div>
+</section>
+</section>
 </section>
 </section>
 

@@ -76,25 +76,39 @@
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <p>Follow these steps to install the <strong>XBee Gateway</strong>:</p>
-<ol class="arabic">
-<li><p><strong>Clone the Repository</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/n1lby73/xbeeGateway.git
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is <strong>mandatory</strong> to have MongoDB installed and running locally before starting the application.
+Without it, no configuration or historical data will be stored.</p>
+<p>Please refer to the official MongoDB documentation to set up MongoDB for your operating system:
+<a class="reference external" href="https://www.mongodb.com/docs/manual/installation/">https://www.mongodb.com/docs/manual/installation/</a></p>
+</div>
+<p><strong>1. Clone the Repository</strong></p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/n1lby73/xbeeGateway.git
 <span class="nb">cd</span><span class="w"> </span>xbeeGateway
 </pre></div>
 </div>
-</li>
-<li><p><strong>Set Up a Virtual Environment (Optional but Recommended)</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+</div></blockquote>
+<p><strong>2. Set Up a Virtual Environment (Optional but Recommended)</strong></p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
 <span class="nb">source</span><span class="w"> </span>venv/bin/activate<span class="w">  </span><span class="c1"># On Windows: venv\Scripts\activate</span>
 </pre></div>
 </div>
-</li>
-<li><p><strong>Install Dependencies</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</div></blockquote>
+<p><strong>3. Install Dependencies</strong></p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 </pre></div>
 </div>
-</li>
-</ol>
+</div></blockquote>
+<p><strong>4. Install Customized digi-xbee Library</strong></p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/n1lby73/xbee-python.git@exposeSerialSelection
+</pre></div>
+</div>
+</div></blockquote>
 </section>
 
 

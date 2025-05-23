@@ -126,6 +126,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#read_serial_and_modbusport"><code class="docutils literal notranslate"><span class="pre">read_serial_and_modbusport()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#clear_placeholder"><code class="docutils literal notranslate"><span class="pre">clear_placeholder()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#add_placeholder"><code class="docutils literal notranslate"><span class="pre">add_placeholder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#select_usb"><code class="docutils literal notranslate"><span class="pre">select_usb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#connection_status"><code class="docutils literal notranslate"><span class="pre">connection_status()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#id17">Notes</a></li>
@@ -311,18 +313,27 @@
 <li class="toctree-l4"><a class="reference internal" href="#spaghetti-code-warning">Spaghetti Code Warning</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#radioconnectionstatus">radioConnectionStatus</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getlistofconnectedserialdevice">getListOfConnectedSerialDevice</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id84">Definition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id85">Description</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id86">Returns</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id87">Behavior</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id88">Example Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id86">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id87">Returns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id88">Behavior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id89">Example Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#radioconnectionstatus">radioConnectionStatus</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id90">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id91">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id92">Returns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id93">Behavior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id94">Example Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#main-execution-block">__main__ Execution Block</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id89">Definition</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id90">Description</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id91">Behavior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id95">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id96">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id97">Behavior</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#command-line-usage">Command-Line Usage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#typical-use-case">Typical Use Case</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#note">Note</a></li>
@@ -331,39 +342,39 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#variables">variables</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id93">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id99">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#global-configuration-constants">Global Configuration Constants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#global-runtime-variables">Global Runtime Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id94">Usage Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id100">Usage Context</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#xbeedata">xbeeData</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id96">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id102">Overview</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#key-responsibilities">Key Responsibilities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id97">Usage Context</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id98">Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id103">Usage Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id104">Dependencies</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#getnodeid">getNodeId</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id99">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id105">Definition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#function-workflow">Function Workflow</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id100">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id106">Error Handling</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#usage-status">Usage Status</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id101">Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id107">Dependencies</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#cayenneparse">cayenneParse</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#decoding-process">Decoding Process</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id102">Example Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id103">Usage Context</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id104">Notes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id105">Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id108">Example Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id109">Usage Context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id110">Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id111">Dependencies</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#xbeedummydatatransmitter">xbeeDummyDataTransmitter</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id107">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id113">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#key-features">Key Features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#global-constants">Global Constants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#xbee-address-definitions">XBee Address Definitions</a></li>
@@ -582,13 +593,11 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>⚠️ <strong>Note for developers:</strong> The <cite>add_error_callback</cite> method is <strong>not available in the official Digi XBee Python library</strong> (<cite>digi-xbee</cite>). It has been introduced in a <strong>custom fork</strong> of the library:</p>
-<p>🔗 <a class="reference external" href="https://github.com/n1lby73/xbee-python">https://github.com/n1lby73/xbee-python</a></p>
+<p>🔗 <a class="reference external" href="https://github.com/n1lby73/xbee-python/tree/exposeSerialSelection">https://github.com/n1lby73/xbee-python/tree/exposeSerialSelection</a></p>
 <p>A pull request to include this feature in the upstream library has already been submitted:</p>
 <p>🔗 <a class="reference external" href="https://github.com/digidotcom/xbee-python/pull/310">https://github.com/digidotcom/xbee-python/pull/310</a></p>
 <p>As of now, the pull request has <strong>not yet been merged</strong> by Digi International (the library maintainers). Until then, this functionality will only work if you use the custom fork mentioned above.</p>
 </div>
-<<<<<<< HEAD
-=======
 <p>The project now includes support for handling USB disconnection events for the XBee radio.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="o">.</span><span class="n">add_error_callback</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">handleUsbDisconnection</span><span class="p">,</span> <span class="n">xbeeObject</span><span class="o">=</span><span class="n">variables</span><span class="o">.</span><span class="n">xbeeInstance</span><span class="p">))</span>
 </pre></div>
@@ -601,7 +610,6 @@ It has been integrated in a somewhat “spaghetti” manner as a temporary solut
 and ensure continuous operation.</p>
 <p>Future refactoring is planned to improve separation of concerns and robustness in the disconnection handling logic.</p>
 </div>
->>>>>>> c4887382974d76bbd46d8463d05c240418b0dadd
 </section>
 <section id="id2">
 <h4>Summary<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
@@ -1872,6 +1880,73 @@ If successful, the tree view is updated and the input fields are cleared. If an 
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="select_usb">
+<span class="sig-name descname"><span class="pre">select_usb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#select_usb" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Displays a list of connected USB serial devices in a message box.</p>
+<p>This method fetches the list of currently connected serial (USB) devices using the <cite>getListOfConnectedSerialDevice()</cite> function and displays the port and HWID of each device in a formatted message box.</p>
+</div></blockquote>
+<p><strong>Behavior:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Calls <cite>getListOfConnectedSerialDevice()</cite> to retrieve a list of serial devices.</p></li>
+<li><p>Iterates over the list and formats each device’s port and hardware ID (HWID).</p></li>
+<li><p>Displays the formatted device information in a Tkinter info messagebox titled <em>“Connected Serial Devices”</em>.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Dependencies:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>getListOfConnectedSerialDevice()</cite> — should return a list of dictionaries with at least <cite>port</cite> and <cite>hwid</cite> keys.</p></li>
+<li><p><cite>tkinter.messagebox</cite> — for displaying the list to the user.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">select_usb</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Example Output:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Connected Serial Devices:
+
+Port: COM9
+HWID: BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&amp;0000\8&amp;11925E23&amp;2&amp;000000000000_00000000
+
+Port: COM10
+HWID: BTHENUM\{00001101-0000-1000-8000-00805F9B34FB}_LOCALMFG&amp;0000\8&amp;11925E23&amp;2&amp;000000000000_00000001
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="connection_status">
+<span class="sig-name descname"><span class="pre">connection_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#connection_status" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Checks and displays the current radio connection status using a message box.</p>
+<p>This method calls the <cite>radioConnectionStatus()</cite> function to determine whether the radio is connected. Based on the result, it displays a corresponding Tkinter message box.</p>
+</div></blockquote>
+<p><strong>Behavior:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Calls <cite>radioConnectionStatus()</cite> to check if the radio is connected.</p></li>
+<li><p>If the result is <cite>True</cite>, it shows a success message.</p></li>
+<li><p>If the result is <cite>False</cite> or <cite>None</cite>, it shows an error message indicating disconnection.</p></li>
+<li><p>If the result is any other value (e.g., a string error), it displays that as an error message.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Dependencies:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>radioConnectionStatus()</cite> — a function that returns <cite>True</cite>, <cite>False</cite>, <cite>None</cite>, or an error description.</p></li>
+<li><p><cite>tkinter.messagebox</cite> — for displaying the status result to the user.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Example Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">connection_status</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -3803,35 +3878,79 @@ Returns <cite>None</cite> if no matching port is found or if an error occurs.</p
 </div>
 </section>
 </section>
-<section id="radioconnectionstatus">
-<h3>radioConnectionStatus<a class="headerlink" href="#radioconnectionstatus" title="Link to this heading"></a></h3>
+<section id="getlistofconnectedserialdevice">
+<h3>getListOfConnectedSerialDevice<a class="headerlink" href="#getlistofconnectedserialdevice" title="Link to this heading"></a></h3>
 <section id="id84">
 <h4>Definition<a class="headerlink" href="#id84" title="Link to this heading"></a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">radioConnectionStatus</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">variables</span><span class="o">.</span><span class="n">radioFlag</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">getListOfConnectedSerialDevice</span><span class="p">():</span>
 </pre></div>
 </div>
 </section>
 <section id="id85">
 <h4>Description<a class="headerlink" href="#id85" title="Link to this heading"></a></h4>
+<p>Scans the system for available serial (COM or USB) ports and returns a list of connected devices.
+Uses pyserial’s serial.tools.list_ports.comports() to retrieve serial port details, then filters and formats ports that appear to be connected via USB or are labeled as COM ports.</p>
+</section>
+<section id="id86">
+<h4>Parameters<a class="headerlink" href="#id86" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>None</p></li>
+</ul>
+</section>
+<section id="id87">
+<h4>Returns<a class="headerlink" href="#id87" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>list[dict]: A list of dictionaries, each containing:</p></li>
+<li><p>port (str): The device name (e.g., “COM3” or “/dev/ttyUSB0”).</p></li>
+<li><p>hwid (str): The hardware ID of the serial device.</p></li>
+</ul>
+</section>
+<section id="id88">
+<h4>Behavior<a class="headerlink" href="#id88" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Calls serial.tools.list_ports.comports() to retrieve all connected serial ports.</p></li>
+<li><p>Filters the results to include ports whose names contain USB or COM.</p></li>
+<li><p>Constructs and returns a list of dictionaries containing port and HWID.</p></li>
+</ul>
+</section>
+<section id="id89">
+<h4>Example Usage<a class="headerlink" href="#id89" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ports</span> <span class="o">=</span> <span class="n">getListOfConnectedSerialDevice</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">ports</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Port: </span><span class="si">{</span><span class="n">port</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, HWID: </span><span class="si">{</span><span class="n">port</span><span class="p">[</span><span class="s1">&#39;hwid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="radioconnectionstatus">
+<h3>radioConnectionStatus<a class="headerlink" href="#radioconnectionstatus" title="Link to this heading"></a></h3>
+<section id="id90">
+<h4>Definition<a class="headerlink" href="#id90" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">radioConnectionStatus</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">variables</span><span class="o">.</span><span class="n">radioFlag</span>
+</pre></div>
+</div>
+</section>
+<section id="id91">
+<h4>Description<a class="headerlink" href="#id91" title="Link to this heading"></a></h4>
 <p>Returns the current status of the XBee radio connection.</p>
 <p>This function checks the global <cite>variables.radioFlag</cite>, which is set to <cite>True</cite> when the XBee radio is successfully opened and operational, and <cite>False</cite> if it is disconnected or not yet initialized.</p>
 </section>
-<section id="id86">
-<h4>Returns<a class="headerlink" href="#id86" title="Link to this heading"></a></h4>
+<section id="id92">
+<h4>Returns<a class="headerlink" href="#id92" title="Link to this heading"></a></h4>
 <ul class="simple">
 <li><p>(<cite>bool</cite>) – <cite>True</cite> if the XBee radio is currently connected and active, otherwise <cite>False</cite>.</p></li>
 </ul>
 </section>
-<section id="id87">
-<h4>Behavior<a class="headerlink" href="#id87" title="Link to this heading"></a></h4>
+<section id="id93">
+<h4>Behavior<a class="headerlink" href="#id93" title="Link to this heading"></a></h4>
 <ul class="simple">
 <li><p>Acts as a status accessor to determine whether the radio is online.</p></li>
 <li><p>Internally depends on the state maintained in <cite>variables.radioFlag</cite>, which is toggled during device setup and disconnection events.</p></li>
 </ul>
 </section>
-<section id="id88">
-<h4>Example Usage<a class="headerlink" href="#id88" title="Link to this heading"></a></h4>
+<section id="id94">
+<h4>Example Usage<a class="headerlink" href="#id94" title="Link to this heading"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">radioConnectionStatus</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Radio is connected.&quot;</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
@@ -3842,8 +3961,8 @@ Returns <cite>None</cite> if no matching port is found or if an error occurs.</p
 </section>
 <section id="main-execution-block">
 <h3>__main__ Execution Block<a class="headerlink" href="#main-execution-block" title="Link to this heading"></a></h3>
-<section id="id89">
-<h4>Definition<a class="headerlink" href="#id89" title="Link to this heading"></a></h4>
+<section id="id95">
+<h4>Definition<a class="headerlink" href="#id95" title="Link to this heading"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;USB Port Selector Script&quot;</span><span class="p">)</span>
@@ -3858,13 +3977,13 @@ Returns <cite>None</cite> if no matching port is found or if an error occurs.</p
 </pre></div>
 </div>
 </section>
-<section id="id90">
-<h4>Description<a class="headerlink" href="#id90" title="Link to this heading"></a></h4>
+<section id="id96">
+<h4>Description<a class="headerlink" href="#id96" title="Link to this heading"></a></h4>
 <p>This block enables the <cite>serialSelector</cite> module to be run directly as a standalone script.
 It provides a command-line interface (CLI) for interacting with the USB port selection logic, especially useful for discovering connected XBee radios and retrieving their serial number information.</p>
 </section>
-<section id="id91">
-<h4>Behavior<a class="headerlink" href="#id91" title="Link to this heading"></a></h4>
+<section id="id97">
+<h4>Behavior<a class="headerlink" href="#id97" title="Link to this heading"></a></h4>
 <ul class="simple">
 <li><p>Uses Python’s built-in <cite>argparse</cite> module to define a CLI interface.</p></li>
 <li><p>Adds a <cite>–get</cite> (or <cite>-g</cite>) flag to allow users to retrieve and display all connected USB/COM serial devices.</p></li>
@@ -3895,9 +4014,9 @@ It provides a command-line interface (CLI) for interacting with the USB port sel
 </section>
 </section>
 <section id="variables">
-<span id="id92"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
-<section id="id93">
-<h3>Overview<a class="headerlink" href="#id93" title="Link to this heading"></a></h3>
+<span id="id98"></span><h2>variables<a class="headerlink" href="#variables" title="Link to this heading"></a></h2>
+<section id="id99">
+<h3>Overview<a class="headerlink" href="#id99" title="Link to this heading"></a></h3>
 <p>The <cite>variable</cite> module serves as a centralized configuration and global state management file for the XBee Modbus gateway system.
 It defines constants and mutable runtime variables used across multiple modules including Modbus configuration, XBee communication, and application logic.</p>
 <p>This module separates configuration from logic, enabling better modularity and maintainability of the system.</p>
@@ -4004,8 +4123,8 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </li>
 </ul>
 </section>
-<section id="id94">
-<h3>Usage Context<a class="headerlink" href="#id94" title="Link to this heading"></a></h3>
+<section id="id100">
+<h3>Usage Context<a class="headerlink" href="#id100" title="Link to this heading"></a></h3>
 <p>This module is imported into most other modules (such as <cite>serialSelector</cite>, <cite>xbeeComm</cite>, <cite>modbus</cite>, and <cite>dbintegration</cite>) to:</p>
 <ul class="simple">
 <li><p>Maintain consistency in port, baud rate, and address allocation logic.</p></li>
@@ -4015,9 +4134,9 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </section>
 </section>
 <section id="xbeedata">
-<span id="id95"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
-<section id="id96">
-<h3>Overview<a class="headerlink" href="#id96" title="Link to this heading"></a></h3>
+<span id="id101"></span><h2>xbeeData<a class="headerlink" href="#xbeedata" title="Link to this heading"></a></h2>
+<section id="id102">
+<h3>Overview<a class="headerlink" href="#id102" title="Link to this heading"></a></h3>
 <p>The <cite>xbeeData</cite> module is responsible for decoding and parsing sensor payloads received from XBee radio devices, transforming raw byte data into human-readable values, and logging this information for historical storage and debugging purposes.</p>
 <p>It serves as the bridge between raw radio transmission and structured application logic by applying decoding logic (using the Cayenne LPP format), extracting sensor values, and optionally interfacing with the database layer to store historical readings. This module helps centralize and abstract payload handling so other modules (such as the Modbus poller or analytics systems) can operate on clean, float-based sensor readings.</p>
 <section id="key-responsibilities">
@@ -4030,13 +4149,13 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 <li><p>(Commented out) Provide an optional utility for retrieving XBee node identifiers (NI) through remote AT commands. This can be useful for device mapping, metadata tracking, or debugging physical deployments.</p></li>
 </ul>
 </section>
-<section id="id97">
-<h4>Usage Context<a class="headerlink" href="#id97" title="Link to this heading"></a></h4>
+<section id="id103">
+<h4>Usage Context<a class="headerlink" href="#id103" title="Link to this heading"></a></h4>
 <p>This module is invoked by polling functions such as <cite>modbusPolling()</cite> in the <cite>modbus</cite> module. The <cite>cayenneParse()</cite> coroutine is used to interpret the sensor payload returned by XBee radios and convert it into a format suitable for storage and Modbus register mapping.</p>
 <p>The output of this module is a clean list of floating-point sensor values derived from XBee data frames.</p>
 </section>
-<section id="id98">
-<h4>Dependencies<a class="headerlink" href="#id98" title="Link to this heading"></a></h4>
+<section id="id104">
+<h4>Dependencies<a class="headerlink" href="#id104" title="Link to this heading"></a></h4>
 <ul class="simple">
 <li><p><cite>digi.xbee.devices</cite>: For handling XBee addresses and device communication (used in the commented utility).</p></li>
 <li><p><cite>python_cayennelpp.decoder</cite>: For decoding the payloads from Cayenne LPP format into structured sensor data.</p></li>
@@ -4048,8 +4167,8 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </section>
 <section id="getnodeid">
 <h3>getNodeId<a class="headerlink" href="#getnodeid" title="Link to this heading"></a></h3>
-<section id="id99">
-<h4>Definition<a class="headerlink" href="#id99" title="Link to this heading"></a></h4>
+<section id="id105">
+<h4>Definition<a class="headerlink" href="#id105" title="Link to this heading"></a></h4>
 <dl class="py function">
 <dt class="sig sig-object py" id="getNodeId">
 <span class="sig-name descname"><span class="pre">getNodeId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macAddress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializedXbee</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#getNodeId" title="Link to this definition"></a></dt>
@@ -4082,8 +4201,8 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </ol>
 </div></blockquote>
 </section>
-<section id="id100">
-<h4>Error Handling<a class="headerlink" href="#id100" title="Link to this heading"></a></h4>
+<section id="id106">
+<h4>Error Handling<a class="headerlink" href="#id106" title="Link to this heading"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p>If any exception occurs during the AT command or decoding process, it is caught and logged with an error message.</p></li>
@@ -4104,8 +4223,8 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </ul>
 </div></blockquote>
 </section>
-<section id="id101">
-<h4>Dependencies<a class="headerlink" href="#id101" title="Link to this heading"></a></h4>
+<section id="id107">
+<h4>Dependencies<a class="headerlink" href="#id107" title="Link to this heading"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p><cite>digi.xbee.devices.RemoteXBeeDevice</cite> for remote device representation.</p></li>
@@ -4149,22 +4268,22 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </ol>
 </div></blockquote>
 </section>
-<section id="id102">
-<h4>Example Output<a class="headerlink" href="#id102" title="Link to this heading"></a></h4>
+<section id="id108">
+<h4>Example Output<a class="headerlink" href="#id108" title="Link to this heading"></a></h4>
 <blockquote>
 <div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>List of values extracted from 0013A200419717AE byte array are: [22.4, 56.3, 1.02]
 </pre></div>
 </div>
 </div></blockquote>
 </section>
-<section id="id103">
-<h4>Usage Context<a class="headerlink" href="#id103" title="Link to this heading"></a></h4>
+<section id="id109">
+<h4>Usage Context<a class="headerlink" href="#id109" title="Link to this heading"></a></h4>
 <blockquote>
 <div><p>This function is used in the <code class="xref py py-func docutils literal notranslate"><span class="pre">modbusPolling()</span></code> routine (found in the <cite>modbus</cite> module), which receives raw data from the XBee serial interface, parses it using <cite>cayenneParse()</cite>, and writes the resulting floats into Modbus registers for network exposure.</p>
 </div></blockquote>
 </section>
-<section id="id104">
-<h4>Notes<a class="headerlink" href="#id104" title="Link to this heading"></a></h4>
+<section id="id110">
+<h4>Notes<a class="headerlink" href="#id110" title="Link to this heading"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p>Any sensor value that is <cite>None</cite> is skipped silently.</p></li>
@@ -4173,8 +4292,8 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </ul>
 </div></blockquote>
 </section>
-<section id="id105">
-<h4>Dependencies<a class="headerlink" href="#id105" title="Link to this heading"></a></h4>
+<section id="id111">
+<h4>Dependencies<a class="headerlink" href="#id111" title="Link to this heading"></a></h4>
 <blockquote>
 <div><ul class="simple">
 <li><p><cite>python_cayennelpp.decoder.decode</cite> for Cayenne LPP decoding.</p></li>
@@ -4186,9 +4305,9 @@ This is dynamically assigned to link XBee reception with user-defined logic.</p>
 </section>
 </section>
 <section id="xbeedummydatatransmitter">
-<span id="id106"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
-<section id="id107">
-<h3>Overview<a class="headerlink" href="#id107" title="Link to this heading"></a></h3>
+<span id="id112"></span><h2>xbeeDummyDataTransmitter<a class="headerlink" href="#xbeedummydatatransmitter" title="Link to this heading"></a></h2>
+<section id="id113">
+<h3>Overview<a class="headerlink" href="#id113" title="Link to this heading"></a></h3>
 <p>Simulates XBee slave devices broadcasting structured sensor data via SoftwareSerial.
 Each slave sends a structured sensor message wrapped in an XBee Transmit Request frame to the master.
 Frames are sent via SoftwareSerial and printed to the Serial monitor for inspection.</p>
